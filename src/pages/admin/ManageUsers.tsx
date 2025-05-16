@@ -3,20 +3,22 @@ import React, { useState } from 'react';
 import Navbar from '@/components/ui/navbar';
 import Footer from '@/components/ui/footer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
 import { 
-  Button, 
-  Input, 
-  Badge, 
   Tabs, 
   TabsContent, 
   TabsList, 
-  TabsTrigger,
+  TabsTrigger
+} from '@/components/ui/tabs';
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue
-} from '@/components/ui/button';
+} from '@/components/ui/select';
 import {
   Dialog,
   DialogContent,
