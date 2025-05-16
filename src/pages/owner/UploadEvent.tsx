@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Calendar as CalendarIcon, Clock, MapPin, Users, Calendar, ImagePlus } from 'lucide-react';
+import { Calendar as CalendarIcon, Clock, MapPin, Users, ImagePlus } from 'lucide-react';
 import { format } from 'date-fns';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -150,6 +150,7 @@ const UploadEvent: React.FC = () => {
                               selected={eventDate}
                               onSelect={setEventDate}
                               initialFocus
+                              className="pointer-events-auto"
                             />
                           </PopoverContent>
                         </Popover>
@@ -330,7 +331,7 @@ const UploadEvent: React.FC = () => {
                     <div className="space-y-2">
                       {eventDate && (
                         <div className="flex items-center text-gray-600">
-                          <Calendar className="h-4 w-4 mr-2 text-dineVibe-primary" />
+                          <CalendarIcon className="h-4 w-4 mr-2 text-dineVibe-primary" />
                           <span>{format(eventDate, 'PPP')}</span>
                         </div>
                       )}
