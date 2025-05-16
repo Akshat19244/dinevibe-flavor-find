@@ -41,7 +41,6 @@ const Navbar: React.FC<NavbarProps> = ({ userType = null, userName = '' }) => {
         { to: '/owner/upload-event', label: 'Upload Event' },
         { to: '/owner/deals', label: 'Upload Deals' },
         { to: '/owner/customers', label: 'Track Bookings' },
-        { to: '/owner/analytics', label: 'Analytics' },
       ];
     } else if (userType === 'admin') {
       return [

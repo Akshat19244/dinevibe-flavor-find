@@ -21,9 +21,15 @@ import {
   MapPin,
   UtensilsCrossed,
   PartyPopper,
-  Calendar
+  Calendar,
+  Download,
+  Share2
 } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
+
+// Import Supabase client and functions
+import { createReservation, getCurrentUser } from '@/lib/supabase';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 const Reservation: React.FC = () => {
   const navigate = useNavigate();
@@ -39,6 +45,20 @@ const Reservation: React.FC = () => {
   const [eventType, setEventType] = useState('');
   const [date, setDate] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  // Confirmation modal state
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [confirmationDetails, setConfirmationDetails] = useState<{
+    id: string;
+    name: string;
+    guests: string;
+    budget: string;
+    location: string;
+    eventType: string;
+    date: string;
+    specialDish?: string;
+    decoration?: string;
+  } | null>(null);
   
   // List of event types
   const eventTypes = [
@@ -70,17 +90,56 @@ const Reservation: React.FC = () => {
     setIsSubmitting(true);
     
     try {
-      // In a real app, this would be an API call to create a reservation
-      await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate API call
+      // Check if user is logged in
+      const user = await getCurrentUser();
+      
+      if (!user) {
+        toast({
+          title: "Authentication Required",
+          description: "Please log in to make a reservation.",
+          variant: "destructive",
+        });
+        setIsSubmitting(false);
+        navigate('/auth/login');
+        return;
+      }
+      
+      // Create reservation in Supabase
+      const reservationData = {
+        user_id: user.id,
+        restaurant_id: null, // Will be assigned by the admin or system later
+        guest_count: parseInt(guests),
+        budget,
+        location,
+        event_type: eventType,
+        optional_dish: specialDish,
+        optional_decoration: decoration,
+        booking_date: date
+      };
+      
+      const reservation = await createReservation(reservationData);
+      
+      // Show success confirmation
+      setConfirmationDetails({
+        id: reservation.id,
+        name: fullName,
+        guests,
+        budget: getBudgetLabel(budget),
+        location,
+        eventType: eventType.charAt(0).toUpperCase() + eventType.slice(1),
+        date,
+        specialDish: specialDish || undefined,
+        decoration: decoration || undefined
+      });
+      
+      setShowConfirmation(true);
       
       toast({
         title: "Reservation Created Successfully!",
-        description: "Your booking request has been sent to the restaurant.",
+        description: "Your booking request has been sent.",
       });
-      
-      // In a full implementation, we would save reservation to database and redirect to confirmation
-      navigate('/user/bookings');
     } catch (error) {
+      console.error('Error creating reservation:', error);
       toast({
         title: "Error Creating Reservation",
         description: "There was a problem creating your reservation. Please try again.",
@@ -91,9 +150,36 @@ const Reservation: React.FC = () => {
     }
   };
   
+  const getBudgetLabel = (budgetValue: string) => {
+    switch (budgetValue) {
+      case 'budget':
+        return 'Under ₹500';
+      case 'mid':
+        return '₹500 - ₹1000';
+      case 'premium':
+        return '₹1000 - ₹2000';
+      case 'luxury':
+        return 'Above ₹2000';
+      default:
+        return '';
+    }
+  };
+  
+  const handlePrintToken = () => {
+    window.print();
+  };
+  
+  const handleShareToken = () => {
+    // In a real implementation, this could generate a shareable link
+    toast({
+      title: "Share Feature",
+      description: "Sharing functionality will be implemented in the future.",
+    });
+  };
+  
   return (
     <div className="min-h-screen flex flex-col bg-dineVibe-background">
-      <Navbar userType="customer" userName="John" />
+      <Navbar userType="customer" userName={fullName.split(' ')[0] || "Guest"} />
       
       <main className="flex-grow">
         {/* Hero section */}
@@ -326,6 +412,101 @@ const Reservation: React.FC = () => {
           </div>
         </div>
       </main>
+      
+      {/* Confirmation modal */}
+      <Dialog open={showConfirmation} onOpenChange={setShowConfirmation}>
+        <DialogContent className="bg-card border-none text-dineVibe-text sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Reservation Confirmed!</DialogTitle>
+            <DialogDescription>
+              Your booking has been successfully created. Please keep this token for your records.
+            </DialogDescription>
+          </DialogHeader>
+          
+          {confirmationDetails && (
+            <div className="p-6 bg-dineVibe-dark/30 rounded-lg border border-gray-800 print:bg-white print:text-black">
+              <div className="flex justify-between items-start mb-6">
+                <div>
+                  <h3 className="text-xl font-bold text-dineVibe-primary mb-1">DineVibe Reservation</h3>
+                  <p className="text-sm text-dineVibe-text/70">Confirmation #{confirmationDetails.id.slice(0, 8)}</p>
+                </div>
+                <div className="bg-dineVibe-primary text-white text-xs font-semibold px-2 py-1 rounded">
+                  CONFIRMED
+                </div>
+              </div>
+              
+              <div className="space-y-4">
+                <div className="flex justify-between border-b border-gray-800 pb-2">
+                  <span className="font-medium">Guest Name:</span>
+                  <span>{confirmationDetails.name}</span>
+                </div>
+                
+                <div className="flex justify-between border-b border-gray-800 pb-2">
+                  <span className="font-medium">Number of Guests:</span>
+                  <span>{confirmationDetails.guests}</span>
+                </div>
+                
+                <div className="flex justify-between border-b border-gray-800 pb-2">
+                  <span className="font-medium">Event Type:</span>
+                  <span>{confirmationDetails.eventType}</span>
+                </div>
+                
+                <div className="flex justify-between border-b border-gray-800 pb-2">
+                  <span className="font-medium">Date:</span>
+                  <span>{confirmationDetails.date}</span>
+                </div>
+                
+                <div className="flex justify-between border-b border-gray-800 pb-2">
+                  <span className="font-medium">Location:</span>
+                  <span>{confirmationDetails.location}</span>
+                </div>
+                
+                <div className="flex justify-between border-b border-gray-800 pb-2">
+                  <span className="font-medium">Budget:</span>
+                  <span>{confirmationDetails.budget}</span>
+                </div>
+                
+                {confirmationDetails.specialDish && (
+                  <div className="flex justify-between border-b border-gray-800 pb-2">
+                    <span className="font-medium">Special Dish:</span>
+                    <span>{confirmationDetails.specialDish}</span>
+                  </div>
+                )}
+                
+                {confirmationDetails.decoration && (
+                  <div className="flex justify-between border-b border-gray-800 pb-2">
+                    <span className="font-medium">Decoration:</span>
+                    <span>{confirmationDetails.decoration}</span>
+                  </div>
+                )}
+              </div>
+              
+              <div className="mt-6 text-center text-sm text-dineVibe-text/70">
+                <p>Please present this token at the restaurant.</p>
+                <p>For any changes, please contact us at 9904960670.</p>
+              </div>
+            </div>
+          )}
+          
+          <div className="flex flex-col sm:flex-row gap-2 mt-4">
+            <Button 
+              onClick={handlePrintToken} 
+              className="flex-1 gap-2" 
+              variant="outline"
+            >
+              <Download className="h-4 w-4" />
+              Print Token
+            </Button>
+            <Button 
+              onClick={handleShareToken} 
+              className="flex-1 gap-2 bg-dineVibe-primary hover:bg-dineVibe-primary/90"
+            >
+              <Share2 className="h-4 w-4" />
+              Share Token
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
       
       <Footer />
     </div>
