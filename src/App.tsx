@@ -15,6 +15,7 @@ import Deals from "./pages/user/Deals";
 import Planning from "./pages/user/Planning";
 import Bookings from "./pages/user/Bookings";
 import UserSettings from "./pages/user/Settings";
+import Reservation from "./pages/user/Reservation";
 
 // Restaurant owner pages
 import OwnerDashboard from "./pages/owner/Dashboard";
@@ -51,6 +52,7 @@ const App = () => (
           <Route path="/user/planning" element={<Planning />} />
           <Route path="/user/bookings" element={<Bookings />} />
           <Route path="/user/settings" element={<UserSettings />} />
+          <Route path="/user/reservation" element={<Reservation />} />
           
           {/* Restaurant owner routes */}
           <Route path="/owner/dashboard" element={<OwnerDashboard />} />

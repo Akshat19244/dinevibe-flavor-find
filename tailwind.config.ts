@@ -79,9 +79,14 @@ export default {
 					900: '#4A148C',
 				},
 				dineVibe: {
-					primary: '#FF5722',
-					accent: '#673AB7',
-					background: '#FFFFFF',
+					primary: '#FF5A5F',    // Coral red
+					secondary: '#FBC02D',  // Gold
+					dark: '#1F1F1F',       // Dark background
+					light: '#FFFFFF',      // White text
+					accent1: '#4CAF50',    // Fresh Green
+					accent2: '#00BFA6',    // Aqua Teal
+					background: '#1F1F1F', // Dark background
+					text: '#FFFFFF',       // White text
 				}
 			},
 			borderRadius: {

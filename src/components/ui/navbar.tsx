@@ -54,6 +54,7 @@ const Navbar: React.FC<NavbarProps> = ({ userType = null, userName = '' }) => {
         { to: '/', label: 'Home' },
         { to: '/about', label: 'About' },
         { to: '/features', label: 'Features' },
+        { to: '/contact', label: 'Contact' },
       ];
     }
   };
@@ -61,13 +62,13 @@ const Navbar: React.FC<NavbarProps> = ({ userType = null, userName = '' }) => {
   const navLinks = getNavLinks();
 
   return (
-    <nav className="bg-white shadow-md sticky top-0 z-50">
+    <nav className="bg-dineVibe-dark/90 backdrop-blur-md border-b border-gray-800 sticky top-0 z-50">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center h-16">
           {/* Logo and brand name */}
           <div className="flex items-center">
             <Link to="/" className="flex items-center space-x-2">
-              <span className="text-2xl font-bold bg-gradient-to-r from-dineVibe-primary to-dineVibe-accent bg-clip-text text-transparent">
+              <span className="text-2xl font-bold bg-gradient-to-r from-dineVibe-primary to-dineVibe-secondary bg-clip-text text-transparent">
                 DineVibe
               </span>
             </Link>
@@ -79,7 +80,7 @@ const Navbar: React.FC<NavbarProps> = ({ userType = null, userName = '' }) => {
               <Link
                 key={link.label}
                 to={link.to}
-                className="text-gray-700 hover:text-dineVibe-primary font-medium transition-colors duration-300"
+                className="text-dineVibe-text hover:text-dineVibe-primary font-medium transition-colors duration-300"
               >
                 {link.label}
               </Link>
@@ -91,36 +92,36 @@ const Navbar: React.FC<NavbarProps> = ({ userType = null, userName = '' }) => {
             {userType ? (
               <>
                 <Button variant="ghost" size="icon" className="relative">
-                  <Bell className="h-5 w-5" />
+                  <Bell className="h-5 w-5 text-dineVibe-text" />
                   <span className="absolute top-0 right-0 h-2 w-2 bg-dineVibe-primary rounded-full"></span>
                 </Button>
                 
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" className="flex items-center space-x-2">
-                      <div className="w-8 h-8 rounded-full bg-dineVibe-accent flex items-center justify-center">
+                      <div className="w-8 h-8 rounded-full bg-dineVibe-primary flex items-center justify-center">
                         <span className="text-white text-sm font-medium">
                           {userName ? userName.charAt(0).toUpperCase() : 'U'}
                         </span>
                       </div>
-                      <span className="text-sm font-medium hidden lg:inline">
+                      <span className="text-sm font-medium hidden lg:inline text-dineVibe-text">
                         {userName || 'User'}
                       </span>
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
+                  <DropdownMenuContent align="end" className="bg-card border-gray-800">
                     <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem>
+                    <DropdownMenuSeparator className="bg-gray-800" />
+                    <DropdownMenuItem className="cursor-pointer hover:bg-dineVibe-dark/50">
                       <User className="mr-2 h-4 w-4" />
                       <span>Profile</span>
                     </DropdownMenuItem>
-                    <DropdownMenuItem>
+                    <DropdownMenuItem className="cursor-pointer hover:bg-dineVibe-dark/50">
                       <Settings className="mr-2 h-4 w-4" />
                       <span>Settings</span>
                     </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem>
+                    <DropdownMenuSeparator className="bg-gray-800" />
+                    <DropdownMenuItem className="cursor-pointer hover:bg-dineVibe-dark/50">
                       <LogOut className="mr-2 h-4 w-4" />
                       <span>Log out</span>
                     </DropdownMenuItem>
@@ -130,10 +131,10 @@ const Navbar: React.FC<NavbarProps> = ({ userType = null, userName = '' }) => {
             ) : (
               <>
                 <Link to="/auth/login">
-                  <Button variant="outline">Login</Button>
+                  <Button variant="outline" className="border-dineVibe-primary text-dineVibe-primary hover:bg-dineVibe-primary/10">Login</Button>
                 </Link>
                 <Link to="/auth/signup">
-                  <Button>Sign Up</Button>
+                  <Button className="bg-dineVibe-primary text-white hover:bg-dineVibe-primary/90">Sign Up</Button>
                 </Link>
               </>
             )}
@@ -143,7 +144,7 @@ const Navbar: React.FC<NavbarProps> = ({ userType = null, userName = '' }) => {
           <div className="md:hidden flex items-center">
             {userType && (
               <Button variant="ghost" size="icon" className="relative mr-2">
-                <Bell className="h-5 w-5" />
+                <Bell className="h-5 w-5 text-dineVibe-text" />
                 <span className="absolute top-0 right-0 h-2 w-2 bg-dineVibe-primary rounded-full"></span>
               </Button>
             )}
@@ -151,6 +152,7 @@ const Navbar: React.FC<NavbarProps> = ({ userType = null, userName = '' }) => {
               variant="ghost"
               size="icon"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="text-dineVibe-text"
             >
               {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </Button>
@@ -160,12 +162,12 @@ const Navbar: React.FC<NavbarProps> = ({ userType = null, userName = '' }) => {
 
       {/* Mobile menu */}
       {isMenuOpen && (
-        <div className="md:hidden bg-white pt-2 pb-4 px-4 space-y-3 shadow-lg">
+        <div className="md:hidden bg-dineVibe-dark pt-2 pb-4 px-4 space-y-3 border-t border-gray-800">
           {navLinks.map((link) => (
             <Link
               key={link.label}
               to={link.to}
-              className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-dineVibe-primary hover:bg-gray-50"
+              className="block px-3 py-2 rounded-md text-base font-medium text-dineVibe-text hover:text-dineVibe-primary hover:bg-gray-800"
               onClick={() => setIsMenuOpen(false)}
             >
               {link.label}
@@ -175,31 +177,31 @@ const Navbar: React.FC<NavbarProps> = ({ userType = null, userName = '' }) => {
           {!userType && (
             <div className="pt-4 flex flex-col space-y-2">
               <Link to="/auth/login">
-                <Button variant="outline" className="w-full">Login</Button>
+                <Button variant="outline" className="w-full border-dineVibe-primary text-dineVibe-primary hover:bg-dineVibe-primary/10">Login</Button>
               </Link>
               <Link to="/auth/signup">
-                <Button className="w-full">Sign Up</Button>
+                <Button className="w-full bg-dineVibe-primary text-white hover:bg-dineVibe-primary/90">Sign Up</Button>
               </Link>
             </div>
           )}
           
           {userType && (
-            <div className="pt-4 border-t border-gray-200">
+            <div className="pt-4 border-t border-gray-800">
               <div className="flex items-center px-3 py-2">
-                <div className="w-8 h-8 rounded-full bg-dineVibe-accent flex items-center justify-center">
+                <div className="w-8 h-8 rounded-full bg-dineVibe-primary flex items-center justify-center">
                   <span className="text-white text-sm font-medium">
                     {userName ? userName.charAt(0).toUpperCase() : 'U'}
                   </span>
                 </div>
-                <span className="ml-3 text-sm font-medium">{userName || 'User'}</span>
+                <span className="ml-3 text-sm font-medium text-dineVibe-text">{userName || 'User'}</span>
               </div>
-              <Link to="/profile" className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-dineVibe-primary hover:bg-gray-50">
+              <Link to="/profile" className="block px-3 py-2 rounded-md text-base font-medium text-dineVibe-text hover:text-dineVibe-primary hover:bg-gray-800">
                 Profile
               </Link>
-              <Link to="/settings" className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-dineVibe-primary hover:bg-gray-50">
+              <Link to="/settings" className="block px-3 py-2 rounded-md text-base font-medium text-dineVibe-text hover:text-dineVibe-primary hover:bg-gray-800">
                 Settings
               </Link>
-              <button className="w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-dineVibe-primary hover:bg-gray-50">
+              <button className="w-full text-left px-3 py-2 rounded-md text-base font-medium text-dineVibe-text hover:text-dineVibe-primary hover:bg-gray-800">
                 Log out
               </button>
             </div>
