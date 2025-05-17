@@ -223,34 +223,78 @@ export const getAllRestaurants = async () => {
 };
 
 // Deal functions
+// Since we don't have a deals table, we'll modify these to work with restaurant.deals
 export const createDeal = async (dealData: Omit<Deal, 'id' | 'created_at'>) => {
-  const { data, error } = await supabase
-    .from('deals')
-    .insert(dealData)
-    .select()
+  const { restaurant_id, ...dealInfo } = dealData;
+  
+  // First fetch the restaurant
+  const { data: restaurant, error: fetchError } = await supabase
+    .from('restaurants')
+    .select('deals')
+    .eq('id', restaurant_id)
+    .single();
+    
+  if (fetchError) throw fetchError;
+  
+  // Create a new deal with a generated id
+  const newDeal = {
+    id: crypto.randomUUID(),
+    ...dealInfo,
+    restaurant_id,
+    created_at: new Date().toISOString(),
+  };
+  
+  // Update the restaurant's deals array
+  let updatedDeals = [];
+  if (restaurant.deals) {
+    updatedDeals = [...restaurant.deals, newDeal];
+  } else {
+    updatedDeals = [newDeal];
+  }
+  
+  const { error: updateError } = await supabase
+    .from('restaurants')
+    .update({ deals: updatedDeals })
+    .eq('id', restaurant_id);
+    
+  if (updateError) throw updateError;
+  
+  return newDeal;
+};
+
+export const getDealsByRestaurant = async (restaurantId: string): Promise<Deal[]> => {
+  const { data: restaurant, error } = await supabase
+    .from('restaurants')
+    .select('deals')
+    .eq('id', restaurantId)
     .single();
     
   if (error) throw error;
-  return data;
-};
-
-export const getDealsByRestaurant = async (restaurantId: string) => {
-  const { data, error } = await supabase
-    .from('deals')
-    .select('*')
-    .eq('restaurant_id', restaurantId);
-    
-  if (error) throw error;
-  return data as Deal[];
+  
+  return restaurant.deals || [];
 };
 
 export const getAllDeals = async () => {
-  const { data, error } = await supabase
-    .from('deals')
-    .select('*, restaurants(*)');
+  const { data: restaurants, error } = await supabase
+    .from('restaurants')
+    .select('id, name, deals');
     
   if (error) throw error;
-  return data;
+  
+  // Collect and flatten all deals from all restaurants
+  const allDeals: Deal[] = [];
+  
+  restaurants.forEach(restaurant => {
+    if (restaurant.deals && Array.isArray(restaurant.deals)) {
+      const restaurantDeals = restaurant.deals.map(deal => ({
+        ...deal,
+        restaurant_name: restaurant.name
+      }));
+      allDeals.push(...restaurantDeals);
+    }
+  });
+  
+  return allDeals;
 };
 
 // Reservation functions
@@ -301,7 +345,7 @@ export const getRestaurantReservations = async (restaurantId: string) => {
   
   const { data, error } = await supabase
     .from('reservations')
-    .select('*, users(*)')
+    .select('*')
     .eq('restaurant_id', restaurantId);
     
   if (error) throw error;
@@ -316,7 +360,7 @@ export const getAllReservations = async () => {
   
   const { data, error } = await supabase
     .from('reservations')
-    .select('*, users(*), restaurants(*)');
+    .select('*');
     
   if (error) throw error;
   return data;
