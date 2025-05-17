@@ -9,7 +9,122 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          email: string
+          id: string
+          name: string
+          role: string
+          signup_date: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          email: string
+          id: string
+          name: string
+          role?: string
+          signup_date?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          email?: string
+          id?: string
+          name?: string
+          role?: string
+          signup_date?: string
+        }
+        Relationships: []
+      }
+      reservations: {
+        Row: {
+          booking_date: string
+          budget: string
+          created_at: string
+          event_type: string
+          guest_count: number
+          id: string
+          location: string
+          optional_decoration: string | null
+          optional_dish: string | null
+          restaurant_id: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          booking_date: string
+          budget: string
+          created_at?: string
+          event_type: string
+          guest_count: number
+          id?: string
+          location: string
+          optional_decoration?: string | null
+          optional_dish?: string | null
+          restaurant_id?: string | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          booking_date?: string
+          budget?: string
+          created_at?: string
+          event_type?: string
+          guest_count?: number
+          id?: string
+          location?: string
+          optional_decoration?: string | null
+          optional_dish?: string | null
+          restaurant_id?: string | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reservations_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "restaurants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      restaurants: {
+        Row: {
+          created_at: string
+          cuisine: string
+          deals: Json | null
+          description: string
+          id: string
+          images: string[] | null
+          location: string
+          name: string
+          owner_id: string
+        }
+        Insert: {
+          created_at?: string
+          cuisine: string
+          deals?: Json | null
+          description: string
+          id?: string
+          images?: string[] | null
+          location: string
+          name: string
+          owner_id: string
+        }
+        Update: {
+          created_at?: string
+          cuisine?: string
+          deals?: Json | null
+          description?: string
+          id?: string
+          images?: string[] | null
+          location?: string
+          name?: string
+          owner_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

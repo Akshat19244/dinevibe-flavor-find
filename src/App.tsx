@@ -5,12 +5,16 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { useEffect } from "react";
+import { AuthProvider } from "@/contexts/AuthContext";
+import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import Home from "./pages/Home";
 import Auth from "./pages/Auth";
 import About from "./pages/About";
 import Features from "./pages/Features";
 import Contact from "./pages/Contact";
 import NotFound from "./pages/NotFound";
+import AuthCallback from "./pages/AuthCallback";
+import CompleteProfile from "./pages/auth/CompleteProfile";
 
 // User pages
 import Discovery from "./pages/user/Discovery";
@@ -35,7 +39,6 @@ import Reports from "./pages/admin/Reports";
 import Notifications from "./pages/admin/Notifications";
 import AdminSettings from "./pages/admin/Settings";
 import ControlPanel from "./pages/admin/ControlPanel";
-import AuthCallback from "./pages/AuthCallback";
 
 // Scroll to top component
 const ScrollToTop = () => {
@@ -53,47 +56,122 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <ScrollToTop />
-        <Routes>
-          {/* Public routes */}
-          <Route path="/" element={<Home />} />
-          <Route path="/auth/:type" element={<Auth />} />
-          <Route path="/auth/callback" element={<AuthCallback />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/features" element={<Features />} />
-          <Route path="/contact" element={<Contact />} />
-          
-          {/* User routes */}
-          <Route path="/user/discovery" element={<Discovery />} />
-          <Route path="/user/upcoming" element={<UpcomingEvents />} />
-          <Route path="/user/deals" element={<Deals />} />
-          <Route path="/user/planning" element={<Planning />} />
-          <Route path="/user/bookings" element={<Bookings />} />
-          <Route path="/user/settings" element={<UserSettings />} />
-          <Route path="/user/reservation" element={<Reservation />} />
-          
-          {/* Restaurant owner routes */}
-          <Route path="/owner/dashboard" element={<OwnerDashboard />} />
-          <Route path="/owner/upload-event" element={<UploadEvent />} />
-          <Route path="/owner/deals" element={<OwnerDeals />} />
-          <Route path="/owner/customers" element={<TrackBookings />} />
-          <Route path="/owner/settings" element={<OwnerSettings />} />
-          
-          {/* Admin routes */}
-          <Route path="/admin/dashboard" element={<AdminDashboard />} />
-          <Route path="/admin/users" element={<ManageUsers />} />
-          <Route path="/admin/reports" element={<Reports />} />
-          <Route path="/admin/notify" element={<Notifications />} />
-          <Route path="/admin/settings" element={<AdminSettings />} />
-          <Route path="/control" element={<ControlPanel />} />
-          
-          {/* Catch-all route */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
+      <AuthProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <ScrollToTop />
+          <Routes>
+            {/* Public routes */}
+            <Route path="/" element={<Home />} />
+            <Route path="/auth/:type" element={<Auth />} />
+            <Route path="/auth/callback" element={<AuthCallback />} />
+            <Route path="/auth/complete-profile" element={<CompleteProfile />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/features" element={<Features />} />
+            <Route path="/contact" element={<Contact />} />
+            
+            {/* User routes */}
+            <Route path="/user/discovery" element={
+              <ProtectedRoute>
+                <Discovery />
+              </ProtectedRoute>
+            } />
+            <Route path="/user/upcoming" element={
+              <ProtectedRoute>
+                <UpcomingEvents />
+              </ProtectedRoute>
+            } />
+            <Route path="/user/deals" element={
+              <ProtectedRoute>
+                <Deals />
+              </ProtectedRoute>
+            } />
+            <Route path="/user/planning" element={
+              <ProtectedRoute>
+                <Planning />
+              </ProtectedRoute>
+            } />
+            <Route path="/user/bookings" element={
+              <ProtectedRoute>
+                <Bookings />
+              </ProtectedRoute>
+            } />
+            <Route path="/user/settings" element={
+              <ProtectedRoute>
+                <UserSettings />
+              </ProtectedRoute>
+            } />
+            <Route path="/user/reservation" element={
+              <ProtectedRoute>
+                <Reservation />
+              </ProtectedRoute>
+            } />
+            
+            {/* Restaurant owner routes */}
+            <Route path="/owner/dashboard" element={
+              <ProtectedRoute allowedRoles={['owner']}>
+                <OwnerDashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/owner/upload-event" element={
+              <ProtectedRoute allowedRoles={['owner']}>
+                <UploadEvent />
+              </ProtectedRoute>
+            } />
+            <Route path="/owner/deals" element={
+              <ProtectedRoute allowedRoles={['owner']}>
+                <OwnerDeals />
+              </ProtectedRoute>
+            } />
+            <Route path="/owner/customers" element={
+              <ProtectedRoute allowedRoles={['owner']}>
+                <TrackBookings />
+              </ProtectedRoute>
+            } />
+            <Route path="/owner/settings" element={
+              <ProtectedRoute allowedRoles={['owner']}>
+                <OwnerSettings />
+              </ProtectedRoute>
+            } />
+            
+            {/* Admin routes */}
+            <Route path="/admin/dashboard" element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <AdminDashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/users" element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <ManageUsers />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/reports" element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <Reports />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/notify" element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <Notifications />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/settings" element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <AdminSettings />
+              </ProtectedRoute>
+            } />
+            <Route path="/control" element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <ControlPanel />
+              </ProtectedRoute>
+            } />
+            
+            {/* Catch-all route */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );

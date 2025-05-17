@@ -3,7 +3,7 @@ import React from 'react';
 import { useParams } from 'react-router-dom';
 import Navbar from '@/components/ui/navbar';
 import Footer from '@/components/ui/footer';
-import AuthForm from '@/components/auth/auth-form';
+import AuthFormWrapper from '@/components/auth/auth-form-wrapper';
 
 const Auth: React.FC = () => {
   const { type } = useParams<{ type: string }>();
@@ -24,7 +24,7 @@ const Auth: React.FC = () => {
             <p className="text-gray-600">{authDescription}</p>
           </div>
           
-          <AuthForm defaultTab={type === 'login' ? 'login' : 'signup'} />
+          <AuthFormWrapper defaultTab={type === 'login' ? 'login' : 'signup'} />
         </div>
       </main>
       

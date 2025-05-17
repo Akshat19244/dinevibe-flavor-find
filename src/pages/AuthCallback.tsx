@@ -1,7 +1,7 @@
 
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
 
 const AuthCallback: React.FC = () => {
@@ -32,7 +32,7 @@ const AuthCallback: React.FC = () => {
           if (user) {
             // Check if user profile exists
             const { data: profile, error: profileError } = await supabase
-              .from('users')
+              .from('profiles')
               .select('*')
               .eq('id', user.id)
               .single();
