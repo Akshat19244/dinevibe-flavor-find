@@ -35,6 +35,7 @@ import Reports from "./pages/admin/Reports";
 import Notifications from "./pages/admin/Notifications";
 import AdminSettings from "./pages/admin/Settings";
 import ControlPanel from "./pages/admin/ControlPanel";
+import AuthCallback from "./pages/AuthCallback";
 
 // Scroll to top component
 const ScrollToTop = () => {
@@ -60,6 +61,7 @@ const App = () => (
           {/* Public routes */}
           <Route path="/" element={<Home />} />
           <Route path="/auth/:type" element={<Auth />} />
+          <Route path="/auth/callback" element={<AuthCallback />} />
           <Route path="/about" element={<About />} />
           <Route path="/features" element={<Features />} />
           <Route path="/contact" element={<Contact />} />
