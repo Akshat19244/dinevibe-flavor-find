@@ -255,6 +255,7 @@ const AuthForm: React.FC<AuthFormProps> = ({
                     value={signupData.password}
                     onChange={(e) => setSignupData({ ...signupData, password: e.target.value })}
                     required
+                    minLength={6}
                   />
                 </div>
                 
@@ -267,6 +268,7 @@ const AuthForm: React.FC<AuthFormProps> = ({
                     value={signupData.confirmPassword}
                     onChange={(e) => setSignupData({ ...signupData, confirmPassword: e.target.value })}
                     required
+                    minLength={6}
                   />
                 </div>
                 

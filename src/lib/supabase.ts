@@ -1,5 +1,6 @@
 
 import { createClient } from '@supabase/supabase-js';
+import { supabase as supabaseClient } from '@/integrations/supabase/client';
 
 // Define types based on our database schema
 export type User = {
@@ -8,6 +9,7 @@ export type User = {
   email: string;
   role: 'user' | 'owner' | 'admin';
   signup_date: string;
+  avatar_url?: string;
 };
 
 export type Restaurant = {
@@ -17,8 +19,25 @@ export type Restaurant = {
   description: string;
   location: string;
   cuisine: string;
-  deals?: string[];
+  deals?: any[];
   images?: string[];
+  created_at: string;
+};
+
+export type Deal = {
+  id: string;
+  restaurant_id: string;
+  title: string;
+  description: string;
+  type: 'happy-hour' | 'discount' | 'voucher' | 'group';
+  valid_from: string;
+  valid_until: string;
+  terms: string;
+  discount_percentage?: number;
+  code?: string;
+  is_popular?: boolean;
+  is_new?: boolean;
+  created_at: string;
 };
 
 export type Reservation = {
@@ -33,24 +52,15 @@ export type Reservation = {
   optional_decoration?: string;
   booking_date: string;
   status: 'pending' | 'confirmed' | 'completed' | 'cancelled';
+  token?: string;
+  created_at: string;
 };
 
-// Initialize the Supabase client
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://placeholder-url.supabase.co';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'placeholder-key';
-
-// Create the Supabase client
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// Use the client from integrations
+export const supabase = supabaseClient;
 
 // Check if environment variables are properly configured
-const isSupabaseConfigured = 
-  import.meta.env.VITE_SUPABASE_URL && 
-  import.meta.env.VITE_SUPABASE_ANON_KEY;
-
-// Log warning if Supabase is not configured
-if (!isSupabaseConfigured) {
-  console.error('Supabase credentials are missing. Ensure VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY are set in your environment.');
-}
+const isSupabaseConfigured = !!supabase;
 
 // Authentication functions
 export const signInWithGoogle = async () => {
@@ -87,7 +97,7 @@ export const getCurrentUser = async () => {
 };
 
 // User management functions
-export const createUserProfile = async (userData: Omit<User, 'id'>) => {
+export const createUserProfile = async (userData: Omit<User, 'id' | 'signup_date'>) => {
   if (!isSupabaseConfigured) {
     console.error('Cannot create user profile: Supabase credentials not configured');
     throw new Error('Supabase credentials not configured');
@@ -100,11 +110,29 @@ export const createUserProfile = async (userData: Omit<User, 'id'>) => {
   }
   
   const { data, error } = await supabase
-    .from('users')
+    .from('profiles')
     .insert({
       id: currentUser.id,
       ...userData,
     })
+    .select()
+    .single();
+    
+  if (error) throw error;
+  return data;
+};
+
+export const updateUserProfile = async (userData: Partial<Omit<User, 'id' | 'signup_date'>>) => {
+  const currentUser = await getCurrentUser();
+  
+  if (!currentUser) {
+    throw new Error('No authenticated user found');
+  }
+  
+  const { data, error } = await supabase
+    .from('profiles')
+    .update(userData)
+    .eq('id', currentUser.id)
     .select()
     .single();
     
@@ -127,7 +155,7 @@ export const getUserProfile = async (userId?: string) => {
   }
   
   const { data, error } = await supabase
-    .from('users')
+    .from('profiles')
     .select('*')
     .eq('id', id)
     .single();
@@ -137,7 +165,7 @@ export const getUserProfile = async (userId?: string) => {
 };
 
 // Restaurant functions
-export const createRestaurant = async (restaurantData: Omit<Restaurant, 'id'>) => {
+export const createRestaurant = async (restaurantData: Omit<Restaurant, 'id' | 'created_at'>) => {
   if (!isSupabaseConfigured) {
     console.error('Cannot create restaurant: Supabase credentials not configured');
     throw new Error('Supabase credentials not configured');
@@ -146,6 +174,18 @@ export const createRestaurant = async (restaurantData: Omit<Restaurant, 'id'>) =
   const { data, error } = await supabase
     .from('restaurants')
     .insert(restaurantData)
+    .select()
+    .single();
+    
+  if (error) throw error;
+  return data;
+};
+
+export const updateRestaurant = async (id: string, restaurantData: Partial<Omit<Restaurant, 'id' | 'created_at'>>) => {
+  const { data, error } = await supabase
+    .from('restaurants')
+    .update(restaurantData)
+    .eq('id', id)
     .select()
     .single();
     
@@ -182,18 +222,54 @@ export const getAllRestaurants = async () => {
   return data as Restaurant[];
 };
 
+// Deal functions
+export const createDeal = async (dealData: Omit<Deal, 'id' | 'created_at'>) => {
+  const { data, error } = await supabase
+    .from('deals')
+    .insert(dealData)
+    .select()
+    .single();
+    
+  if (error) throw error;
+  return data;
+};
+
+export const getDealsByRestaurant = async (restaurantId: string) => {
+  const { data, error } = await supabase
+    .from('deals')
+    .select('*')
+    .eq('restaurant_id', restaurantId);
+    
+  if (error) throw error;
+  return data as Deal[];
+};
+
+export const getAllDeals = async () => {
+  const { data, error } = await supabase
+    .from('deals')
+    .select('*, restaurants(*)');
+    
+  if (error) throw error;
+  return data;
+};
+
 // Reservation functions
-export const createReservation = async (reservationData: Omit<Reservation, 'id' | 'status'>) => {
+export const createReservation = async (reservationData: Omit<Reservation, 'id' | 'status' | 'created_at'>) => {
   if (!isSupabaseConfigured) {
     console.error('Cannot create reservation: Supabase credentials not configured');
     throw new Error('Supabase credentials not configured');
   }
   
+  // Generate a unique booking token
+  const token = Math.random().toString(36).substring(2, 15) + 
+               Math.random().toString(36).substring(2, 15);
+  
   const { data, error } = await supabase
     .from('reservations')
     .insert({
       ...reservationData,
-      status: 'pending'
+      status: 'pending',
+      token
     })
     .select()
     .single();
@@ -264,4 +340,25 @@ export const updateReservationStatus = async (
     
   if (error) throw error;
   return data;
+};
+
+// File upload functions for restaurant images
+export const uploadRestaurantImage = async (file: File) => {
+  const fileExt = file.name.split('.').pop();
+  const fileName = `${Math.random()}.${fileExt}`;
+  const filePath = `${fileName}`;
+
+  const { error: uploadError } = await supabase.storage
+    .from('restaurant-images')
+    .upload(filePath, file);
+
+  if (uploadError) {
+    throw uploadError;
+  }
+
+  const { data } = supabase.storage
+    .from('restaurant-images')
+    .getPublicUrl(filePath);
+
+  return data.publicUrl;
 };

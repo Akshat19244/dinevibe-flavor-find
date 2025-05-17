@@ -4,6 +4,7 @@ import AuthForm from '@/components/auth/auth-form';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useToast } from '@/components/ui/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 const AuthFormWrapper: React.FC<{ defaultTab?: 'login' | 'signup' }> = ({ defaultTab = 'login' }) => {
   const { signIn, signUp, signInWithGoogle } = useAuth();
@@ -45,7 +46,7 @@ const AuthFormWrapper: React.FC<{ defaultTab?: 'login' | 'signup' }> = ({ defaul
     }
   };
 
-  const handleEmailSignup = async (data: { email: string, password: string }) => {
+  const handleEmailSignup = async (data: { email: string, password: string, name?: string, userType?: string }) => {
     setIsLoading(true);
     try {
       const { error } = await signUp(data.email, data.password);
@@ -58,10 +59,36 @@ const AuthFormWrapper: React.FC<{ defaultTab?: 'login' | 'signup' }> = ({ defaul
         });
         return;
       }
+
+      // Store additional user metadata
+      try {
+        // Update user metadata
+        await supabase.auth.updateUser({
+          data: {
+            name: data.name,
+            userType: data.userType
+          }
+        });
+
+        // Update profile in profiles table
+        if (data.userType) {
+          const userResponse = await supabase.auth.getUser();
+          if (userResponse.data.user) {
+            await supabase.from('profiles').update({
+              name: data.name,
+              role: data.userType === 'owner' ? 'owner' : 'user'
+            }).eq('id', userResponse.data.user.id);
+          }
+        }
+      } catch (metadataError) {
+        console.error('Error updating user metadata:', metadataError);
+      }
       
       toast({
         title: 'Signup Successful',
-        description: 'Please check your email to verify your account.',
+        description: data.userType === 'owner' 
+          ? 'Please check your email to verify your account. As a restaurant owner, you\'ll be able to add your restaurant after verification.'
+          : 'Please check your email to verify your account.',
       });
       
     } catch (err) {
@@ -100,7 +127,6 @@ const AuthFormWrapper: React.FC<{ defaultTab?: 'login' | 'signup' }> = ({ defaul
     }
   };
 
-  // We're passing the handlers to the existing AuthForm component
   return (
     <AuthForm 
       defaultTab={defaultTab} 
