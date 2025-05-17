@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { User } from '@supabase/supabase-js';
 
@@ -8,6 +7,7 @@ export type UserProfile = {
   name: string;
   email: string;
   role: 'user' | 'owner' | 'admin';
+  is_admin: boolean;
   signup_date: string;
   avatar_url?: string | null;
 };
@@ -17,11 +17,12 @@ export type Restaurant = {
   id: string;
   owner_id: string;
   name: string;
-  description: string;
+  description: string | null;
   location: string;
   cuisine: string;
-  deals?: any;
-  images?: string[];
+  price_range: string;
+  images?: string[] | null;
+  is_approved: boolean;
   created_at: string;
 };
 
@@ -82,11 +83,15 @@ export const updateUserProfile = async (profile: Partial<UserProfile>, userId?: 
 };
 
 // Restaurant Services
-export const getRestaurants = async (): Promise<Restaurant[]> => {
-  const { data, error } = await supabase
-    .from('restaurants')
-    .select('*');
-    
+export const getRestaurants = async (includeUnapproved = false): Promise<Restaurant[]> => {
+  let query = supabase.from('restaurants').select('*');
+  
+  if (!includeUnapproved) {
+    query = query.eq('is_approved', true);
+  }
+  
+  const { data, error } = await query;
+  
   if (error) throw error;
   return data as Restaurant[];
 };
@@ -112,10 +117,13 @@ export const getRestaurantById = async (id: string): Promise<Restaurant | null> 
   return data as Restaurant;
 };
 
-export const createRestaurant = async (restaurant: Omit<Restaurant, 'id' | 'created_at'>): Promise<Restaurant> => {
+export const createRestaurant = async (restaurant: Omit<Restaurant, 'id' | 'created_at' | 'is_approved'>): Promise<Restaurant> => {
   const { data, error } = await supabase
     .from('restaurants')
-    .insert(restaurant)
+    .insert({
+      ...restaurant,
+      is_approved: false
+    })
     .select()
     .single();
     
@@ -133,15 +141,6 @@ export const updateRestaurant = async (id: string, restaurant: Partial<Restauran
     
   if (error) throw error;
   return data as Restaurant;
-};
-
-export const deleteRestaurant = async (id: string): Promise<void> => {
-  const { error } = await supabase
-    .from('restaurants')
-    .delete()
-    .eq('id', id);
-    
-  if (error) throw error;
 };
 
 // Reservation Services
@@ -197,4 +196,38 @@ export const updateReservation = async (id: string, reservation: Partial<Reserva
 
 export const updateReservationStatus = async (id: string, status: Reservation['status']): Promise<Reservation> => {
   return updateReservation(id, { status });
+};
+
+// Admin Services
+export const getAllUsers = async (): Promise<UserProfile[]> => {
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('*');
+    
+  if (error) throw error;
+  return data as UserProfile[];
+};
+
+export const approveRestaurant = async (id: string): Promise<Restaurant> => {
+  const { data, error } = await supabase
+    .from('restaurants')
+    .update({ is_approved: true })
+    .eq('id', id)
+    .select()
+    .single();
+    
+  if (error) throw error;
+  return data as Restaurant;
+};
+
+export const rejectRestaurant = async (id: string): Promise<Restaurant> => {
+  const { data, error } = await supabase
+    .from('restaurants')
+    .update({ is_approved: false })
+    .eq('id', id)
+    .select()
+    .single();
+    
+  if (error) throw error;
+  return data as Restaurant;
 };
