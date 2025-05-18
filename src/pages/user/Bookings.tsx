@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -60,7 +59,7 @@ const Bookings: React.FC = () => {
   
   return (
     <div className="min-h-screen flex flex-col">
-      <Navbar userType="user" userName={userProfile?.name || 'User'} />
+      <Navbar userType="customer" userName={userProfile?.name || 'User'} />
       
       <main className="flex-grow py-8">
         <div className="container mx-auto px-4">

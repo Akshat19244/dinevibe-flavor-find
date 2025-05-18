@@ -36,6 +36,7 @@ import {
 } from "@/components/ui/dialog";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
+import { Label } from '@/components/ui/label';
 import { format } from 'date-fns';
 import { 
   Search, 

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -160,7 +159,7 @@ const MakeReservation: React.FC = () => {
   
   return (
     <div className="min-h-screen flex flex-col">
-      <Navbar userType="user" userName={userProfile?.name || 'User'} />
+      <Navbar userType="customer" userName={userProfile?.name || 'User'} />
       
       <main className="flex-grow py-8">
         <div className="container max-w-2xl mx-auto px-4">
