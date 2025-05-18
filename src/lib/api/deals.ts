@@ -80,3 +80,92 @@ export const getAllDeals = async () => {
   
   return allDeals;
 };
+
+// New function to claim a deal
+export const claimDeal = async (dealId: string, restaurantId: string) => {
+  const { data: user } = await supabase.auth.getUser();
+  
+  if (!user.user) {
+    throw new Error('You must be logged in to claim a deal');
+  }
+  
+  const { data, error } = await supabase
+    .from('deal_claims')
+    .insert({
+      user_id: user.user.id,
+      deal_id: dealId,
+      restaurant_id: restaurantId,
+      status: 'active'
+    })
+    .select()
+    .single();
+    
+  if (error) throw error;
+  
+  return data;
+};
+
+// Get all claimed deals for the current user
+export const getUserClaimedDeals = async () => {
+  const { data: user } = await supabase.auth.getUser();
+  
+  if (!user.user) {
+    throw new Error('You must be logged in to view your claimed deals');
+  }
+  
+  const { data, error } = await supabase
+    .from('deal_claims')
+    .select(`
+      *,
+      restaurants:restaurant_id (
+        name, 
+        location,
+        cuisine
+      )
+    `)
+    .eq('user_id', user.user.id);
+    
+  if (error) throw error;
+  
+  return data;
+};
+
+// Get all claimed deals for a specific restaurant (for restaurant owners)
+export const getRestaurantClaimedDeals = async (restaurantId: string) => {
+  const { data, error } = await supabase
+    .from('deal_claims')
+    .select(`
+      *,
+      profiles:user_id (
+        name,
+        email,
+        contact_number
+      )
+    `)
+    .eq('restaurant_id', restaurantId);
+    
+  if (error) throw error;
+  
+  return data;
+};
+
+// Get all claimed deals (for admins)
+export const getAllClaimedDeals = async () => {
+  const { data, error } = await supabase
+    .from('deal_claims')
+    .select(`
+      *,
+      profiles:user_id (
+        name,
+        email
+      ),
+      restaurants:restaurant_id (
+        name,
+        location
+      )
+    `);
+    
+  if (error) throw error;
+  
+  return data;
+};

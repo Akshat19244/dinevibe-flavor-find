@@ -6,3 +6,4 @@ export * from './users';
 export * from './restaurants';
 export * from './deals';
 export * from './reservations';
+export * from './admin';

@@ -18,6 +18,7 @@ const CompleteProfile: React.FC = () => {
   const { toast } = useToast();
   const [name, setName] = useState('');
   const [role, setRole] = useState('user');
+  const [contactNumber, setContactNumber] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -39,6 +40,7 @@ const CompleteProfile: React.FC = () => {
         .update({
           name,
           role,
+          contact_number: contactNumber,
         })
         .eq('id', user.id);
 
@@ -53,7 +55,7 @@ const CompleteProfile: React.FC = () => {
       if (role === 'owner') {
         navigate('/owner/dashboard');
       } else if (role === 'admin') {
-        navigate('/control');
+        navigate('/admin/dashboard');
       } else {
         navigate('/user/discovery');
       }
@@ -89,6 +91,17 @@ const CompleteProfile: React.FC = () => {
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     required 
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="contact">Contact Number</Label>
+                  <Input 
+                    id="contact" 
+                    placeholder="Enter your phone number" 
+                    value={contactNumber}
+                    onChange={(e) => setContactNumber(e.target.value)}
+                    type="tel"
                   />
                 </div>
                 

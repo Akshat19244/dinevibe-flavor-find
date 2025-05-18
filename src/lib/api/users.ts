@@ -70,3 +70,71 @@ export const getUserProfile = async (userId?: string) => {
   if (error) throw error;
   return data as User;
 };
+
+// Get all users (for admin)
+export const getAllUsers = async () => {
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('*')
+    .order('signup_date', { ascending: false });
+    
+  if (error) throw error;
+  return data as User[];
+};
+
+// Get users by role (for admin)
+export const getUsersByRole = async (role: string) => {
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('role', role)
+    .order('signup_date', { ascending: false });
+    
+  if (error) throw error;
+  return data as User[];
+};
+
+// Update user role (for admin)
+export const updateUserRole = async (userId: string, role: string) => {
+  const { data, error } = await supabase
+    .from('profiles')
+    .update({ role })
+    .eq('id', userId)
+    .select()
+    .single();
+    
+  if (error) throw error;
+  return data as User;
+};
+
+// Set user as admin (for admin)
+export const setUserAsAdmin = async (userId: string, isAdmin: boolean) => {
+  const { data, error } = await supabase
+    .from('profiles')
+    .update({ is_admin: isAdmin })
+    .eq('id', userId)
+    .select()
+    .single();
+    
+  if (error) throw error;
+  return data as User;
+};
+
+// Update contact number
+export const updateContactNumber = async (contactNumber: string) => {
+  const currentUser = await getCurrentUser();
+  
+  if (!currentUser) {
+    throw new Error('No authenticated user found');
+  }
+  
+  const { data, error } = await supabase
+    .from('profiles')
+    .update({ contact_number: contactNumber })
+    .eq('id', currentUser.id)
+    .select()
+    .single();
+    
+  if (error) throw error;
+  return data as User;
+};
