@@ -93,3 +93,9 @@ export type AdminLog = {
   created_at: string;
   admin?: User;
 };
+
+export type AdminSettings = {
+  id: string;
+  registration_code: string;
+  updated_at: string;
+};

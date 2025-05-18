@@ -1,94 +1,150 @@
 
-import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { cn } from '@/lib/utils';
-import {
-  Users,
-  BarChart4,
-  Settings,
-  Gauge,
-  BellRing,
-  PanelTop,
-  LogOut
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { supabase } from '@/integrations/supabase/client';
+import React, { useState } from 'react';
+import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useToast } from '@/components/ui/use-toast';
-import { useNavigate } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { useAuth } from '@/contexts/AuthContext';
+import {
+  LayoutDashboard,
+  Users,
+  Store,
+  Calendar,
+  FileText,
+  Settings,
+  LogOut,
+  Bell,
+  Menu,
+  X,
+  Shield
+} from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 const AdminNav: React.FC = () => {
+  const { signOut } = useAuth();
+  const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
-  const navigate = useNavigate();
+  const [expanded, setExpanded] = useState(true);
   
-  const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    toast({
-      title: 'Logged out',
-      description: 'You have been logged out successfully'
-    });
-    navigate('/');
-  };
-  
-  const routes = [
-    {
-      title: 'Dashboard',
-      icon: <Gauge className="w-5 h-5" />,
-      href: '/admin/dashboard',
+  // Navigation items
+  const navItems = [
+    { 
+      path: '/admin/dashboard', 
+      name: 'Dashboard', 
+      icon: LayoutDashboard 
     },
-    {
-      title: 'Users',
-      icon: <Users className="w-5 h-5" />,
-      href: '/admin/users',
+    { 
+      path: '/admin/users', 
+      name: 'Users', 
+      icon: Users 
     },
-    {
-      title: 'Analytics',
-      icon: <BarChart4 className="w-5 h-5" />,
-      href: '/admin/reports',
+    { 
+      path: '/admin/restaurants', 
+      name: 'Restaurants', 
+      icon: Store 
     },
-    {
-      title: 'Notifications',
-      icon: <BellRing className="w-5 h-5" />,
-      href: '/admin/notify',
+    { 
+      path: '/admin/reservations', 
+      name: 'Reservations', 
+      icon: Calendar 
     },
-    {
-      title: 'Control Panel',
-      icon: <PanelTop className="w-5 h-5" />,
-      href: '/control',
+    { 
+      path: '/admin/reports', 
+      name: 'Reports', 
+      icon: FileText 
     },
-    {
-      title: 'Settings',
-      icon: <Settings className="w-5 h-5" />,
-      href: '/admin/settings',
+    { 
+      path: '/admin/logs', 
+      name: 'Admin Logs', 
+      icon: Bell 
+    },
+    { 
+      path: '/admin/settings', 
+      name: 'Settings', 
+      icon: Settings 
     },
   ];
   
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      navigate('/admin/auth');
+      toast({
+        title: 'Logged Out',
+        description: 'You have been logged out of the admin panel',
+      });
+    } catch (error) {
+      console.error('Error signing out:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to sign out. Please try again.',
+        variant: 'destructive'
+      });
+    }
+  };
+  
+  // Function to determine if a nav item is active
+  const isActive = (path: string) => {
+    if (path === '/admin/dashboard') {
+      return location.pathname === path;
+    }
+    return location.pathname.startsWith(path);
+  };
+  
   return (
-    <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-4 mb-6">
-      <div className="flex flex-wrap gap-2 justify-center md:justify-between">
-        {routes.map((route) => (
-          <Link
-            key={route.href}
-            to={route.href}
-            className={cn(
-              "flex items-center gap-2 px-3 py-2 rounded-md transition-colors",
-              location.pathname === route.href
-                ? "bg-primary text-primary-foreground"
-                : "hover:bg-muted"
-            )}
-          >
-            {route.icon}
-            <span className="hidden md:inline">{route.title}</span>
-          </Link>
-        ))}
-        
+    <div 
+      className={cn(
+        "bg-slate-900 text-white h-full flex flex-col transition-all duration-300",
+        expanded ? "w-64" : "w-16"
+      )}
+    >
+      {/* Admin Logo/Title */}
+      <div className="flex items-center justify-between p-4 border-b border-gray-800">
+        <div className="flex items-center">
+          <Shield className="h-6 w-6 text-primary" />
+          {expanded && (
+            <span className="ml-2 text-lg font-semibold">Admin Panel</span>
+          )}
+        </div>
         <Button 
           variant="ghost" 
-          className="flex items-center gap-2 px-3 py-2 text-destructive hover:bg-destructive/10"
+          size="sm" 
+          className="p-0 h-8 w-8 text-white hover:bg-slate-800"
+          onClick={() => setExpanded(!expanded)}
+        >
+          {expanded ? <X size={18} /> : <Menu size={18} />}
+        </Button>
+      </div>
+      
+      {/* Nav Links */}
+      <div className="flex-1 overflow-y-auto py-4 px-3">
+        <ul className="space-y-2">
+          {navItems.map((item) => (
+            <li key={item.path}>
+              <NavLink 
+                to={item.path} 
+                className={({ isActive }) => cn(
+                  "flex items-center px-3 py-2 text-sm rounded-lg",
+                  isActive ? "bg-primary text-white font-medium" : "text-gray-300 hover:bg-slate-800"
+                )}
+              >
+                <item.icon className={cn("h-5 w-5", !expanded && "mx-auto")} />
+                {expanded && <span className="ml-3">{item.name}</span>}
+              </NavLink>
+            </li>
+          ))}
+        </ul>
+      </div>
+      
+      {/* Logout Button */}
+      <div className="p-4 border-t border-gray-800">
+        <Button 
+          variant="ghost" 
+          className="w-full justify-start text-gray-300 hover:bg-slate-800 hover:text-white"
           onClick={handleSignOut}
         >
-          <LogOut className="w-5 h-5" />
-          <span className="hidden md:inline">Logout</span>
+          <LogOut className={cn("h-5 w-5", !expanded && "mx-auto")} />
+          {expanded && <span className="ml-2">Logout</span>}
         </Button>
       </div>
     </div>

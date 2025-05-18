@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/components/ui/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -12,13 +12,20 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { getUserProfile, updateUserRole, setUserAsAdmin } from '@/lib/api/users';
 import { logAdminAction } from '@/lib/api/admin';
-import { Shield, UserPlus, LogIn } from 'lucide-react';
+import { 
+  getAdminRegistrationCode, 
+  updateAdminRegistrationCode, 
+  isInitialAdminSetupComplete 
+} from '@/lib/api/admin-settings';
+import { AlertCircle, LogIn, UserPlus, Shield } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const AdminAuth: React.FC = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState<string>('login');
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isInitialSetup, setIsInitialSetup] = useState<boolean>(false);
   
   // Login states
   const [loginEmail, setLoginEmail] = useState<string>('');
@@ -31,9 +38,24 @@ const AdminAuth: React.FC = () => {
   const [regName, setRegName] = useState<string>('');
   const [regAdminCode, setRegAdminCode] = useState<string>('');
   
-  // Admin registration code - in a real application, this would be stored securely
-  // and possibly dynamically generated, but for demo purposes we'll use a static code
-  const ADMIN_REGISTRATION_CODE = 'DINEVIBE-ADMIN-2025';
+  // Check if this is initial setup or regular login
+  useEffect(() => {
+    const checkAdminSetup = async () => {
+      try {
+        const isSetupComplete = await isInitialAdminSetupComplete();
+        setIsInitialSetup(!isSetupComplete);
+        
+        // If initial setup, automatically switch to register tab
+        if (!isSetupComplete) {
+          setActiveTab('register');
+        }
+      } catch (error) {
+        console.error('Error checking admin setup:', error);
+      }
+    };
+    
+    checkAdminSetup();
+  }, []);
   
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -91,17 +113,23 @@ const AdminAuth: React.FC = () => {
           description: 'Passwords do not match.',
           variant: 'destructive'
         });
+        setIsLoading(false);
         return;
       }
       
-      // Verify admin code
-      if (regAdminCode !== ADMIN_REGISTRATION_CODE) {
-        toast({
-          title: 'Registration Failed',
-          description: 'Invalid admin registration code.',
-          variant: 'destructive'
-        });
-        return;
+      if (!isInitialSetup) {
+        // Verify admin code if not initial setup
+        const storedCode = await getAdminRegistrationCode();
+        
+        if (regAdminCode !== storedCode) {
+          toast({
+            title: 'Registration Failed',
+            description: 'Invalid admin registration code.',
+            variant: 'destructive'
+          });
+          setIsLoading(false);
+          return;
+        }
       }
       
       // Create user
@@ -121,6 +149,17 @@ const AdminAuth: React.FC = () => {
       if (data.user) {
         await updateUserRole(data.user.id, 'admin');
         await setUserAsAdmin(data.user.id, true);
+        
+        // During initial setup, set a default admin registration code
+        if (isInitialSetup) {
+          const defaultCode = 'DINEVIBE-ADMIN-2025';
+          await updateAdminRegistrationCode(defaultCode);
+          
+          toast({
+            title: 'Initial Admin Setup Complete',
+            description: `Default admin registration code set to: ${defaultCode}. Keep this code secure and change it after logging in.`,
+          });
+        }
         
         // Log admin creation
         const currentUser = await supabase.auth.getUser();
@@ -165,13 +204,24 @@ const AdminAuth: React.FC = () => {
               DineVibe Admin Access
             </CardTitle>
             <CardDescription>
-              {activeTab === 'login' 
-                ? 'Login to access the administrator dashboard'
-                : 'Create a new administrator account'}
+              {isInitialSetup 
+                ? 'Initial Admin Setup - Register Two Permanent Admins'
+                : activeTab === 'login' 
+                  ? 'Login to access the administrator dashboard'
+                  : 'Create a new administrator account'}
             </CardDescription>
           </CardHeader>
           
           <CardContent>
+            {isInitialSetup && (
+              <Alert className="mb-6 bg-yellow-50 text-yellow-800 border-yellow-200">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>
+                  Initial setup mode: You can register up to 2 permanent admins without a registration code.
+                </AlertDescription>
+              </Alert>
+            )}
+
             <Tabs
               value={activeTab}
               onValueChange={setActiveTab}
@@ -274,17 +324,19 @@ const AdminAuth: React.FC = () => {
                     />
                   </div>
                   
-                  <div className="space-y-2">
-                    <Label htmlFor="reg-admin-code">Admin Registration Code</Label>
-                    <Input
-                      id="reg-admin-code"
-                      type="password"
-                      placeholder="Enter admin authorization code"
-                      value={regAdminCode}
-                      onChange={(e) => setRegAdminCode(e.target.value)}
-                      required
-                    />
-                  </div>
+                  {!isInitialSetup && (
+                    <div className="space-y-2">
+                      <Label htmlFor="reg-admin-code">Admin Registration Code</Label>
+                      <Input
+                        id="reg-admin-code"
+                        type="password"
+                        placeholder="Enter admin authorization code"
+                        value={regAdminCode}
+                        onChange={(e) => setRegAdminCode(e.target.value)}
+                        required
+                      />
+                    </div>
+                  )}
                   
                   <Button
                     type="submit"

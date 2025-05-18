@@ -1,70 +1,52 @@
 
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
+import { Link } from 'react-router-dom';
 import { useToast } from '@/components/ui/use-toast';
-import { getUserProfile } from '@/lib/api/users';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { 
+  LayoutDashboard, 
+  Users, 
+  Store, 
+  Calendar, 
+  FileText, 
+  Settings, 
+  TrendingUp,
+  AlertTriangle 
+} from 'lucide-react';
+import AdminLayout from '@/components/admin/AdminLayout';
 import { getSystemStats } from '@/lib/api/admin';
-import Navbar from '@/components/ui/navbar';
-import Footer from '@/components/ui/footer';
 import AdminNav from '@/components/admin/AdminNav';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-  Legend,
-} from 'recharts';
-import { User, Users, Utensils, CalendarCheck, Tag } from 'lucide-react';
 
 const Dashboard: React.FC = () => {
-  const { user } = useAuth();
-  const navigate = useNavigate();
   const { toast } = useToast();
-  const [userProfile, setUserProfile] = useState<any>(null);
-  const [stats, setStats] = useState<any>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  
+  const [stats, setStats] = useState<any>({
+    usersCount: 0,
+    restaurantsCount: 0,
+    pendingRestaurantsCount: 0,
+    reservationsCount: 0,
+    claimedDealsCount: 0
+  });
+  const [systemStatus, setSystemStatus] = useState({
+    api: 'healthy',
+    database: 'healthy',
+    storage: 'healthy',
+    auth: 'healthy'
+  });
+
+  // Fetch system stats
   useEffect(() => {
-    const loadDashboard = async () => {
-      if (!user) {
-        navigate('/admin/auth');
-        return;
-      }
-      
-      setIsLoading(true);
-      
+    const loadStats = async () => {
       try {
-        // Load user profile
-        const profile = await getUserProfile(user.id);
-        setUserProfile(profile);
-        
-        if (!profile.is_admin) {
-          toast({
-            title: 'Access Denied',
-            description: 'You do not have admin privileges.',
-            variant: 'destructive'
-          });
-          navigate('/');
-          return;
-        }
-        
-        // Load system stats
-        const systemStats = await getSystemStats();
-        setStats(systemStats);
-        
+        const data = await getSystemStats();
+        setStats(data);
       } catch (error) {
-        console.error('Error loading admin dashboard:', error);
+        console.error('Error loading system stats:', error);
         toast({
           title: 'Error',
-          description: 'Failed to load dashboard data.',
+          description: 'Failed to load system statistics.',
           variant: 'destructive'
         });
       } finally {
@@ -72,205 +54,250 @@ const Dashboard: React.FC = () => {
       }
     };
     
-    loadDashboard();
-  }, [user, navigate, toast]);
-  
-  // Dummy data for charts
-  const userActivityData = [
-    { name: 'Jan', Users: 400, Bookings: 240 },
-    { name: 'Feb', Users: 300, Bookings: 139 },
-    { name: 'Mar', Users: 200, Bookings: 980 },
-    { name: 'Apr', Users: 278, Bookings: 390 },
-    { name: 'May', Users: 189, Bookings: 480 },
-    { name: 'Jun', Users: 239, Bookings: 380 },
-  ];
-  
-  const userTypesData = [
-    { name: 'Customers', value: stats?.usersCount || 100 },
-    { name: 'Restaurant Owners', value: stats?.restaurantsCount || 20 },
-    { name: 'Admins', value: 2 },
-  ];
-  
-  const COLORS = ['#0088FE', '#00C49F', '#FFBB28'];
-  
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex flex-col">
-        <Navbar userType="admin" userName="Admin" />
-        
-        <main className="flex-grow py-8">
-          <div className="container mx-auto px-4">
-            <div className="flex justify-center items-center h-64">
-              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-            </div>
-          </div>
-        </main>
-        
-        <Footer />
-      </div>
-    );
-  }
-  
+    // Check system status (mock for now)
+    const checkSystemStatus = async () => {
+      // In a real app, you'd ping each service
+      setSystemStatus({
+        api: 'healthy',
+        database: 'healthy',
+        storage: 'healthy',
+        auth: 'healthy'
+      });
+    };
+    
+    loadStats();
+    checkSystemStatus();
+  }, [toast]);
+
   return (
-    <div className="min-h-screen flex flex-col">
-      <Navbar userType="admin" userName={userProfile?.name || 'Admin'} />
-      
-      <main className="flex-grow py-8">
-        <div className="container mx-auto px-4">
-          <h1 className="text-3xl font-bold mb-2">Admin Dashboard</h1>
-          <p className="text-gray-500 mb-6">Welcome back, {userProfile?.name}. Here's what's happening with DineVibe.</p>
-          
-          <AdminNav />
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <Card>
-              <CardContent className="flex flex-col items-center justify-center pt-6">
-                <div className="p-2 bg-blue-100 rounded-full mb-4">
-                  <User className="h-8 w-8 text-blue-600" />
-                </div>
-                <CardTitle className="text-xl mb-1">{stats?.usersCount || 0}</CardTitle>
-                <p className="text-sm text-gray-500">Total Users</p>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardContent className="flex flex-col items-center justify-center pt-6">
-                <div className="p-2 bg-green-100 rounded-full mb-4">
-                  <Utensils className="h-8 w-8 text-green-600" />
-                </div>
-                <CardTitle className="text-xl mb-1">{stats?.restaurantsCount || 0}</CardTitle>
-                <p className="text-sm text-gray-500">Restaurants</p>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardContent className="flex flex-col items-center justify-center pt-6">
-                <div className="p-2 bg-yellow-100 rounded-full mb-4">
-                  <CalendarCheck className="h-8 w-8 text-yellow-600" />
-                </div>
-                <CardTitle className="text-xl mb-1">{stats?.reservationsCount || 0}</CardTitle>
-                <p className="text-sm text-gray-500">Reservations</p>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardContent className="flex flex-col items-center justify-center pt-6">
-                <div className="p-2 bg-purple-100 rounded-full mb-4">
-                  <Tag className="h-8 w-8 text-purple-600" />
-                </div>
-                <CardTitle className="text-xl mb-1">{stats?.claimedDealsCount || 0}</CardTitle>
-                <p className="text-sm text-gray-500">Claimed Deals</p>
-              </CardContent>
-            </Card>
+    <AdminLayout>
+      <div className="p-6 space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Admin Dashboard</h1>
+            <p className="text-muted-foreground">
+              Overview and management of the DineVibe platform
+            </p>
           </div>
-          
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-            <Card>
-              <CardHeader>
-                <CardTitle>User Activity</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="h-80">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart
-                      data={userActivityData}
-                      margin={{
-                        top: 5,
-                        right: 30,
-                        left: 20,
-                        bottom: 5,
-                      }}
-                    >
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="name" />
-                      <YAxis />
-                      <Tooltip />
-                      <Legend />
-                      <Bar dataKey="Users" fill="#8884d8" />
-                      <Bar dataKey="Bookings" fill="#82ca9d" />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardHeader>
-                <CardTitle>User Distribution</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="h-80">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={userTypesData}
-                        cx="50%"
-                        cy="50%"
-                        labelLine={false}
-                        outerRadius={80}
-                        fill="#8884d8"
-                        dataKey="value"
-                        label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                      >
-                        {userTypesData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                        ))}
-                      </Pie>
-                      <Legend />
-                      <Tooltip />
-                    </PieChart>
-                  </ResponsiveContainer>
-                </div>
-              </CardContent>
-            </Card>
+          <div className="flex gap-2">
+            <Button asChild variant="outline">
+              <Link to="/admin/reports">
+                <FileText className="mr-2 h-4 w-4" />
+                Generate Report
+              </Link>
+            </Button>
+            <Button asChild>
+              <Link to="/admin/settings">
+                <Settings className="mr-2 h-4 w-4" />
+                Admin Settings
+              </Link>
+            </Button>
           </div>
-          
+        </div>
+
+        {/* Quick Stats */}
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <Card>
-            <CardHeader>
-              <CardTitle>Recent Activity</CardTitle>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Users</CardTitle>
+              <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                <div className="flex items-center gap-4 p-3 bg-gray-50 dark:bg-gray-800 rounded-md">
-                  <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-full">
-                    <Users className="h-4 w-4 text-blue-600 dark:text-blue-300" />
-                  </div>
-                  <div>
-                    <p className="font-medium">New user registered</p>
-                    <p className="text-sm text-gray-500">A new user has signed up for DineVibe</p>
-                  </div>
-                  <div className="ml-auto text-sm text-gray-500">2 hours ago</div>
-                </div>
-                
-                <div className="flex items-center gap-4 p-3 bg-gray-50 dark:bg-gray-800 rounded-md">
-                  <div className="p-2 bg-green-100 dark:bg-green-900 rounded-full">
-                    <Utensils className="h-4 w-4 text-green-600 dark:text-green-300" />
-                  </div>
-                  <div>
-                    <p className="font-medium">Restaurant approved</p>
-                    <p className="text-sm text-gray-500">A new restaurant was approved and is now listed</p>
-                  </div>
-                  <div className="ml-auto text-sm text-gray-500">5 hours ago</div>
-                </div>
-                
-                <div className="flex items-center gap-4 p-3 bg-gray-50 dark:bg-gray-800 rounded-md">
-                  <div className="p-2 bg-yellow-100 dark:bg-yellow-900 rounded-full">
-                    <CalendarCheck className="h-4 w-4 text-yellow-600 dark:text-yellow-300" />
-                  </div>
-                  <div>
-                    <p className="font-medium">New reservation</p>
-                    <p className="text-sm text-gray-500">A customer made a new reservation at The Savory Plate</p>
-                  </div>
-                  <div className="ml-auto text-sm text-gray-500">Yesterday</div>
-                </div>
-              </div>
+              <div className="text-2xl font-bold">{isLoading ? '...' : stats.usersCount}</div>
+              <p className="text-xs text-muted-foreground">Platform registered users</p>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Restaurants</CardTitle>
+              <Store className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{isLoading ? '...' : stats.restaurantsCount}</div>
+              <p className="text-xs text-muted-foreground">
+                <span className="text-amber-500">{stats.pendingRestaurantsCount} pending approval</span>
+              </p>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Reservations</CardTitle>
+              <Calendar className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{isLoading ? '...' : stats.reservationsCount}</div>
+              <p className="text-xs text-muted-foreground">Total bookings made</p>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Claimed Deals</CardTitle>
+              <TrendingUp className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{isLoading ? '...' : stats.claimedDealsCount}</div>
+              <p className="text-xs text-muted-foreground">Claimed promotions</p>
             </CardContent>
           </Card>
         </div>
-      </main>
-      
-      <Footer />
-    </div>
+
+        {/* System Status */}
+        <Card>
+          <CardHeader>
+            <CardTitle>System Status</CardTitle>
+            <CardDescription>Current health of DineVibe services</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="flex items-center gap-2">
+                <div className={`h-3 w-3 rounded-full ${systemStatus.api === 'healthy' ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                <span>API Services</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className={`h-3 w-3 rounded-full ${systemStatus.database === 'healthy' ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                <span>Database</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className={`h-3 w-3 rounded-full ${systemStatus.storage === 'healthy' ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                <span>Storage</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className={`h-3 w-3 rounded-full ${systemStatus.auth === 'healthy' ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                <span>Authentication</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Action Tabs */}
+        <Tabs defaultValue="pending">
+          <TabsList>
+            <TabsTrigger value="pending">
+              <div className="flex items-center">
+                <AlertTriangle className="mr-2 h-4 w-4" />
+                <span>Pending Approvals</span>
+                {stats.pendingRestaurantsCount > 0 && (
+                  <span className="ml-2 rounded-full bg-red-500 px-2 py-0.5 text-xs text-white">
+                    {stats.pendingRestaurantsCount}
+                  </span>
+                )}
+              </div>
+            </TabsTrigger>
+            <TabsTrigger value="recent">Recent Activity</TabsTrigger>
+            <TabsTrigger value="performance">Performance</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="pending">
+            <Card>
+              <CardHeader>
+                <CardTitle>Pending Restaurant Approvals</CardTitle>
+                <CardDescription>New restaurant registrations awaiting approval</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {stats.pendingRestaurantsCount === 0 ? (
+                  <p className="text-muted-foreground">No pending approvals</p>
+                ) : (
+                  <div className="text-center py-4">
+                    <p className="mb-4">You have {stats.pendingRestaurantsCount} restaurant(s) awaiting approval</p>
+                    <Button asChild>
+                      <Link to="/admin/restaurants">
+                        Review Pending Restaurants
+                      </Link>
+                    </Button>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+          
+          <TabsContent value="recent">
+            <Card>
+              <CardHeader>
+                <CardTitle>Recent Activity</CardTitle>
+                <CardDescription>Latest actions on the platform</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground">
+                  View detailed logs in the Admin Logs section
+                </p>
+                <Button variant="outline" className="mt-4" asChild>
+                  <Link to="/admin/logs">
+                    View All Activity Logs
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
+          </TabsContent>
+          
+          <TabsContent value="performance">
+            <Card>
+              <CardHeader>
+                <CardTitle>Platform Performance</CardTitle>
+                <CardDescription>User engagement and revenue metrics</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground">
+                  Detailed analytics are available in the Reports section
+                </p>
+                <Button variant="outline" className="mt-4" asChild>
+                  <Link to="/admin/reports">
+                    View Detailed Analytics
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+
+        {/* Quick Links */}
+        <div className="grid gap-4 md:grid-cols-3">
+          <Card>
+            <CardHeader>
+              <CardTitle>User Management</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Button variant="outline" className="w-full mb-2" asChild>
+                <Link to="/admin/users">
+                  <Users className="mr-2 h-4 w-4" />
+                  Manage Users
+                </Link>
+              </Button>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader>
+              <CardTitle>Restaurant Management</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Button variant="outline" className="w-full mb-2" asChild>
+                <Link to="/admin/restaurants">
+                  <Store className="mr-2 h-4 w-4" />
+                  Manage Restaurants
+                </Link>
+              </Button>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader>
+              <CardTitle>Reservation Management</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Button variant="outline" className="w-full mb-2" asChild>
+                <Link to="/admin/reservations">
+                  <Calendar className="mr-2 h-4 w-4" />
+                  Manage Reservations
+                </Link>
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </AdminLayout>
   );
 };
 

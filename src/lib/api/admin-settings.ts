@@ -1,0 +1,78 @@
+
+import { supabase, isSupabaseConfigured } from './client';
+
+// Get the current admin registration code
+export const getAdminRegistrationCode = async () => {
+  if (!isSupabaseConfigured) {
+    console.error('Cannot get admin registration code: Supabase credentials not configured');
+    throw new Error('Supabase credentials not configured');
+  }
+  
+  const { data, error } = await supabase
+    .from('admin_settings')
+    .select('registration_code')
+    .single();
+    
+  if (error) throw error;
+  return data?.registration_code;
+};
+
+// Update the admin registration code
+export const updateAdminRegistrationCode = async (newCode: string) => {
+  if (!isSupabaseConfigured) {
+    console.error('Cannot update admin registration code: Supabase credentials not configured');
+    throw new Error('Supabase credentials not configured');
+  }
+  
+  // First check if a record exists
+  const { data: existingData } = await supabase
+    .from('admin_settings')
+    .select('id')
+    .limit(1);
+    
+  if (existingData && existingData.length > 0) {
+    // Update existing record
+    const { data, error } = await supabase
+      .from('admin_settings')
+      .update({ registration_code: newCode })
+      .eq('id', existingData[0].id)
+      .select()
+      .single();
+      
+    if (error) throw error;
+    return data;
+  } else {
+    // Insert new record
+    const { data, error } = await supabase
+      .from('admin_settings')
+      .insert({ registration_code: newCode })
+      .select()
+      .single();
+      
+    if (error) throw error;
+    return data;
+  }
+};
+
+// Get the admin count to limit registrations
+export const getAdminCount = async () => {
+  if (!isSupabaseConfigured) {
+    console.error('Cannot get admin count: Supabase credentials not configured');
+    throw new Error('Supabase credentials not configured');
+  }
+  
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('id')
+    .eq('role', 'admin')
+    .eq('is_admin', true);
+    
+  if (error) throw error;
+  return data ? data.length : 0;
+};
+
+// Check if initial admin setup is complete
+export const isInitialAdminSetupComplete = async () => {
+  const adminCount = await getAdminCount();
+  return adminCount >= 2; // Return true if we already have 2 or more admins
+};
