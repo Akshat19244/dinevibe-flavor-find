@@ -34,6 +34,7 @@ import OwnerSettings from "./pages/owner/Settings";
 
 // Admin pages
 import AdminDashboard from "./pages/admin/Dashboard";
+import AdminAuth from "./pages/admin/AdminAuth";
 import ManageUsers from "./pages/admin/ManageUsers";
 import Reports from "./pages/admin/Reports";
 import Notifications from "./pages/admin/Notifications";
@@ -70,6 +71,7 @@ const App = () => (
             <Route path="/about" element={<About />} />
             <Route path="/features" element={<Features />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="/admin/auth" element={<AdminAuth />} />
             
             {/* User routes */}
             <Route path="/user/discovery" element={
@@ -137,32 +139,32 @@ const App = () => (
             
             {/* Admin routes */}
             <Route path="/admin/dashboard" element={
-              <ProtectedRoute allowedRoles={['admin']}>
+              <ProtectedRoute requireAdmin={true}>
                 <AdminDashboard />
               </ProtectedRoute>
             } />
             <Route path="/admin/users" element={
-              <ProtectedRoute allowedRoles={['admin']}>
+              <ProtectedRoute requireAdmin={true}>
                 <ManageUsers />
               </ProtectedRoute>
             } />
             <Route path="/admin/reports" element={
-              <ProtectedRoute allowedRoles={['admin']}>
+              <ProtectedRoute requireAdmin={true}>
                 <Reports />
               </ProtectedRoute>
             } />
             <Route path="/admin/notify" element={
-              <ProtectedRoute allowedRoles={['admin']}>
+              <ProtectedRoute requireAdmin={true}>
                 <Notifications />
               </ProtectedRoute>
             } />
             <Route path="/admin/settings" element={
-              <ProtectedRoute allowedRoles={['admin']}>
+              <ProtectedRoute requireAdmin={true}>
                 <AdminSettings />
               </ProtectedRoute>
             } />
             <Route path="/control" element={
-              <ProtectedRoute allowedRoles={['admin']}>
+              <ProtectedRoute requireAdmin={true}>
                 <ControlPanel />
               </ProtectedRoute>
             } />

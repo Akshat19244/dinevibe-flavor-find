@@ -546,9 +546,9 @@ const ManageRestaurants: React.FC = () => {
                   <div>
                     <h4 className="font-medium mb-2">Manager Details</h4>
                     <div className="space-y-1 text-sm">
-                      <p><span className="font-medium">Name:</span> {typeof selectedRestaurant.manager_details === 'object' && 'name' in selectedRestaurant.manager_details ? selectedRestaurant.manager_details.name : 'Not specified'}</p>
-                      <p><span className="font-medium">Email:</span> {typeof selectedRestaurant.manager_details === 'object' && 'email' in selectedRestaurant.manager_details ? selectedRestaurant.manager_details.email : 'Not specified'}</p>
-                      <p><span className="font-medium">Contact:</span> {typeof selectedRestaurant.manager_details === 'object' && 'contact' in selectedRestaurant.manager_details ? selectedRestaurant.manager_details.contact : 'Not specified'}</p>
+                      <p><span className="font-medium">Name:</span> {typeof selectedRestaurant.manager_details === 'object' && selectedRestaurant.manager_details !== null && 'name' in selectedRestaurant.manager_details ? String(selectedRestaurant.manager_details.name) : 'Not specified'}</p>
+                      <p><span className="font-medium">Email:</span> {typeof selectedRestaurant.manager_details === 'object' && selectedRestaurant.manager_details !== null && 'email' in selectedRestaurant.manager_details ? String(selectedRestaurant.manager_details.email) : 'Not specified'}</p>
+                      <p><span className="font-medium">Contact:</span> {typeof selectedRestaurant.manager_details === 'object' && selectedRestaurant.manager_details !== null && 'contact' in selectedRestaurant.manager_details ? String(selectedRestaurant.manager_details.contact) : 'Not specified'}</p>
                     </div>
                   </div>
                 )}

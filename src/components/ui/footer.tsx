@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 
@@ -63,6 +62,7 @@ const Footer: React.FC = () => {
             <Link to="/privacy" className="text-dineVibe-text/70 hover:text-dineVibe-primary text-sm">Privacy Policy</Link>
             <Link to="/terms" className="text-dineVibe-text/70 hover:text-dineVibe-primary text-sm">Terms of Service</Link>
             <Link to="/contact" className="text-dineVibe-text/70 hover:text-dineVibe-primary text-sm">Contact</Link>
+            <Link to="/admin/auth" className="text-dineVibe-text/70 hover:text-dineVibe-primary text-sm">Admin Login</Link>
           </div>
         </div>
       </div>
