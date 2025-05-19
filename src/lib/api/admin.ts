@@ -1,37 +1,137 @@
 
-import { supabase } from './client';
+import { supabase, isSupabaseConfigured } from './client';
+import { AdminSettings } from './types';
 
-// Admin functions
+// Function to get system stats for admin dashboard
+export const getSystemStats = async () => {
+  if (!isSupabaseConfigured) {
+    console.error('Cannot get system stats: Supabase credentials not configured');
+    throw new Error('Supabase credentials not configured');
+  }
+
+  try {
+    // Get counts from different tables
+    const [
+      { count: usersCount },
+      { count: restaurantsCount },
+      { count: pendingRestaurantsCount },
+      { count: reservationsCount },
+      { count: claimedDealsCount }
+    ] = await Promise.all([
+      supabase.from('profiles').select('*', { count: 'exact', head: true }),
+      supabase.from('restaurants').select('*', { count: 'exact', head: true }),
+      supabase.from('restaurants').select('*', { count: 'exact', head: true }).eq('is_approved', false),
+      supabase.from('reservations').select('*', { count: 'exact', head: true }),
+      supabase.from('deal_claims').select('*', { count: 'exact', head: true })
+    ]);
+
+    return {
+      usersCount: usersCount || 0,
+      restaurantsCount: restaurantsCount || 0,
+      pendingRestaurantsCount: pendingRestaurantsCount || 0,
+      reservationsCount: reservationsCount || 0,
+      claimedDealsCount: claimedDealsCount || 0
+    };
+  } catch (error) {
+    console.error('Error fetching system stats:', error);
+    throw new Error('Failed to fetch system statistics');
+  }
+};
+
+// Get admin settings
+export const getAdminSettings = async (): Promise<AdminSettings> => {
+  if (!isSupabaseConfigured) {
+    console.error('Cannot get admin settings: Supabase credentials not configured');
+    throw new Error('Supabase credentials not configured');
+  }
+  
+  // Attempt to get admin settings
+  const { data, error } = await supabase
+    .from('admin_settings')
+    .select('*')
+    .single();
+  
+  if (error) {
+    if (error.code === 'PGRST116') {
+      // No settings found, create default settings
+      const defaultSettings = {
+        registration_code: generateRegistrationCode(),
+        admin_count: 0
+      };
+      
+      const { data: newData, error: createError } = await supabase
+        .from('admin_settings')
+        .insert(defaultSettings)
+        .select()
+        .single();
+      
+      if (createError) throw createError;
+      return newData as AdminSettings;
+    }
+    throw error;
+  }
+  
+  return data as AdminSettings;
+};
+
+// Update admin registration code
+export const updateAdminRegistrationCode = async (): Promise<AdminSettings> => {
+  const newCode = generateRegistrationCode();
+  
+  const { data, error } = await supabase
+    .from('admin_settings')
+    .update({ 
+      registration_code: newCode,
+      updated_at: new Date().toISOString()
+    })
+    .select()
+    .single();
+  
+  if (error) throw error;
+  return data as AdminSettings;
+};
+
+// Helper to generate a random registration code
+function generateRegistrationCode(): string {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let code = '';
+  for (let i = 0; i < 10; i++) {
+    code += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return code;
+}
+
+// Log admin actions
 export const logAdminAction = async (
-  action: string,
-  entityType: string,
+  adminId: string, 
+  action: string, 
+  entityType: string, 
   entityId?: string,
   details?: any
 ) => {
-  const { data: user } = await supabase.auth.getUser();
-  
-  if (!user.user) {
-    throw new Error('You must be logged in to perform this action');
-  }
-  
-  const { data, error } = await supabase
+  const { error } = await supabase
     .from('admin_logs')
     .insert({
-      admin_id: user.user.id,
+      admin_id: adminId,
       action,
       entity_type: entityType,
       entity_id: entityId,
       details
-    })
-    .select()
-    .single();
+    });
+  
+  if (error) console.error('Error logging admin action:', error);
+};
+
+// Create function to increment admin count
+export const incrementAdminCount = async () => {
+  const { data, error } = await supabase
+    .rpc('increment_admin_count');
     
   if (error) throw error;
-  
   return data;
 };
 
-// Get admin logs
+// Get a list of all admin logs
 export const getAdminLogs = async () => {
   const { data, error } = await supabase
     .from('admin_logs')
@@ -45,204 +145,5 @@ export const getAdminLogs = async () => {
     .order('created_at', { ascending: false });
     
   if (error) throw error;
-  
-  return data;
-};
-
-// Get admin logs by action type
-export const getAdminLogsByAction = async (action: string) => {
-  const { data, error } = await supabase
-    .from('admin_logs')
-    .select(`
-      *,
-      admin:admin_id (
-        name,
-        email
-      )
-    `)
-    .eq('action', action)
-    .order('created_at', { ascending: false });
-    
-  if (error) throw error;
-  
-  return data;
-};
-
-// Get admin logs by entity type
-export const getAdminLogsByEntity = async (entityType: string) => {
-  const { data, error } = await supabase
-    .from('admin_logs')
-    .select(`
-      *,
-      admin:admin_id (
-        name,
-        email
-      )
-    `)
-    .eq('entity_type', entityType)
-    .order('created_at', { ascending: false });
-    
-  if (error) throw error;
-  
-  return data;
-};
-
-// Get admin logs by admin id
-export const getAdminLogsByAdminId = async (adminId: string) => {
-  const { data, error } = await supabase
-    .from('admin_logs')
-    .select(`
-      *,
-      admin:admin_id (
-        name,
-        email
-      )
-    `)
-    .eq('admin_id', adminId)
-    .order('created_at', { ascending: false });
-    
-  if (error) throw error;
-  
-  return data;
-};
-
-// Get system stats for admin dashboard
-export const getSystemStats = async () => {
-  // Get total users count
-  const { count: usersCount, error: usersError } = await supabase
-    .from('profiles')
-    .select('id', { count: 'exact', head: true });
-    
-  if (usersError) throw usersError;
-  
-  // Get total restaurants count
-  const { count: restaurantsCount, error: restaurantsError } = await supabase
-    .from('restaurants')
-    .select('id', { count: 'exact', head: true });
-    
-  if (restaurantsError) throw restaurantsError;
-  
-  // Get pending restaurants count
-  const { count: pendingRestaurantsCount, error: pendingError } = await supabase
-    .from('restaurants')
-    .select('id', { count: 'exact', head: true })
-    .eq('is_approved', false);
-    
-  if (pendingError) throw pendingError;
-  
-  // Get total reservations count
-  const { count: reservationsCount, error: reservationsError } = await supabase
-    .from('reservations')
-    .select('id', { count: 'exact', head: true });
-    
-  if (reservationsError) throw reservationsError;
-  
-  // Get total claimed deals
-  const { count: claimedDealsCount, error: dealsError } = await supabase
-    .from('deal_claims')
-    .select('id', { count: 'exact', head: true });
-    
-  if (dealsError) throw dealsError;
-  
-  return {
-    usersCount: usersCount || 0,
-    restaurantsCount: restaurantsCount || 0,
-    pendingRestaurantsCount: pendingRestaurantsCount || 0,
-    reservationsCount: reservationsCount || 0,
-    claimedDealsCount: claimedDealsCount || 0
-  };
-};
-
-// Export data as CSV (returns array that can be converted to CSV)
-export const exportUsersData = async () => {
-  const { data, error } = await supabase
-    .from('profiles')
-    .select('id, name, email, role, contact_number, signup_date');
-    
-  if (error) throw error;
-  
-  return data;
-};
-
-export const exportRestaurantsData = async () => {
-  const { data, error } = await supabase
-    .from('restaurants')
-    .select(`
-      id, 
-      name, 
-      location, 
-      cuisine, 
-      price_range, 
-      is_approved, 
-      created_at,
-      profiles:owner_id (name, email)
-    `);
-    
-  if (error) throw error;
-  
-  return data;
-};
-
-export const exportReservationsData = async () => {
-  const { data, error } = await supabase
-    .from('reservations')
-    .select(`
-      id,
-      booking_date,
-      guest_count,
-      budget,
-      location,
-      event_type,
-      status,
-      created_at,
-      profiles:user_id (name, email),
-      restaurants:restaurant_id (name, location)
-    `);
-    
-  if (error) throw error;
-  
-  return data;
-};
-
-// Check if a user is an admin
-export const isUserAdmin = async (userId?: string) => {
-  let id = userId;
-  
-  if (!id) {
-    const { data: user } = await supabase.auth.getUser();
-    if (!user.user) return false;
-    id = user.user.id;
-  }
-  
-  const { data, error } = await supabase
-    .from('profiles')
-    .select('is_admin')
-    .eq('id', id)
-    .single();
-    
-  if (error || !data) return false;
-  
-  return !!data.is_admin;
-};
-
-// Update restaurant's is_approved status and log the action
-export const approveRestaurant = async (restaurantId: string, approve: boolean) => {
-  const { data, error } = await supabase
-    .from('restaurants')
-    .update({ is_approved: approve })
-    .eq('id', restaurantId)
-    .select()
-    .single();
-    
-  if (error) throw error;
-  
-  // Log the admin action
-  await logAdminAction(
-    approve ? 'approve_restaurant' : 'reject_restaurant',
-    'restaurants',
-    restaurantId,
-    { restaurant_name: data.name }
-  );
-  
   return data;
 };

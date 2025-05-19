@@ -27,6 +27,9 @@ export type Restaurant = {
   location: string;
   cuisine: string;
   price_range?: string;
+  budget_range?: { min: number; max: number };
+  seating_capacity?: number;
+  offers_decoration?: boolean;
   staff_size?: number;
   manager_details?: Json;
   menu_images?: string[];
@@ -98,4 +101,5 @@ export type AdminSettings = {
   id: string;
   registration_code: string;
   updated_at: string;
+  admin_count?: number;
 };

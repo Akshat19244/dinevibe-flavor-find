@@ -11,7 +11,13 @@ import { useToast } from '@/components/ui/use-toast';
 interface AuthFormProps {
   defaultTab?: 'login' | 'signup';
   onEmailLogin?: (data: { email: string, password: string }) => Promise<void>;
-  onEmailSignup?: (data: { email: string, password: string, name?: string, userType?: string }) => Promise<void>;
+  onEmailSignup?: (data: { 
+    email: string, 
+    password: string, 
+    name?: string, 
+    userType?: string,
+    adminCode?: string
+  }) => Promise<void>;
   onGoogleLogin?: () => Promise<void>;
   isLoading?: boolean;
 }
@@ -35,6 +41,7 @@ const AuthForm: React.FC<AuthFormProps> = ({
     password: '',
     confirmPassword: '',
     userType: 'customer',
+    adminCode: '',
   });
   
   const handleLoginSubmit = async (e: React.FormEvent) => {
@@ -84,12 +91,23 @@ const AuthForm: React.FC<AuthFormProps> = ({
       return;
     }
     
+    // Admin validation
+    if (signupData.userType === 'admin' && !signupData.adminCode) {
+      toast({
+        title: "Signup failed",
+        description: "Admin registration code is required",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     if (onEmailSignup) {
       await onEmailSignup({
         email: signupData.email,
         password: signupData.password,
         name: signupData.name,
-        userType: signupData.userType
+        userType: signupData.userType,
+        adminCode: signupData.adminCode,
       });
     } else {
       // Fallback to original behavior for backward compatibility
@@ -274,7 +292,7 @@ const AuthForm: React.FC<AuthFormProps> = ({
                 
                 <div className="space-y-2">
                   <Label>I am a</Label>
-                  <div className="grid grid-cols-2 gap-4 pt-1">
+                  <div className="grid grid-cols-3 gap-2 pt-1">
                     <Button 
                       type="button"
                       variant={signupData.userType === 'customer' ? 'default' : 'outline'}
@@ -291,14 +309,41 @@ const AuthForm: React.FC<AuthFormProps> = ({
                     >
                       Restaurant Owner
                     </Button>
+                    <Button 
+                      type="button"
+                      variant={signupData.userType === 'admin' ? 'default' : 'outline'}
+                      className={signupData.userType === 'admin' ? 'bg-violet-600' : ''}
+                      onClick={() => setSignupData({ ...signupData, userType: 'admin' })}
+                    >
+                      Admin
+                    </Button>
                   </div>
                 </div>
+                
+                {signupData.userType === 'admin' && (
+                  <div className="space-y-2">
+                    <Label htmlFor="admin-code">Admin Registration Code</Label>
+                    <Input 
+                      id="admin-code" 
+                      type="password" 
+                      placeholder="Enter admin code" 
+                      value={signupData.adminCode}
+                      onChange={(e) => setSignupData({ ...signupData, adminCode: e.target.value })}
+                    />
+                  </div>
+                )}
               </CardContent>
               
               <CardFooter>
                 <Button 
                   type="submit" 
-                  className={`w-full ${signupData.userType === 'owner' ? 'bg-dineVibe-accent hover:bg-dineVibe-accent/90' : 'bg-dineVibe-primary hover:bg-dineVibe-primary/90'}`}
+                  className={`w-full ${
+                    signupData.userType === 'owner' 
+                      ? 'bg-dineVibe-accent hover:bg-dineVibe-accent/90' 
+                      : signupData.userType === 'admin'
+                      ? 'bg-violet-600 hover:bg-violet-700'
+                      : 'bg-dineVibe-primary hover:bg-dineVibe-primary/90'
+                  }`}
                   disabled={effectiveIsLoading}
                 >
                   {effectiveIsLoading ? "Creating Account..." : "Create Account"}

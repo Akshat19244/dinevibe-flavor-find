@@ -33,7 +33,34 @@ const AuthFormWrapper: React.FC<{ defaultTab?: 'login' | 'signup' }> = ({ defaul
         return;
       }
       
-      navigate(redirectPath);
+      // Get the user's profile to redirect based on role
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('role, is_admin')
+            .eq('id', user.id)
+            .single();
+          
+          if (profile) {
+            if (profile.is_admin || profile.role === 'admin') {
+              navigate('/admin/dashboard');
+            } else if (profile.role === 'owner') {
+              navigate('/owner/dashboard');
+            } else {
+              navigate('/user/discovery');
+            }
+            return;
+          }
+        }
+        
+        // Default navigation if we can't determine role
+        navigate(redirectPath);
+      } catch (profileErr) {
+        console.error('Error fetching user profile:', profileErr);
+        navigate(redirectPath);
+      }
     } catch (err) {
       console.error('Login error:', err);
       toast({
@@ -46,9 +73,57 @@ const AuthFormWrapper: React.FC<{ defaultTab?: 'login' | 'signup' }> = ({ defaul
     }
   };
 
-  const handleEmailSignup = async (data: { email: string, password: string, name?: string, userType?: string }) => {
+  const handleEmailSignup = async (data: { 
+    email: string, 
+    password: string, 
+    name?: string, 
+    userType?: string,
+    adminCode?: string 
+  }) => {
     setIsLoading(true);
     try {
+      // If user type is admin, verify the admin code
+      if (data.userType === 'admin') {
+        // Check if we've reached the admin user limit
+        const { data: adminSettings, error: settingsError } = await supabase
+          .from('admin_settings')
+          .select('registration_code, admin_count')
+          .single();
+
+        if (settingsError) {
+          console.error('Failed to fetch admin settings:', settingsError);
+          toast({
+            title: 'Admin Registration Error',
+            description: 'Could not verify admin settings. Please try again.',
+            variant: 'destructive',
+          });
+          setIsLoading(false);
+          return;
+        }
+
+        // Check if admin count is at limit
+        if (adminSettings.admin_count >= 2) {
+          toast({
+            title: 'Admin Registration Limit Reached',
+            description: 'The maximum number of admins has been reached.',
+            variant: 'destructive',
+          });
+          setIsLoading(false);
+          return;
+        }
+
+        // Verify the admin code
+        if (data.adminCode !== adminSettings.registration_code) {
+          toast({
+            title: 'Invalid Admin Code',
+            description: 'The admin registration code you entered is incorrect.',
+            variant: 'destructive',
+          });
+          setIsLoading(false);
+          return;
+        }
+      }
+
       const { error } = await signUp(data.email, data.password);
       
       if (error) {
@@ -74,10 +149,22 @@ const AuthFormWrapper: React.FC<{ defaultTab?: 'login' | 'signup' }> = ({ defaul
         if (data.userType) {
           const userResponse = await supabase.auth.getUser();
           if (userResponse.data.user) {
+            const role = data.userType;
+            const isAdmin = role === 'admin';
+            
             await supabase.from('profiles').update({
               name: data.name,
-              role: data.userType === 'owner' ? 'owner' : 'user'
+              role: role,
+              is_admin: isAdmin
             }).eq('id', userResponse.data.user.id);
+            
+            // If admin was registered successfully, increment admin count
+            if (isAdmin) {
+              await supabase
+                .from('admin_settings')
+                .update({ admin_count: supabase.rpc('increment_admin_count') })
+                .eq('id', 1);
+            }
           }
         }
       } catch (metadataError) {

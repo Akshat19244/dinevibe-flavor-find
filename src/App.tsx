@@ -24,6 +24,7 @@ import Planning from "./pages/user/Planning";
 import Bookings from "./pages/user/Bookings";
 import UserSettings from "./pages/user/Settings";
 import Reservation from "./pages/user/Reservation";
+import MakeReservation from "./pages/user/MakeReservation"; // Import MakeReservation component
 
 // Restaurant owner pages
 import OwnerDashboard from "./pages/owner/Dashboard";
@@ -107,6 +108,12 @@ const App = () => (
             <Route path="/user/reservation" element={
               <ProtectedRoute>
                 <Reservation />
+              </ProtectedRoute>
+            } />
+            {/* Add the make-reservation route */}
+            <Route path="/user/make-reservation" element={
+              <ProtectedRoute>
+                <MakeReservation />
               </ProtectedRoute>
             } />
             

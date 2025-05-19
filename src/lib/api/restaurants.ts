@@ -1,4 +1,3 @@
-
 import { supabase, isSupabaseConfigured } from './client';
 import { Restaurant } from './types';
 
@@ -138,6 +137,67 @@ export const updateRestaurantApprovalStatus = async (id: string, isApproved: boo
     
   if (error) throw error;
   return data;
+};
+
+// Get restaurants by search criteria for recommendation
+export const getRecommendedRestaurants = async (
+  location: string,
+  budget: string,
+  guestCount: number,
+  needsDecoration?: boolean
+) => {
+  if (!isSupabaseConfigured) {
+    console.error('Cannot get recommended restaurants: Supabase credentials not configured');
+    throw new Error('Supabase credentials not configured');
+  }
+  
+  // Parse budget range from string like "$100-$300"
+  let minBudget = 0;
+  let maxBudget = 10000; // Default high value
+  
+  if (budget) {
+    const budgetParts = budget.match(/\$(\d+).*\$(\d+)/);
+    if (budgetParts && budgetParts.length === 3) {
+      minBudget = parseInt(budgetParts[1]);
+      maxBudget = parseInt(budgetParts[2]);
+    }
+  }
+  
+  let query = supabase
+    .from('restaurants')
+    .select('*')
+    .eq('is_approved', true)
+    .gte('seating_capacity', guestCount);
+    
+  // Add location filter if provided
+  if (location && location.trim() !== '') {
+    query = query.ilike('location', `%${location}%`);
+  }
+    
+  // Add decoration filter if needed
+  if (needsDecoration) {
+    query = query.eq('offers_decoration', true);
+  }
+    
+  const { data, error } = await query;
+    
+  if (error) throw error;
+  
+  // Filter by budget in memory since Supabase doesn't support JSONB filtering in this way
+  // This assumes budget_range is stored as { min: number, max: number }
+  let filteredData = data;
+  if (budget) {
+    filteredData = data.filter(restaurant => {
+      if (!restaurant.budget_range) return true;
+      
+      const min = restaurant.budget_range.min || 0;
+      const max = restaurant.budget_range.max || Infinity;
+      
+      return (min <= maxBudget && max >= minBudget);
+    });
+  }
+    
+  return filteredData as Restaurant[];
 };
 
 // File upload functions for restaurant images
