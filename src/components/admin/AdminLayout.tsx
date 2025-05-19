@@ -30,6 +30,14 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
     return <Navigate to="/admin/auth" replace />;
   }
   
+  // Check if user is an admin
+  const isAdmin = user.role === 'admin' || user.is_admin === true;
+  
+  // Redirect non-admin users
+  if (!isAdmin) {
+    return <Navigate to="/" replace />;
+  }
+  
   return (
     <div className="flex h-screen overflow-hidden">
       {/* Sidebar Navigation */}

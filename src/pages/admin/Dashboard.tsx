@@ -17,7 +17,6 @@ import {
 } from 'lucide-react';
 import AdminLayout from '@/components/admin/AdminLayout';
 import { getSystemStats } from '@/lib/api/admin';
-import AdminNav from '@/components/admin/AdminNav';
 
 const Dashboard: React.FC = () => {
   const { toast } = useToast();
