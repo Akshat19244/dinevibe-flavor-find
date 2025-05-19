@@ -39,6 +39,24 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_settings: {
+        Row: {
+          id: string
+          registration_code: string
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          registration_code: string
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          registration_code?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       deal_claims: {
         Row: {
           claimed_at: string | null

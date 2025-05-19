@@ -30,6 +30,11 @@ interface SystemSelectProps {
   groupLabel?: string;
 }
 
+// Ensure that we never have empty string values in SelectItem
+const ensureValidSelectValue = (value: string): string => {
+  return value?.trim() ? value : 'placeholder-value';
+};
+
 export const SystemSelect: React.FC<SystemSelectProps> = ({
   value,
   onValueChange,
@@ -55,7 +60,7 @@ export const SystemSelect: React.FC<SystemSelectProps> = ({
           {options.map((option) => (
             <SelectItem 
               key={option.value} 
-              value={option.value || 'placeholder-value'} // Ensure we never have empty string values
+              value={ensureValidSelectValue(option.value)} 
               disabled={option.disabled}
             >
               {option.label}
