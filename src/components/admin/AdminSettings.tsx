@@ -8,13 +8,14 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { getAdminSettings, updateAdminRegistrationCode, logAdminAction } from '@/lib/api/admin';
 import { Loader2 } from 'lucide-react';
+import { AdminSettings as AdminSettingsType } from '@/lib/api/types';
 
 const AdminSettings: React.FC = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(true);
   const [isUpdating, setIsUpdating] = useState(false);
-  const [adminSettings, setAdminSettings] = useState<any>(null);
+  const [adminSettings, setAdminSettings] = useState<AdminSettingsType | null>(null);
   
   useEffect(() => {
     const loadSettings = async () => {

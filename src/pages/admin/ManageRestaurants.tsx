@@ -8,7 +8,7 @@ import {
   getPendingRestaurants,
   getRestaurantById
 } from '@/lib/api/restaurants';
-import { isUserAdmin, logAdminAction } from '@/lib/api/admin';
+import { isUserAdmin } from '@/lib/api/admin';
 import { Restaurant } from '@/lib/api/types';
 import Navbar from '@/components/ui/navbar';
 import Footer from '@/components/ui/footer';

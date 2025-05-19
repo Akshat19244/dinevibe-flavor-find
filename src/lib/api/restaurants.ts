@@ -185,9 +185,9 @@ export const getRecommendedRestaurants = async (
   
   // Filter by budget in memory since Supabase doesn't support JSONB filtering in this way
   // This assumes budget_range is stored as { min: number, max: number }
-  let filteredData = data;
+  let filteredData = data as Restaurant[];
   if (budget) {
-    filteredData = data.filter(restaurant => {
+    filteredData = filteredData.filter(restaurant => {
       if (!restaurant.budget_range) return true;
       
       const min = restaurant.budget_range.min || 0;
@@ -197,7 +197,7 @@ export const getRecommendedRestaurants = async (
     });
   }
     
-  return filteredData as Restaurant[];
+  return filteredData;
 };
 
 // File upload functions for restaurant images

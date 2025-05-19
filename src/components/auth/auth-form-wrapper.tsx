@@ -85,7 +85,7 @@ const AuthFormWrapper: React.FC<{ defaultTab?: 'login' | 'signup' }> = ({ defaul
       // If user type is admin, verify the admin code
       if (data.userType === 'admin') {
         // Check if we've reached the admin user limit
-        const { data: adminSettings, error: settingsError } = await supabase
+        const { data: settingsData, error: settingsError } = await supabase
           .from('admin_settings')
           .select('registration_code, admin_count')
           .single();
@@ -102,7 +102,7 @@ const AuthFormWrapper: React.FC<{ defaultTab?: 'login' | 'signup' }> = ({ defaul
         }
 
         // Check if admin count is at limit
-        if (adminSettings.admin_count >= 2) {
+        if (settingsData && settingsData.admin_count >= 2) {
           toast({
             title: 'Admin Registration Limit Reached',
             description: 'The maximum number of admins has been reached.',
@@ -113,7 +113,7 @@ const AuthFormWrapper: React.FC<{ defaultTab?: 'login' | 'signup' }> = ({ defaul
         }
 
         // Verify the admin code
-        if (data.adminCode !== adminSettings.registration_code) {
+        if (data.adminCode !== settingsData.registration_code) {
           toast({
             title: 'Invalid Admin Code',
             description: 'The admin registration code you entered is incorrect.',
@@ -160,10 +160,8 @@ const AuthFormWrapper: React.FC<{ defaultTab?: 'login' | 'signup' }> = ({ defaul
             
             // If admin was registered successfully, increment admin count
             if (isAdmin) {
-              await supabase
-                .from('admin_settings')
-                .update({ admin_count: supabase.rpc('increment_admin_count') })
-                .eq('id', 1);
+              // Use the RPC function to increment admin count
+              await supabase.rpc('increment_admin_count');
             }
           }
         }

@@ -41,16 +41,19 @@ export type Database = {
       }
       admin_settings: {
         Row: {
+          admin_count: number | null
           id: string
           registration_code: string
           updated_at: string | null
         }
         Insert: {
+          admin_count?: number | null
           id?: string
           registration_code: string
           updated_at?: string | null
         }
         Update: {
+          admin_count?: number | null
           id?: string
           registration_code?: string
           updated_at?: string | null
@@ -183,6 +186,7 @@ export type Database = {
       }
       restaurants: {
         Row: {
+          budget_range: Json | null
           created_at: string
           cuisine: string
           deals: Json | null
@@ -194,11 +198,14 @@ export type Database = {
           manager_details: Json | null
           menu_images: string[] | null
           name: string
+          offers_decoration: boolean | null
           owner_id: string
           price_range: string | null
+          seating_capacity: number | null
           staff_size: number | null
         }
         Insert: {
+          budget_range?: Json | null
           created_at?: string
           cuisine: string
           deals?: Json | null
@@ -210,11 +217,14 @@ export type Database = {
           manager_details?: Json | null
           menu_images?: string[] | null
           name: string
+          offers_decoration?: boolean | null
           owner_id: string
           price_range?: string | null
+          seating_capacity?: number | null
           staff_size?: number | null
         }
         Update: {
+          budget_range?: Json | null
           created_at?: string
           cuisine?: string
           deals?: Json | null
@@ -226,8 +236,10 @@ export type Database = {
           manager_details?: Json | null
           menu_images?: string[] | null
           name?: string
+          offers_decoration?: boolean | null
           owner_id?: string
           price_range?: string | null
+          seating_capacity?: number | null
           staff_size?: number | null
         }
         Relationships: []

@@ -1,6 +1,6 @@
 
 import { supabase, isSupabaseConfigured } from './client';
-import { AdminSettings } from './types';
+import { AdminSettings, Json } from './types';
 
 // Function to get system stats for admin dashboard
 export const getSystemStats = async () => {
@@ -107,7 +107,7 @@ export const logAdminAction = async (
   action: string, 
   entityType: string, 
   entityId?: string,
-  details?: any
+  details?: Json
 ) => {
   const { error } = await supabase
     .from('admin_logs')
@@ -120,6 +120,23 @@ export const logAdminAction = async (
     });
   
   if (error) console.error('Error logging admin action:', error);
+};
+
+// Check if user is admin
+export const isUserAdmin = async (userId: string): Promise<boolean> => {
+  try {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('is_admin, role')
+      .eq('id', userId)
+      .single();
+      
+    if (error) throw error;
+    return data?.is_admin || data?.role === 'admin';
+  } catch (error) {
+    console.error('Error checking admin status:', error);
+    return false;
+  }
 };
 
 // Create function to increment admin count

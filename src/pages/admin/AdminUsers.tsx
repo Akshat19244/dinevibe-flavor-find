@@ -1,11 +1,10 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/components/ui/use-toast';
 import { getAllUsers, updateUserRole, setUserAsAdmin } from '@/lib/api/users';
 import { isUserAdmin, logAdminAction } from '@/lib/api/admin';
-import { User } from '@/lib/api/types';
+import { User, Json } from '@/lib/api/types';
 import Navbar from '@/components/ui/navbar';
 import Footer from '@/components/ui/footer';
 import { Button } from '@/components/ui/button';
@@ -140,10 +139,11 @@ const AdminUsers: React.FC = () => {
         
         // Log admin action
         await logAdminAction(
+          user?.id || '',
           'update_user_role',
           'profiles',
           selectedUser.id,
-          { old_role: selectedUser.role, new_role: newRole }
+          { old_role: selectedUser.role, new_role: newRole } as Json
         );
       }
       
@@ -153,10 +153,11 @@ const AdminUsers: React.FC = () => {
         
         // Log admin action
         await logAdminAction(
+          user?.id || '',
           newAdminStatus ? 'grant_admin_access' : 'revoke_admin_access',
           'profiles',
           selectedUser.id,
-          { email: selectedUser.email }
+          { email: selectedUser.email } as Json
         );
       }
       
