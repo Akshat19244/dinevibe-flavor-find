@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import {
   Bell,
@@ -18,6 +18,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface NavbarProps {
   userType?: 'customer' | 'owner' | 'admin' | null;
@@ -26,6 +27,20 @@ interface NavbarProps {
 
 const Navbar: React.FC<NavbarProps> = ({ userType = null, userName = '' }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { signOut } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/');
+  };
+
+  // Get the settings path based on user type
+  const getSettingsPath = () => {
+    if (userType === 'admin') return '/admin/settings';
+    if (userType === 'owner') return '/owner/settings';
+    return '/user/settings';
+  };
 
   // Define navigation links based on user type
   const getNavLinks = () => {
@@ -34,6 +49,7 @@ const Navbar: React.FC<NavbarProps> = ({ userType = null, userName = '' }) => {
         { to: '/user/discovery', label: 'Discovery' },
         { to: '/user/upcoming', label: 'Upcoming Events' },
         { to: '/user/deals', label: 'Deals' },
+        { to: '/user/planning', label: 'Planning' },
         { to: '/user/bookings', label: 'My Bookings' },
       ];
     } else if (userType === 'owner') {
@@ -111,16 +127,19 @@ const Navbar: React.FC<NavbarProps> = ({ userType = null, userName = '' }) => {
                   <DropdownMenuContent align="end" className="bg-card border-gray-800">
                     <DropdownMenuLabel>My Account</DropdownMenuLabel>
                     <DropdownMenuSeparator className="bg-gray-800" />
-                    <DropdownMenuItem className="cursor-pointer hover:bg-dineVibe-dark/50">
+                    <DropdownMenuItem className="cursor-pointer hover:bg-dineVibe-dark/50" 
+                      onClick={() => navigate('/user/profile')}>
                       <User className="mr-2 h-4 w-4" />
                       <span>Profile</span>
                     </DropdownMenuItem>
-                    <DropdownMenuItem className="cursor-pointer hover:bg-dineVibe-dark/50">
+                    <DropdownMenuItem className="cursor-pointer hover:bg-dineVibe-dark/50"
+                      onClick={() => navigate(getSettingsPath())}>
                       <Settings className="mr-2 h-4 w-4" />
                       <span>Settings</span>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator className="bg-gray-800" />
-                    <DropdownMenuItem className="cursor-pointer hover:bg-dineVibe-dark/50">
+                    <DropdownMenuItem className="cursor-pointer hover:bg-dineVibe-dark/50"
+                      onClick={handleSignOut}>
                       <LogOut className="mr-2 h-4 w-4" />
                       <span>Log out</span>
                     </DropdownMenuItem>
@@ -194,13 +213,15 @@ const Navbar: React.FC<NavbarProps> = ({ userType = null, userName = '' }) => {
                 </div>
                 <span className="ml-3 text-sm font-medium text-dineVibe-text">{userName || 'User'}</span>
               </div>
-              <Link to="/profile" className="block px-3 py-2 rounded-md text-base font-medium text-dineVibe-text hover:text-dineVibe-primary hover:bg-gray-800">
+              <Link to="/user/profile" className="block px-3 py-2 rounded-md text-base font-medium text-dineVibe-text hover:text-dineVibe-primary hover:bg-gray-800">
                 Profile
               </Link>
-              <Link to="/settings" className="block px-3 py-2 rounded-md text-base font-medium text-dineVibe-text hover:text-dineVibe-primary hover:bg-gray-800">
+              <Link to={getSettingsPath()} className="block px-3 py-2 rounded-md text-base font-medium text-dineVibe-text hover:text-dineVibe-primary hover:bg-gray-800">
                 Settings
               </Link>
-              <button className="w-full text-left px-3 py-2 rounded-md text-base font-medium text-dineVibe-text hover:text-dineVibe-primary hover:bg-gray-800">
+              <button 
+                onClick={handleSignOut}
+                className="w-full text-left px-3 py-2 rounded-md text-base font-medium text-dineVibe-text hover:text-dineVibe-primary hover:bg-gray-800">
                 Log out
               </button>
             </div>

@@ -1,512 +1,441 @@
 
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 import Navbar from '@/components/ui/navbar';
 import Footer from '@/components/ui/footer';
-import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
-} from '@/components/ui/select';
-import {
-  Users,
-  CreditCard,
-  MapPin,
-  UtensilsCrossed,
-  PartyPopper,
-  Calendar,
-  Download,
-  Share2
-} from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
+import { Switch } from '@/components/ui/switch';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Checkbox } from '@/components/ui/checkbox';
+import { SystemSelect } from '@/components/ui/system-select';
+import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/components/ui/use-toast';
-
-// Import Supabase client and functions
-import { createReservation, getCurrentUser } from '@/lib/supabase';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { format } from 'date-fns';
+import { CalendarIcon, Clock, Users, MapPin, CreditCard, Info, Phone } from 'lucide-react';
+import { getRestaurantById } from '@/lib/api/restaurants';
+import { Restaurant } from '@/lib/api/types';
 
 const Reservation: React.FC = () => {
+  const { user } = useAuth();
+  const location = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();
   
-  // Form state
-  const [fullName, setFullName] = useState('');
-  const [guests, setGuests] = useState('2');
-  const [budget, setBudget] = useState('');
-  const [location, setLocation] = useState('');
-  const [specialDish, setSpecialDish] = useState('');
-  const [decoration, setDecoration] = useState('');
-  const [eventType, setEventType] = useState('');
-  const [date, setDate] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  // Parse query params
+  const queryParams = new URLSearchParams(location.search);
+  const reservationParams = {
+    restaurant_id: queryParams.get('restaurant_id') || '',
+    date: queryParams.get('date') || format(new Date(), 'yyyy-MM-dd'),
+    time: queryParams.get('time') || '19:00',
+    guests: Number(queryParams.get('guests')) || 2,
+    event: queryParams.get('event') || 'casual',
+    decor: queryParams.get('decor') === 'true',
+  };
   
-  // Confirmation modal state
-  const [showConfirmation, setShowConfirmation] = useState(false);
-  const [confirmationDetails, setConfirmationDetails] = useState<{
-    id: string;
-    name: string;
-    guests: string;
-    budget: string;
-    location: string;
-    eventType: string;
-    date: string;
-    specialDish?: string;
-    decoration?: string;
-  } | null>(null);
+  // State
+  const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [reservationData, setReservationData] = useState({
+    name: user?.user_metadata?.name || '',
+    phone: user?.user_metadata?.phone || '',
+    email: user?.email || '',
+    specialRequests: '',
+    dietaryRestrictions: '',
+    agreeToTerms: false,
+    paymentMethod: 'pay-at-venue',
+  });
   
-  // List of event types
-  const eventTypes = [
-    'Birthday', 
-    'Anniversary', 
-    'Corporate', 
-    'Dating', 
-    'Family Gathering', 
-    'Graduation', 
-    'Casual Dining'
-  ];
-  
-  // Locations in Ahmedabad
-  const locations = [
-    'Navrangpura',
-    'Bodakdev',
-    'Thaltej',
-    'Satellite',
-    'Vastrapur',
-    'Bopal',
-    'SG Highway',
-    'CG Road',
-    'Paldi',
-    'Gurukul'
-  ];
-  
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    
-    try {
-      // Check if user is logged in
-      const user = await getCurrentUser();
-      
-      if (!user) {
+  // Load restaurant details
+  useEffect(() => {
+    const fetchRestaurant = async () => {
+      try {
+        if (reservationParams.restaurant_id) {
+          const restaurantData = await getRestaurantById(reservationParams.restaurant_id);
+          setRestaurant(restaurantData);
+        } else {
+          // Fallback if no ID provided - demo purposes
+          setRestaurant(getMockRestaurant());
+        }
+      } catch (error) {
+        console.error("Error fetching restaurant details:", error);
         toast({
-          title: "Authentication Required",
-          description: "Please log in to make a reservation.",
+          title: "Error",
+          description: "Failed to load restaurant details.",
           variant: "destructive",
         });
-        setIsSubmitting(false);
-        navigate('/auth/login');
-        return;
+        
+        // Set mock data for demo purposes
+        setRestaurant(getMockRestaurant());
+      } finally {
+        setLoading(false);
       }
-      
-      // Create reservation in Supabase
-      const reservationData = {
-        user_id: user.id,
-        restaurant_id: null, // Will be assigned by the admin or system later
-        guest_count: parseInt(guests),
-        budget,
-        location,
-        event_type: eventType,
-        optional_dish: specialDish,
-        optional_decoration: decoration,
-        booking_date: date
-      };
-      
-      const reservation = await createReservation(reservationData);
-      
-      // Show success confirmation
-      setConfirmationDetails({
-        id: reservation.id,
-        name: fullName,
-        guests,
-        budget: getBudgetLabel(budget),
-        location,
-        eventType: eventType.charAt(0).toUpperCase() + eventType.slice(1),
-        date,
-        specialDish: specialDish || undefined,
-        decoration: decoration || undefined
-      });
-      
-      setShowConfirmation(true);
-      
+    };
+    
+    fetchRestaurant();
+  }, [reservationParams.restaurant_id, toast]);
+  
+  // Mock restaurant for demo/fallback
+  const getMockRestaurant = (): Restaurant => {
+    return {
+      id: "mock1",
+      name: "Bella Italia",
+      description: "Authentic Italian cuisine in a cozy setting",
+      location: "123 Main St, Downtown",
+      cuisine: "Italian",
+      owner_id: "owner1",
+      images: ["https://images.unsplash.com/photo-1551218808-94e220e084d2?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.0.3"],
+      seating_capacity: 50,
+      offers_decoration: true,
+      is_approved: true,
+      created_at: new Date().toISOString(),
+      price_range: "moderate",
+      budget_range: { min: 50, max: 100 },
+      manager_details: {
+        name: "Mario Rossi",
+        phone: "+1 (555) 123-4567",
+        email: "info@bellaitalia.com",
+      }
+    };
+  };
+  
+  // Form validation
+  const isFormValid = () => {
+    return (
+      reservationData.name.trim() !== '' &&
+      reservationData.phone.trim() !== '' &&
+      reservationData.email.trim() !== '' &&
+      reservationData.agreeToTerms
+    );
+  };
+  
+  // Handle reservation submission
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!isFormValid()) {
       toast({
-        title: "Reservation Created Successfully!",
-        description: "Your booking request has been sent.",
-      });
-    } catch (error) {
-      console.error('Error creating reservation:', error);
-      toast({
-        title: "Error Creating Reservation",
-        description: "There was a problem creating your reservation. Please try again.",
+        title: "Missing Information",
+        description: "Please fill in all required fields and agree to the terms.",
         variant: "destructive",
       });
-    } finally {
-      setIsSubmitting(false);
+      return;
     }
-  };
-  
-  const getBudgetLabel = (budgetValue: string) => {
-    switch (budgetValue) {
-      case 'budget':
-        return 'Under ₹500';
-      case 'mid':
-        return '₹500 - ₹1000';
-      case 'premium':
-        return '₹1000 - ₹2000';
-      case 'luxury':
-        return 'Above ₹2000';
-      default:
-        return '';
+    
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to complete your reservation.",
+        variant: "destructive",
+      });
+      return;
     }
-  };
-  
-  const handlePrintToken = () => {
-    window.print();
-  };
-  
-  const handleShareToken = () => {
-    // In a real implementation, this could generate a shareable link
+    
+    // In a real app, this would call an API to create the reservation
+    // For demo purposes, we'll just show a success message and redirect
     toast({
-      title: "Share Feature",
-      description: "Sharing functionality will be implemented in the future.",
+      title: "Reservation Confirmed!",
+      description: `Your reservation at ${restaurant?.name} has been booked for ${format(new Date(reservationParams.date), 'MMMM d, yyyy')} at ${reservationParams.time}.`,
     });
+    
+    // Redirect to bookings page to see the new reservation
+    setTimeout(() => {
+      navigate('/user/bookings');
+    }, 1500);
+  };
+  
+  // Get event type label
+  const getEventTypeLabel = (eventType: string) => {
+    switch (eventType) {
+      case 'casual': return 'Casual Dining';
+      case 'birthday': return 'Birthday Celebration';
+      case 'anniversary': return 'Anniversary';
+      case 'business': return 'Business Meeting';
+      case 'date': return 'Romantic Date';
+      case 'family': return 'Family Gathering';
+      default: return 'Other Event';
+    }
   };
   
   return (
-    <div className="min-h-screen flex flex-col bg-dineVibe-background">
-      <Navbar userType="customer" userName={fullName.split(' ')[0] || "Guest"} />
+    <div className="min-h-screen flex flex-col">
+      <Navbar userType="customer" userName={user?.user_metadata?.name || 'User'} />
       
       <main className="flex-grow">
         {/* Hero section */}
-        <div className="bg-gradient-to-r from-dineVibe-primary to-dineVibe-secondary py-10">
+        <div className="bg-gradient-to-r from-dineVibe-primary to-dineVibe-accent py-8">
           <div className="container mx-auto px-4">
-            <h1 className="text-3xl font-bold text-white mb-2">Make a Reservation</h1>
+            <h1 className="text-3xl font-bold text-white mb-2">Complete Your Reservation</h1>
             <p className="text-white text-opacity-90">
-              Book your special dining experience with us
+              Just a few more details to book your perfect dining experience
             </p>
           </div>
         </div>
         
         {/* Reservation form */}
-        <div className="container mx-auto px-4 py-10">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2">
-              <Card className="bg-card border-none shadow-lg">
-                <CardHeader>
-                  <CardTitle>Reservation Details</CardTitle>
-                  <CardDescription>Fill in the details to make your reservation</CardDescription>
-                </CardHeader>
-                
-                <CardContent>
-                  <form onSubmit={handleSubmit} className="space-y-6">
-                    {/* Full Name */}
-                    <div className="space-y-2">
-                      <Label htmlFor="fullName">Full Name</Label>
-                      <Input
-                        id="fullName"
-                        placeholder="Enter your full name"
-                        value={fullName}
-                        onChange={(e) => setFullName(e.target.value)}
-                        required
-                        className="bg-dineVibe-dark/50 border-gray-700 focus:border-dineVibe-primary"
-                      />
-                    </div>
-                    
-                    {/* Number of Guests */}
-                    <div className="space-y-2">
-                      <Label htmlFor="guests">Number of Guests</Label>
-                      <div className="flex items-center">
-                        <Users className="mr-2 h-5 w-5 text-dineVibe-primary" />
-                        <Select
-                          value={guests}
-                          onValueChange={setGuests}
-                        >
-                          <SelectTrigger className="bg-dineVibe-dark/50 border-gray-700 focus:border-dineVibe-primary">
-                            <SelectValue placeholder="Select number of guests" />
-                          </SelectTrigger>
-                          <SelectContent className="bg-card border-gray-700">
-                            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => (
-                              <SelectItem key={num} value={num.toString()}>
-                                {num} {num === 1 ? 'Person' : 'People'}
-                              </SelectItem>
-                            ))}
-                            <SelectItem value="more">10+ People</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-                    
-                    {/* Budget */}
-                    <div className="space-y-2">
-                      <Label htmlFor="budget">Budget Per Person (₹)</Label>
-                      <div className="flex items-center">
-                        <CreditCard className="mr-2 h-5 w-5 text-dineVibe-primary" />
-                        <Select
-                          value={budget}
-                          onValueChange={setBudget}
-                        >
-                          <SelectTrigger className="bg-dineVibe-dark/50 border-gray-700 focus:border-dineVibe-primary">
-                            <SelectValue placeholder="Select your budget" />
-                          </SelectTrigger>
-                          <SelectContent className="bg-card border-gray-700">
-                            <SelectItem value="budget">Under ₹500</SelectItem>
-                            <SelectItem value="mid">₹500 - ₹1000</SelectItem>
-                            <SelectItem value="premium">₹1000 - ₹2000</SelectItem>
-                            <SelectItem value="luxury">Above ₹2000</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-                    
-                    {/* Date */}
-                    <div className="space-y-2">
-                      <Label htmlFor="date">Reservation Date</Label>
-                      <div className="flex items-center">
-                        <Calendar className="mr-2 h-5 w-5 text-dineVibe-primary" />
-                        <Input
-                          id="date"
-                          type="date"
-                          value={date}
-                          onChange={(e) => setDate(e.target.value)}
-                          required
-                          className="bg-dineVibe-dark/50 border-gray-700 focus:border-dineVibe-primary"
-                        />
-                      </div>
-                    </div>
-                    
-                    {/* Location */}
-                    <div className="space-y-2">
-                      <Label htmlFor="location">Location</Label>
-                      <div className="flex items-center">
-                        <MapPin className="mr-2 h-5 w-5 text-dineVibe-primary" />
-                        <Select
-                          value={location}
-                          onValueChange={setLocation}
-                        >
-                          <SelectTrigger className="bg-dineVibe-dark/50 border-gray-700 focus:border-dineVibe-primary">
-                            <SelectValue placeholder="Select area in Ahmedabad" />
-                          </SelectTrigger>
-                          <SelectContent className="bg-card border-gray-700">
-                            {locations.map((loc) => (
-                              <SelectItem key={loc} value={loc}>
-                                {loc}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-                    
-                    {/* Event Type */}
-                    <div className="space-y-2">
-                      <Label htmlFor="eventType">Event Type</Label>
-                      <div className="flex items-center">
-                        <PartyPopper className="mr-2 h-5 w-5 text-dineVibe-primary" />
-                        <Select
-                          value={eventType}
-                          onValueChange={setEventType}
-                        >
-                          <SelectTrigger className="bg-dineVibe-dark/50 border-gray-700 focus:border-dineVibe-primary">
-                            <SelectValue placeholder="Select event type" />
-                          </SelectTrigger>
-                          <SelectContent className="bg-card border-gray-700">
-                            {eventTypes.map((type) => (
-                              <SelectItem key={type} value={type.toLowerCase()}>
-                                {type}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-                    
-                    {/* Special Dish Request */}
-                    <div className="space-y-2">
-                      <Label htmlFor="specialDish">Special Dish Request (Optional)</Label>
-                      <div className="flex items-center">
-                        <UtensilsCrossed className="mr-2 h-5 w-5 text-dineVibe-primary" />
-                        <Input
-                          id="specialDish"
-                          placeholder="Any special dish requests?"
-                          value={specialDish}
-                          onChange={(e) => setSpecialDish(e.target.value)}
-                          className="bg-dineVibe-dark/50 border-gray-700 focus:border-dineVibe-primary"
-                        />
-                      </div>
-                    </div>
-                    
-                    {/* Decoration */}
-                    <div className="space-y-2">
-                      <Label htmlFor="decoration">Decoration Preferences (Optional)</Label>
-                      <Textarea
-                        id="decoration"
-                        placeholder="Any specific decoration requirements?"
-                        value={decoration}
-                        onChange={(e) => setDecoration(e.target.value)}
-                        className="bg-dineVibe-dark/50 border-gray-700 focus:border-dineVibe-primary"
-                      />
-                    </div>
-                    
-                    <Button 
-                      type="submit" 
-                      className="w-full sm:w-auto bg-dineVibe-primary hover:bg-dineVibe-primary/90"
-                      disabled={isSubmitting}
-                    >
-                      {isSubmitting ? "Processing..." : "Submit Reservation"}
-                    </Button>
-                  </form>
-                </CardContent>
-              </Card>
+        <div className="container mx-auto px-4 py-8">
+          {loading ? (
+            <div className="text-center py-12">
+              <p className="text-lg">Loading reservation details...</p>
             </div>
-            
-            {/* Information card */}
-            <div className="lg:col-span-1">
-              <Card className="bg-gradient-to-br from-dineVibe-primary to-dineVibe-secondary text-white border-none shadow-lg">
-                <CardHeader>
-                  <CardTitle>Reservation Information</CardTitle>
-                </CardHeader>
-                
-                <CardContent className="space-y-6">
-                  <div>
-                    <h3 className="font-semibold text-lg mb-2">How it works</h3>
-                    <ul className="space-y-2 list-disc list-inside text-white/90">
-                      <li>Fill out the reservation form with your details</li>
-                      <li>Restaurant receives your request and confirms availability</li>
-                      <li>Receive a confirmation notification with your booking details</li>
-                      <li>Present your booking token at the restaurant</li>
-                    </ul>
-                  </div>
+          ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Reservation form */}
+              <div className="lg:col-span-2">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Reservation Details</CardTitle>
+                    <CardDescription>
+                      Fill in your information to complete the booking
+                    </CardDescription>
+                  </CardHeader>
                   
-                  <div>
-                    <h3 className="font-semibold text-lg mb-2">Special Requests</h3>
-                    <p className="text-white/90">
-                      Feel free to include any special requests for dishes or decorations. 
-                      Our restaurant partners will do their best to accommodate your needs.
-                    </p>
-                  </div>
-                  
-                  <div>
-                    <h3 className="font-semibold text-lg mb-2">Cancellation Policy</h3>
-                    <p className="text-white/90">
-                      Reservations can be canceled or modified up to 24 hours before the scheduled time without charges.
-                      Late cancellations may incur a fee depending on the restaurant's policy.
-                    </p>
-                  </div>
-                  
-                  <div className="pt-4 border-t border-white/20">
-                    <p className="text-sm text-white/80">
-                      Need help with your reservation?
-                    </p>
-                    <p className="font-semibold">
-                      Contact us at: 9904960670
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        </div>
-      </main>
-      
-      {/* Confirmation modal */}
-      <Dialog open={showConfirmation} onOpenChange={setShowConfirmation}>
-        <DialogContent className="bg-card border-none text-dineVibe-text sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Reservation Confirmed!</DialogTitle>
-            <DialogDescription>
-              Your booking has been successfully created. Please keep this token for your records.
-            </DialogDescription>
-          </DialogHeader>
-          
-          {confirmationDetails && (
-            <div className="p-6 bg-dineVibe-dark/30 rounded-lg border border-gray-800 print:bg-white print:text-black">
-              <div className="flex justify-between items-start mb-6">
-                <div>
-                  <h3 className="text-xl font-bold text-dineVibe-primary mb-1">DineVibe Reservation</h3>
-                  <p className="text-sm text-dineVibe-text/70">Confirmation #{confirmationDetails.id.slice(0, 8)}</p>
-                </div>
-                <div className="bg-dineVibe-primary text-white text-xs font-semibold px-2 py-1 rounded">
-                  CONFIRMED
-                </div>
+                  <CardContent>
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                      <div className="space-y-6">
+                        <div>
+                          <h3 className="text-lg font-semibold mb-4">Contact Information</h3>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="space-y-2">
+                              <Label htmlFor="name">Full Name *</Label>
+                              <Input 
+                                id="name" 
+                                value={reservationData.name}
+                                onChange={(e) => setReservationData({ ...reservationData, name: e.target.value })}
+                                required
+                              />
+                            </div>
+                            
+                            <div className="space-y-2">
+                              <Label htmlFor="phone">Phone Number *</Label>
+                              <Input 
+                                id="phone" 
+                                value={reservationData.phone}
+                                onChange={(e) => setReservationData({ ...reservationData, phone: e.target.value })}
+                                required
+                              />
+                            </div>
+                            
+                            <div className="space-y-2 md:col-span-2">
+                              <Label htmlFor="email">Email *</Label>
+                              <Input 
+                                id="email" 
+                                type="email"
+                                value={reservationData.email}
+                                onChange={(e) => setReservationData({ ...reservationData, email: e.target.value })}
+                                required
+                              />
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div>
+                          <h3 className="text-lg font-semibold mb-4">Additional Requests</h3>
+                          <div className="space-y-4">
+                            <div className="space-y-2">
+                              <Label htmlFor="specialRequests">Special Requests</Label>
+                              <Textarea 
+                                id="specialRequests" 
+                                placeholder="Any special requests for your reservation? (e.g., seating preference, occasion details)"
+                                value={reservationData.specialRequests}
+                                onChange={(e) => setReservationData({ ...reservationData, specialRequests: e.target.value })}
+                                rows={3}
+                              />
+                            </div>
+                            
+                            <div className="space-y-2">
+                              <Label htmlFor="dietaryRestrictions">Dietary Restrictions</Label>
+                              <Textarea 
+                                id="dietaryRestrictions" 
+                                placeholder="Any food allergies or dietary restrictions? (e.g., vegetarian, gluten-free, nut allergy)"
+                                value={reservationData.dietaryRestrictions}
+                                onChange={(e) => setReservationData({ ...reservationData, dietaryRestrictions: e.target.value })}
+                                rows={2}
+                              />
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div>
+                          <h3 className="text-lg font-semibold mb-4">Payment Method</h3>
+                          <RadioGroup 
+                            value={reservationData.paymentMethod}
+                            onValueChange={(value) => setReservationData({ ...reservationData, paymentMethod: value })}
+                            className="space-y-3"
+                          >
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="pay-at-venue" id="pay-at-venue" />
+                              <Label htmlFor="pay-at-venue" className="flex items-center cursor-pointer">
+                                Pay at Restaurant
+                              </Label>
+                            </div>
+                            
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="credit-card" id="credit-card" />
+                              <Label htmlFor="credit-card" className="flex items-center cursor-pointer">
+                                <CreditCard className="h-4 w-4 mr-2" />
+                                Credit/Debit Card
+                              </Label>
+                            </div>
+                          </RadioGroup>
+                          
+                          {reservationData.paymentMethod === 'credit-card' && (
+                            <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-md">
+                              <p className="text-sm flex items-start">
+                                <Info className="h-4 w-4 mr-2 mt-0.5 text-blue-600 dark:text-blue-400" />
+                                In a production app, you would see a secure payment form here. For this demo, we're simulating the payment flow.
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                        
+                        <div className="pt-2">
+                          <div className="flex items-center space-x-2">
+                            <Checkbox 
+                              id="terms" 
+                              checked={reservationData.agreeToTerms}
+                              onCheckedChange={(checked) => 
+                                setReservationData({
+                                  ...reservationData,
+                                  agreeToTerms: !!checked
+                                })
+                              }
+                              required
+                            />
+                            <Label 
+                              htmlFor="terms" 
+                              className="text-sm font-medium cursor-pointer"
+                            >
+                              I agree to the booking terms and cancellation policy
+                            </Label>
+                          </div>
+                          
+                          <p className="text-xs text-gray-500 mt-2 pl-6">
+                            Cancellations made less than 24 hours before the reservation may incur a fee.
+                            No-shows may be subject to a charge of up to 25% of the estimated bill.
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <CardFooter className="px-0 pt-6">
+                        <div className="flex flex-col sm:flex-row sm:justify-between gap-4 w-full">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => navigate(-1)}
+                          >
+                            Back
+                          </Button>
+                          <Button
+                            type="submit"
+                            className="bg-dineVibe-primary hover:bg-dineVibe-primary/90"
+                            disabled={!isFormValid()}
+                          >
+                            Confirm Reservation
+                          </Button>
+                        </div>
+                      </CardFooter>
+                    </form>
+                  </CardContent>
+                </Card>
               </div>
               
-              <div className="space-y-4">
-                <div className="flex justify-between border-b border-gray-800 pb-2">
-                  <span className="font-medium">Guest Name:</span>
-                  <span>{confirmationDetails.name}</span>
-                </div>
-                
-                <div className="flex justify-between border-b border-gray-800 pb-2">
-                  <span className="font-medium">Number of Guests:</span>
-                  <span>{confirmationDetails.guests}</span>
-                </div>
-                
-                <div className="flex justify-between border-b border-gray-800 pb-2">
-                  <span className="font-medium">Event Type:</span>
-                  <span>{confirmationDetails.eventType}</span>
-                </div>
-                
-                <div className="flex justify-between border-b border-gray-800 pb-2">
-                  <span className="font-medium">Date:</span>
-                  <span>{confirmationDetails.date}</span>
-                </div>
-                
-                <div className="flex justify-between border-b border-gray-800 pb-2">
-                  <span className="font-medium">Location:</span>
-                  <span>{confirmationDetails.location}</span>
-                </div>
-                
-                <div className="flex justify-between border-b border-gray-800 pb-2">
-                  <span className="font-medium">Budget:</span>
-                  <span>{confirmationDetails.budget}</span>
-                </div>
-                
-                {confirmationDetails.specialDish && (
-                  <div className="flex justify-between border-b border-gray-800 pb-2">
-                    <span className="font-medium">Special Dish:</span>
-                    <span>{confirmationDetails.specialDish}</span>
-                  </div>
-                )}
-                
-                {confirmationDetails.decoration && (
-                  <div className="flex justify-between border-b border-gray-800 pb-2">
-                    <span className="font-medium">Decoration:</span>
-                    <span>{confirmationDetails.decoration}</span>
-                  </div>
-                )}
-              </div>
-              
-              <div className="mt-6 text-center text-sm text-dineVibe-text/70">
-                <p>Please present this token at the restaurant.</p>
-                <p>For any changes, please contact us at 9904960670.</p>
+              {/* Restaurant and reservation summary */}
+              <div>
+                <Card className="bg-gray-50 dark:bg-gray-900">
+                  <CardHeader>
+                    <div className="mb-2">
+                      {restaurant?.price_range && (
+                        <Badge className="mb-2">
+                          {restaurant.price_range === 'budget' && 'Budget-friendly ($)'}
+                          {restaurant.price_range === 'moderate' && 'Moderate ($$)'}
+                          {restaurant.price_range === 'high-end' && 'Premium ($$$)'}
+                          {restaurant.price_range === 'luxury' && 'Luxury ($$$$)'}
+                        </Badge>
+                      )}
+                      <CardTitle>{restaurant?.name || 'Restaurant'}</CardTitle>
+                      <CardDescription>{restaurant?.cuisine || 'Cuisine'}</CardDescription>
+                    </div>
+                    
+                    <div className="aspect-video w-full overflow-hidden rounded-md">
+                      <img 
+                        src={restaurant?.images?.[0] || "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.0.3"} 
+                        alt={restaurant?.name || 'Restaurant'} 
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  </CardHeader>
+                  
+                  <CardContent>
+                    <div className="space-y-4">
+                      <h3 className="font-semibold">Reservation Summary</h3>
+                      
+                      <div className="space-y-3 text-sm">
+                        <div className="flex items-start">
+                          <CalendarIcon className="h-4 w-4 mr-2 mt-0.5 text-dineVibe-primary" />
+                          <span>
+                            {format(new Date(reservationParams.date), 'EEEE, MMMM d, yyyy')}
+                          </span>
+                        </div>
+                        
+                        <div className="flex items-start">
+                          <Clock className="h-4 w-4 mr-2 mt-0.5 text-dineVibe-primary" />
+                          <span>{reservationParams.time}</span>
+                        </div>
+                        
+                        <div className="flex items-start">
+                          <Users className="h-4 w-4 mr-2 mt-0.5 text-dineVibe-primary" />
+                          <span>
+                            {reservationParams.guests} {reservationParams.guests === 1 ? 'guest' : 'guests'}
+                          </span>
+                        </div>
+                        
+                        <div className="flex items-start">
+                          <Info className="h-4 w-4 mr-2 mt-0.5 text-dineVibe-primary" />
+                          <span>{getEventTypeLabel(reservationParams.event)}</span>
+                        </div>
+                        
+                        {reservationParams.decor && (
+                          <div className="bg-dineVibe-accent/10 p-2 rounded-md text-dineVibe-accent">
+                            Special decoration requested
+                          </div>
+                        )}
+                      </div>
+                      
+                      <div className="border-t pt-4 mt-4">
+                        <h3 className="font-semibold mb-2">Restaurant Information</h3>
+                        <div className="space-y-3 text-sm">
+                          <div className="flex items-start">
+                            <MapPin className="h-4 w-4 mr-2 mt-0.5 text-dineVibe-primary" />
+                            <span>{restaurant?.location || 'Location not available'}</span>
+                          </div>
+                          
+                          {restaurant?.manager_details?.phone && (
+                            <div className="flex items-start">
+                              <Phone className="h-4 w-4 mr-2 mt-0.5 text-dineVibe-primary" />
+                              <span>{restaurant.manager_details.phone}</span>
+                            </div>
+                          )}
+                          
+                          {restaurant?.description && (
+                            <p className="text-gray-600 mt-2">
+                              {restaurant.description}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
               </div>
             </div>
           )}
-          
-          <div className="flex flex-col sm:flex-row gap-2 mt-4">
-            <Button 
-              onClick={handlePrintToken} 
-              className="flex-1 gap-2" 
-              variant="outline"
-            >
-              <Download className="h-4 w-4" />
-              Print Token
-            </Button>
-            <Button 
-              onClick={handleShareToken} 
-              className="flex-1 gap-2 bg-dineVibe-primary hover:bg-dineVibe-primary/90"
-            >
-              <Share2 className="h-4 w-4" />
-              Share Token
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+        </div>
+      </main>
       
       <Footer />
     </div>
