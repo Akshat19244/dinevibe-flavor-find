@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -158,6 +159,18 @@ const Reservation: React.FC = () => {
       case 'family': return 'Family Gathering';
       default: return 'Other Event';
     }
+  };
+  
+  // Helper function to safely display contact information
+  const getContactInfo = (): string => {
+    if (
+      restaurant?.manager_details && 
+      typeof restaurant.manager_details === 'object' && 
+      'contact' in restaurant.manager_details
+    ) {
+      return String(restaurant.manager_details.contact);
+    }
+    return 'Contact information not available';
   };
   
   return (
@@ -413,12 +426,10 @@ const Reservation: React.FC = () => {
                             <span>{restaurant?.location || 'Location not available'}</span>
                           </div>
                           
-                          {restaurant?.manager_details && typeof restaurant.manager_details === 'object' && 'contact' in restaurant.manager_details && (
-                            <div className="flex items-start">
-                              <Phone className="h-4 w-4 mr-2 mt-0.5 text-dineVibe-primary" />
-                              <span>{restaurant.manager_details.contact}</span>
-                            </div>
-                          )}
+                          <div className="flex items-start">
+                            <Phone className="h-4 w-4 mr-2 mt-0.5 text-dineVibe-primary" />
+                            <span>{getContactInfo()}</span>
+                          </div>
                           
                           {restaurant?.description && (
                             <p className="text-gray-600 mt-2">
