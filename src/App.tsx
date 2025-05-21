@@ -24,7 +24,7 @@ import Planning from "./pages/user/Planning";
 import Bookings from "./pages/user/Bookings";
 import UserSettings from "./pages/user/Settings";
 import Reservation from "./pages/user/Reservation";
-import MakeReservation from "./pages/user/MakeReservation"; // Import MakeReservation component
+import MakeReservation from "./pages/user/MakeReservation";
 
 // Restaurant owner pages
 import OwnerDashboard from "./pages/owner/Dashboard";
@@ -32,6 +32,7 @@ import UploadEvent from "./pages/owner/UploadEvent";
 import OwnerDeals from "./pages/owner/Deals";
 import TrackBookings from "./pages/owner/TrackBookings";
 import OwnerSettings from "./pages/owner/Settings";
+import RegisterRestaurant from "./pages/owner/RegisterRestaurant";
 
 // Admin pages
 import AdminDashboard from "./pages/admin/Dashboard";
@@ -41,6 +42,7 @@ import Reports from "./pages/admin/Reports";
 import Notifications from "./pages/admin/Notifications";
 import AdminSettings from "./pages/admin/Settings";
 import ControlPanel from "./pages/admin/ControlPanel";
+import ManageRestaurants from "./pages/admin/ManageRestaurants";
 
 // Scroll to top component
 const ScrollToTop = () => {
@@ -110,7 +112,6 @@ const App = () => (
                 <Reservation />
               </ProtectedRoute>
             } />
-            {/* Add the make-reservation route */}
             <Route path="/user/make-reservation" element={
               <ProtectedRoute>
                 <MakeReservation />
@@ -121,6 +122,11 @@ const App = () => (
             <Route path="/owner/dashboard" element={
               <ProtectedRoute allowedRoles={['owner']}>
                 <OwnerDashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/owner/register-restaurant" element={
+              <ProtectedRoute allowedRoles={['owner']}>
+                <RegisterRestaurant />
               </ProtectedRoute>
             } />
             <Route path="/owner/upload-event" element={
@@ -153,6 +159,11 @@ const App = () => (
             <Route path="/admin/users" element={
               <ProtectedRoute requireAdmin={true}>
                 <ManageUsers />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/restaurants" element={
+              <ProtectedRoute requireAdmin={true}>
+                <ManageRestaurants />
               </ProtectedRoute>
             } />
             <Route path="/admin/reports" element={

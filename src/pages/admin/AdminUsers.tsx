@@ -1,11 +1,13 @@
 
 import React, { useState, useEffect } from 'react';
 import AdminLayout from '@/components/admin/AdminLayout';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
 import { getAllUsers, updateUserRole, toggleUserAdmin } from '@/lib/api/users';
+import { User } from '@/lib/api/types';
 import { logAdminAction } from '@/lib/api/admin';
 import { AlertCircle, CheckCircle, Shield, User as UserIcon } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
@@ -13,24 +15,21 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
 
-// User profile type
-interface UserProfile {
-  id: string;
-  name: string;
-  email: string;
-  role: 'user' | 'owner' | 'admin';
+// User profile type that extends the base User type for admin panel usage
+interface UserProfile extends User {
   is_admin: boolean;
-  signup_date: string;
 }
 
-const AdminUsers: React.FC = () => {
+const ManageUsers: React.FC = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [users, setUsers] = useState<UserProfile[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [isRoleDialogOpen, setIsRoleDialogOpen] = useState(false);
+  const [loading, setLoading] = useState<boolean>(true);
   const [selectedUser, setSelectedUser] = useState<UserProfile | null>(null);
-  const [newRole, setNewRole] = useState<string>('');
+  const [isUpdateRoleOpen, setIsUpdateRoleOpen] = useState<boolean>(false);
+  const [isToggleAdminOpen, setIsToggleAdminOpen] = useState<boolean>(false);
+  const [updatingRole, setUpdatingRole] = useState<boolean>(false);
+  const [selectedRole, setSelectedRole] = useState<string>('');
   
   useEffect(() => {
     fetchUsers();
@@ -40,244 +39,308 @@ const AdminUsers: React.FC = () => {
     try {
       setLoading(true);
       const usersData = await getAllUsers();
-      setUsers(usersData);
+      // Make sure all users have the required is_admin property
+      const usersWithRequiredProps = usersData.map(user => ({
+        ...user,
+        is_admin: user.is_admin === true
+      })) as UserProfile[];
+      
+      setUsers(usersWithRequiredProps);
     } catch (error) {
       console.error('Error fetching users:', error);
       toast({
         title: 'Error',
-        description: 'Failed to load users',
-        variant: 'destructive',
+        description: 'Could not load user data.',
+        variant: 'destructive'
       });
     } finally {
       setLoading(false);
     }
   };
   
-  const handleToggleAdmin = async (userId: string, isCurrentlyAdmin: boolean) => {
-    if (!user) return;
+  const handleUpdateRole = async () => {
+    if (!selectedUser || !selectedRole) return;
     
+    setUpdatingRole(true);
     try {
-      // Don't allow removing admin status if it would result in fewer than 1 admin
-      if (isCurrentlyAdmin) {
-        const adminCount = users.filter(u => u.is_admin).length;
-        if (adminCount <= 1) {
-          toast({
-            title: 'Action Denied',
-            description: 'At least one admin must exist in the system.',
-            variant: 'destructive',
-          });
-          return;
-        }
+      await updateUserRole(selectedUser.id, selectedRole);
+      
+      // Log the admin action
+      if (user) {
+        await logAdminAction(
+          user.id,
+          'update_user_role',
+          'profiles',
+          selectedUser.id,
+          {
+            previous_role: selectedUser.role,
+            new_role: selectedRole
+          }
+        );
       }
       
-      await toggleUserAdmin(userId, !isCurrentlyAdmin);
-      
-      // Log the action
-      await logAdminAction(
-        user.id, 
-        isCurrentlyAdmin ? 'remove_admin' : 'add_admin', 
-        'profiles',
-        userId,
-        { action: isCurrentlyAdmin ? 'remove_admin' : 'add_admin' }
-      );
-      
       toast({
-        title: 'Success',
-        description: `Admin status ${isCurrentlyAdmin ? 'removed' : 'granted'}.`,
+        title: 'Role Updated',
+        description: `User ${selectedUser.name}'s role has been updated to ${selectedRole}.`
       });
       
-      // Refresh user list
-      fetchUsers();
+      setIsUpdateRoleOpen(false);
+      fetchUsers(); // Refresh user list
+      
+    } catch (error) {
+      console.error('Error updating role:', error);
+      toast({
+        title: 'Update Failed',
+        description: 'Could not update user role.',
+        variant: 'destructive'
+      });
+    } finally {
+      setUpdatingRole(false);
+    }
+  };
+  
+  const handleToggleAdmin = async () => {
+    if (!selectedUser) return;
+    
+    const newAdminStatus = !selectedUser.is_admin;
+    
+    try {
+      await toggleUserAdmin(selectedUser.id, newAdminStatus);
+      
+      // Log the admin action
+      if (user) {
+        await logAdminAction(
+          user.id,
+          newAdminStatus ? 'grant_admin' : 'revoke_admin',
+          'profiles',
+          selectedUser.id,
+          { new_admin_status: newAdminStatus }
+        );
+      }
+      
+      toast({
+        title: 'Admin Status Updated',
+        description: `${selectedUser.name} is ${newAdminStatus ? 'now' : 'no longer'} an admin.`
+      });
+      
+      setIsToggleAdminOpen(false);
+      fetchUsers(); // Refresh user list
+      
     } catch (error) {
       console.error('Error toggling admin status:', error);
       toast({
-        title: 'Error',
-        description: 'Failed to update admin status',
-        variant: 'destructive',
+        title: 'Update Failed',
+        description: 'Could not update admin status.',
+        variant: 'destructive'
       });
     }
   };
   
-  const openRoleDialog = (user: UserProfile) => {
+  const handleOpenUpdateRole = (user: UserProfile) => {
     setSelectedUser(user);
-    setNewRole(user.role);
-    setIsRoleDialogOpen(true);
+    setSelectedRole(user.role);
+    setIsUpdateRoleOpen(true);
   };
   
-  const handleRoleChange = async () => {
-    if (!selectedUser || !user) return;
-    
-    try {
-      await updateUserRole(selectedUser.id, newRole as 'user' | 'owner' | 'admin');
-      
-      // Log the action
-      await logAdminAction(
-        user.id, 
-        'update_user_role', 
-        'profiles',
-        selectedUser.id,
-        { old_role: selectedUser.role, new_role: newRole }
-      );
-      
-      toast({
-        title: 'Success',
-        description: `User role updated to ${newRole}.`,
-      });
-      
-      // Close dialog and refresh users
-      setIsRoleDialogOpen(false);
-      fetchUsers();
-    } catch (error) {
-      console.error('Error updating user role:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to update user role',
-        variant: 'destructive',
-      });
-    }
-  };
-  
-  const handleDeleteUser = async (userId: string, email: string) => {
-    if (!user || !window.confirm(`Are you sure you want to delete user ${email}?`)) return;
-    
-    try {
-      const { error } = await supabase.auth.admin.deleteUser(userId);
-      
-      if (error) throw error;
-      
-      // Log the action
-      await logAdminAction(
-        user.id, 
-        'delete_user', 
-        'profiles',
-        userId,
-        { email }
-      );
-      
-      toast({
-        title: 'Success',
-        description: 'User deleted successfully.',
-      });
-      
-      // Refresh users
-      fetchUsers();
-    } catch (error) {
-      console.error('Error deleting user:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to delete user',
-        variant: 'destructive',
-      });
-    }
-  };
-  
-  const getRoleIcon = (role: string, isAdmin: boolean) => {
-    if (isAdmin) return <Shield className="h-4 w-4 text-purple-500" />;
-    if (role === 'owner') return <CheckCircle className="h-4 w-4 text-blue-500" />;
-    return <UserIcon className="h-4 w-4 text-gray-500" />;
+  const handleOpenToggleAdmin = (user: UserProfile) => {
+    setSelectedUser(user);
+    setIsToggleAdminOpen(true);
   };
   
   return (
     <AdminLayout>
-      <div className="p-6">
-        <h1 className="text-3xl font-bold tracking-tight mb-6">User Management</h1>
+      <div className="p-6 space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Manage Users</h1>
+            <p className="text-muted-foreground">
+              View and manage user accounts on the platform.
+            </p>
+          </div>
+          
+          <div className="flex gap-2">
+            <Button 
+              variant="outline" 
+              onClick={fetchUsers}
+              disabled={loading}
+            >
+              Refresh
+            </Button>
+          </div>
+        </div>
         
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center justify-between">
-              <span>All Users</span>
-              <Button variant="outline" onClick={fetchUsers}>Refresh</Button>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {loading ? (
-              <div className="flex justify-center p-4">
-                <div className="animate-spin h-6 w-6 border-2 border-primary border-t-transparent rounded-full"></div>
-              </div>
-            ) : users.length === 0 ? (
-              <div className="flex items-center justify-center p-8 text-muted-foreground">
-                <AlertCircle className="mr-2 h-4 w-4" />
-                <span>No users found</span>
-              </div>
-            ) : (
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Name</TableHead>
-                      <TableHead>Email</TableHead>
-                      <TableHead>Role</TableHead>
-                      <TableHead>Joined</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {users.map((userItem) => (
-                      <TableRow key={userItem.id}>
-                        <TableCell className="font-medium">{userItem.name}</TableCell>
-                        <TableCell>{userItem.email}</TableCell>
-                        <TableCell className="flex items-center">
-                          {getRoleIcon(userItem.role, userItem.is_admin)}
-                          <span className="ml-2 capitalize">{userItem.role}</span>
-                          {userItem.is_admin && <span className="ml-2 text-xs bg-purple-100 text-purple-800 py-0.5 px-2 rounded-full">Admin</span>}
-                        </TableCell>
-                        <TableCell>{new Date(userItem.signup_date).toLocaleDateString()}</TableCell>
-                        <TableCell className="text-right space-x-2">
-                          <Button variant="outline" size="sm" onClick={() => openRoleDialog(userItem)}>
-                            Change Role
-                          </Button>
-                          <Button 
-                            variant={userItem.is_admin ? "destructive" : "outline"} 
-                            size="sm"
-                            onClick={() => handleToggleAdmin(userItem.id, userItem.is_admin)}
-                          >
-                            {userItem.is_admin ? 'Remove Admin' : 'Make Admin'}
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-        
-        <Dialog open={isRoleDialogOpen} onOpenChange={setIsRoleDialogOpen}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Change User Role</DialogTitle>
-              <DialogDescription>
-                Change the role for user {selectedUser?.name}
-              </DialogDescription>
-            </DialogHeader>
-            
-            <div className="py-4">
-              <Select value={newRole} onValueChange={setNewRole}>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select a role" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="user">Customer</SelectItem>
-                  <SelectItem value="owner">Restaurant Owner</SelectItem>
-                  <SelectItem value="admin">Admin</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setIsRoleDialogOpen(false)}>
-                Cancel
-              </Button>
-              <Button onClick={handleRoleChange}>
-                Save Changes
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        {loading ? (
+          <div className="space-y-4">
+            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-64 w-full" />
+          </div>
+        ) : users.length === 0 ? (
+          <Alert>
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>No users found.</AlertDescription>
+          </Alert>
+        ) : (
+          <div className="border rounded-lg overflow-hidden">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-[250px]">User</TableHead>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Role</TableHead>
+                  <TableHead>Admin Status</TableHead>
+                  <TableHead>Contact</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {users.map((user) => (
+                  <TableRow key={user.id}>
+                    <TableCell className="font-medium">
+                      <div className="flex items-center gap-2">
+                        {user.avatar_url ? (
+                          <img 
+                            src={user.avatar_url} 
+                            alt={user.name} 
+                            className="w-8 h-8 rounded-full"
+                          />
+                        ) : (
+                          <UserIcon className="w-8 h-8 text-gray-400" />
+                        )}
+                        <span>{user.name}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell>{user.email}</TableCell>
+                    <TableCell>
+                      <span className={`px-2 py-1 rounded-full text-xs ${
+                        user.role === 'admin' 
+                          ? 'bg-purple-100 text-purple-800' 
+                          : user.role === 'owner'
+                          ? 'bg-blue-100 text-blue-800'
+                          : 'bg-gray-100 text-gray-800'
+                      }`}>
+                        {user.role}
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      {user.is_admin ? (
+                        <div className="flex items-center text-green-600">
+                          <CheckCircle className="mr-1 h-4 w-4" /> 
+                          Admin
+                        </div>
+                      ) : (
+                        <div className="text-gray-500">Not Admin</div>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {user.contact_number || 'Not provided'}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end gap-2">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handleOpenUpdateRole(user)}
+                        >
+                          Update Role
+                        </Button>
+                        <Button 
+                          variant={user.is_admin ? "destructive" : "outline"} 
+                          size="sm"
+                          onClick={() => handleOpenToggleAdmin(user)}
+                        >
+                          {user.is_admin ? 'Remove Admin' : 'Make Admin'}
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        )}
       </div>
+      
+      {/* Update Role Dialog */}
+      <Dialog open={isUpdateRoleOpen} onOpenChange={setIsUpdateRoleOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Update User Role</DialogTitle>
+            <DialogDescription>
+              Change the role of {selectedUser?.name}. This will affect their permissions and access.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="py-4">
+            <Select value={selectedRole} onValueChange={setSelectedRole}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select role" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="user">User</SelectItem>
+                <SelectItem value="owner">Restaurant Owner</SelectItem>
+                <SelectItem value="admin">Admin</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          
+          <DialogFooter>
+            <Button 
+              variant="outline" 
+              onClick={() => setIsUpdateRoleOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleUpdateRole}
+              disabled={updatingRole}
+            >
+              {updatingRole ? 'Updating...' : 'Update Role'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      {/* Toggle Admin Dialog */}
+      <Dialog open={isToggleAdminOpen} onOpenChange={setIsToggleAdminOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{selectedUser?.is_admin ? 'Remove Admin Status' : 'Grant Admin Status'}</DialogTitle>
+            <DialogDescription>
+              {selectedUser?.is_admin 
+                ? `This will remove admin privileges from ${selectedUser?.name}.` 
+                : `This will grant admin privileges to ${selectedUser?.name}.`}
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="py-4">
+            <Alert>
+              <Shield className="h-4 w-4" />
+              <AlertDescription>
+                {selectedUser?.is_admin 
+                  ? 'The user will no longer have access to admin features.'
+                  : 'The user will gain access to all admin features.'}
+              </AlertDescription>
+            </Alert>
+          </div>
+          
+          <DialogFooter>
+            <Button 
+              variant="outline" 
+              onClick={() => setIsToggleAdminOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button 
+              variant={selectedUser?.is_admin ? "destructive" : "default"}
+              onClick={handleToggleAdmin}
+            >
+              {selectedUser?.is_admin ? 'Remove Admin' : 'Make Admin'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </AdminLayout>
   );
 };
 
-export default AdminUsers;
+export default ManageUsers;

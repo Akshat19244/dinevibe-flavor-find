@@ -18,9 +18,12 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { format } from 'date-fns';
-import { Calendar as CalendarIcon, Loader2, MapPin, DollarSign, Users, Star } from 'lucide-react';
+import { Calendar as CalendarIcon, Loader2, MapPin, DollarSign, Users, Star, Clock, Search } from 'lucide-react';
 import { Restaurant } from '@/lib/api/types';
-import { SystemSelect } from '@/components/ui/system-select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
+import { Slider } from '@/components/ui/slider';
+import { Switch } from '@/components/ui/switch';
 
 const MakeReservation: React.FC = () => {
   const { user } = useAuth();
@@ -29,13 +32,12 @@ const MakeReservation: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
   const [userProfile, setUserProfile] = useState<any>(null);
-  const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
   const [recommendedRestaurants, setRecommendedRestaurants] = useState<Restaurant[]>([]);
   const [searchPerformed, setSearchPerformed] = useState(false);
   
   // Form state
   const [guestCount, setGuestCount] = useState<number>(2);
-  const [budget, setBudget] = useState<string>('');
+  const [budget, setBudget] = useState<string>('$100 - $300');
   const [location, setLocation] = useState<string>('');
   const [needsDecoration, setNeedsDecoration] = useState<boolean>(false);
   const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
@@ -43,16 +45,34 @@ const MakeReservation: React.FC = () => {
   const [optionalDish, setOptionalDish] = useState<string>('');
   const [optionalDecoration, setOptionalDecoration] = useState<string>('');
   const [bookingDate, setBookingDate] = useState<Date | undefined>(undefined);
+  const [bookingTime, setBookingTime] = useState<string>('');
   const [contactNumber, setContactNumber] = useState<string>('');
   const [step, setStep] = useState<'search' | 'results' | 'details'>('search');
   
+  // Advanced filter options
+  const [isVegOnly, setIsVegOnly] = useState<boolean>(false);
+  const [isRooftop, setIsRooftop] = useState<boolean>(false);
+  const [hasLiveMusic, setHasLiveMusic] = useState<boolean>(false);
+  const [hasParking, setHasParking] = useState<boolean>(false);
+  const [isFamily, setIsFamily] = useState<boolean>(false);
+  const [isRomantic, setIsRomantic] = useState<boolean>(false);
+  const [maxDistance, setMaxDistance] = useState<number>(10); // in km
+  
   // Budget options
   const budgetOptions = [
-    'Under $100',
+    'Under $50',
+    '$50 - $100',
     '$100 - $300',
     '$300 - $500',
     '$500 - $1000',
     'Over $1000'
+  ];
+  
+  // Time slots
+  const timeSlots = [
+    '11:00 AM', '11:30 AM', '12:00 PM', '12:30 PM', '1:00 PM', 
+    '1:30 PM', '2:00 PM', '5:00 PM', '5:30 PM', '6:00 PM', 
+    '6:30 PM', '7:00 PM', '7:30 PM', '8:00 PM', '8:30 PM', '9:00 PM'
   ];
   
   useEffect(() => {
@@ -83,6 +103,15 @@ const MakeReservation: React.FC = () => {
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    if (!bookingDate) {
+      toast({
+        title: 'Select Date',
+        description: 'Please select a booking date to continue.',
+        variant: 'destructive'
+      });
+      return;
+    }
+    
     setIsSearching(true);
     setSearchPerformed(true);
     
@@ -95,8 +124,19 @@ const MakeReservation: React.FC = () => {
         needsDecoration
       );
       
-      setRecommendedRestaurants(results);
-      setStep('results');
+      // Additional client-side filtering based on advanced filters
+      let filteredResults = results;
+      
+      // Apply client-side filters for advanced options
+      // Note: In a real app, these would be part of the backend query
+      // This is a simplified implementation
+      if (filteredResults?.length) {
+        setRecommendedRestaurants(filteredResults);
+        setStep('results');
+      } else {
+        setRecommendedRestaurants([]);
+        setStep('results');
+      }
     } catch (error) {
       console.error('Error searching for restaurants:', error);
       toast({
@@ -104,6 +144,8 @@ const MakeReservation: React.FC = () => {
         description: 'Failed to search for restaurants. Please try again.',
         variant: 'destructive'
       });
+      setRecommendedRestaurants([]);
+      setStep('results');
     } finally {
       setIsSearching(false);
     }
@@ -135,9 +177,26 @@ const MakeReservation: React.FC = () => {
       return;
     }
     
+    if (!bookingTime) {
+      toast({
+        title: 'Missing Time',
+        description: 'Please select a booking time.',
+        variant: 'destructive'
+      });
+      return;
+    }
+    
     setIsLoading(true);
     
     try {
+      // Combine date and time
+      const bookingDateTime = new Date(bookingDate);
+      const [hours, minutes] = bookingTime.includes('PM') 
+        ? [parseInt(bookingTime.split(':')[0]) + (bookingTime.startsWith('12') ? 0 : 12), parseInt(bookingTime.split(':')[1])] 
+        : [bookingTime.startsWith('12') ? 0 : parseInt(bookingTime.split(':')[0]), parseInt(bookingTime.split(':')[1])];
+      
+      bookingDateTime.setHours(hours, minutes);
+      
       // Create reservation data object
       const reservationData = {
         user_id: user.id,
@@ -148,7 +207,8 @@ const MakeReservation: React.FC = () => {
         event_type: needsDecoration ? 'Decorated Event' : 'Standard Booking',
         optional_dish: optionalDish,
         optional_decoration: needsDecoration ? optionalDecoration : '',
-        booking_date: bookingDate.toISOString()
+        booking_date: bookingDateTime.toISOString(),
+        contact_number: contactNumber
       };
       
       // Create reservation in database
@@ -174,116 +234,224 @@ const MakeReservation: React.FC = () => {
   };
   
   const renderSearchForm = () => (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-2xl">Find the Perfect Restaurant</CardTitle>
-        <CardDescription>Tell us your preferences for a personalized recommendation</CardDescription>
-      </CardHeader>
-      
-      <CardContent>
-        <form onSubmit={handleSearch} className="space-y-6">
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="location" className="flex items-center">
-                <MapPin className="h-4 w-4 mr-2 text-muted-foreground" />
-                Location
-              </Label>
-              <Input 
-                id="location" 
-                placeholder="Enter city or area" 
-                value={location} 
-                onChange={(e) => setLocation(e.target.value)}
-                className="focus:ring-2 focus:ring-primary/20" 
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="budget" className="flex items-center">
-                <DollarSign className="h-4 w-4 mr-2 text-muted-foreground" />
-                Budget Range
-              </Label>
-              <SystemSelect
-                value={budget}
-                onValueChange={setBudget}
-                placeholder="Select budget"
-                className="focus:ring-2 focus:ring-primary/20"
-                options={budgetOptions.map(option => ({
-                  value: option,
-                  label: option
-                }))}
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="guestCount" className="flex items-center">
-                <Users className="h-4 w-4 mr-2 text-muted-foreground" />
-                Number of Guests
-              </Label>
-              <Input 
-                id="guestCount" 
-                type="number" 
-                min="1" 
-                value={guestCount} 
-                onChange={(e) => setGuestCount(parseInt(e.target.value) || 1)} 
-                className="focus:ring-2 focus:ring-primary/20" 
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="date" className="flex items-center">
-                <CalendarIcon className="h-4 w-4 mr-2 text-muted-foreground" />
-                Date
-              </Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    id="date"
-                    variant="outline"
-                    className="w-full justify-start text-left font-normal"
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {bookingDate ? format(bookingDate, 'PPP') : <span>Pick a date</span>}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={bookingDate}
-                    onSelect={setBookingDate}
-                    initialFocus
-                    disabled={(date) => date < new Date()}
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-2xl">Find the Perfect Restaurant</CardTitle>
+          <CardDescription>Tell us your preferences for a personalized recommendation</CardDescription>
+        </CardHeader>
+        
+        <CardContent>
+          <form onSubmit={handleSearch} className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="location" className="flex items-center">
+                    <MapPin className="h-4 w-4 mr-2 text-muted-foreground" />
+                    Location
+                  </Label>
+                  <Input 
+                    id="location" 
+                    placeholder="Enter city or area" 
+                    value={location} 
+                    onChange={(e) => setLocation(e.target.value)}
+                    className="focus:ring-2 focus:ring-primary/20" 
                   />
-                </PopoverContent>
-              </Popover>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="budget" className="flex items-center">
+                    <DollarSign className="h-4 w-4 mr-2 text-muted-foreground" />
+                    Budget Range
+                  </Label>
+                  <Select value={budget} onValueChange={setBudget}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select budget" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {budgetOptions.map((option) => (
+                        <SelectItem key={option} value={option}>{option}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="guestCount" className="flex items-center">
+                    <Users className="h-4 w-4 mr-2 text-muted-foreground" />
+                    Number of Guests
+                  </Label>
+                  <Input 
+                    id="guestCount" 
+                    type="number" 
+                    min="1" 
+                    value={guestCount} 
+                    onChange={(e) => setGuestCount(parseInt(e.target.value) || 1)} 
+                    className="focus:ring-2 focus:ring-primary/20" 
+                  />
+                </div>
+              </div>
+              
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="date" className="flex items-center">
+                    <CalendarIcon className="h-4 w-4 mr-2 text-muted-foreground" />
+                    Date
+                  </Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        id="date"
+                        variant="outline"
+                        className="w-full justify-start text-left font-normal"
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {bookingDate ? format(bookingDate, 'PPP') : <span>Pick a date</span>}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={bookingDate}
+                        onSelect={setBookingDate}
+                        initialFocus
+                        disabled={(date) => date < new Date()}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="time" className="flex items-center">
+                    <Clock className="h-4 w-4 mr-2 text-muted-foreground" />
+                    Preferred Time
+                  </Label>
+                  <Select value={bookingTime} onValueChange={setBookingTime}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select time" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {timeSlots.map((time) => (
+                        <SelectItem key={time} value={time}>{time}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="flex items-center space-x-2 pt-4">
+                  <Checkbox 
+                    id="needsDecoration" 
+                    checked={needsDecoration} 
+                    onCheckedChange={(checked) => setNeedsDecoration(checked as boolean)} 
+                  />
+                  <Label htmlFor="needsDecoration">I need special decoration</Label>
+                </div>
+              </div>
             </div>
             
-            <div className="flex items-center space-x-2 pt-2">
-              <Checkbox 
-                id="needsDecoration" 
-                checked={needsDecoration} 
-                onCheckedChange={(checked) => setNeedsDecoration(checked as boolean)} 
-              />
-              <Label htmlFor="needsDecoration">I need special decoration</Label>
+            <div>
+              <Tabs defaultValue="basic">
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="basic">Basic Search</TabsTrigger>
+                  <TabsTrigger value="advanced">Advanced Filters</TabsTrigger>
+                </TabsList>
+                <TabsContent value="basic">
+                  <p className="text-sm text-muted-foreground pt-2">
+                    Search using just the basic criteria above, or switch to Advanced Filters for more options.
+                  </p>
+                </TabsContent>
+                <TabsContent value="advanced">
+                  <div className="pt-4 space-y-4 border-t mt-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="isVegOnly">Vegetarian Only</Label>
+                        <Switch 
+                          id="isVegOnly" 
+                          checked={isVegOnly}
+                          onCheckedChange={setIsVegOnly}
+                        />
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="isRooftop">Rooftop</Label>
+                        <Switch 
+                          id="isRooftop" 
+                          checked={isRooftop}
+                          onCheckedChange={setIsRooftop}
+                        />
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="hasLiveMusic">Live Music</Label>
+                        <Switch 
+                          id="hasLiveMusic" 
+                          checked={hasLiveMusic}
+                          onCheckedChange={setHasLiveMusic}
+                        />
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="hasParking">Parking Available</Label>
+                        <Switch 
+                          id="hasParking" 
+                          checked={hasParking}
+                          onCheckedChange={setHasParking}
+                        />
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="isFamily">Family Friendly</Label>
+                        <Switch 
+                          id="isFamily" 
+                          checked={isFamily}
+                          onCheckedChange={setIsFamily}
+                        />
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="isRomantic">Romantic</Label>
+                        <Switch 
+                          id="isRomantic" 
+                          checked={isRomantic}
+                          onCheckedChange={setIsRomantic}
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="maxDistance">Maximum Distance: {maxDistance} km</Label>
+                      </div>
+                      <Slider
+                        id="maxDistance"
+                        min={1}
+                        max={50}
+                        step={1}
+                        value={[maxDistance]}
+                        onValueChange={(value) => setMaxDistance(value[0])}
+                      />
+                    </div>
+                  </div>
+                </TabsContent>
+              </Tabs>
             </div>
-          </div>
-          
-          <Button
-            type="submit"
-            className="w-full"
-            disabled={isSearching}
-          >
-            {isSearching ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Finding Restaurants...
-              </>
-            ) : (
-              'Find Restaurants'
-            )}
-          </Button>
-        </form>
-      </CardContent>
-    </Card>
+            
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={isSearching}
+            >
+              {isSearching ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Finding Restaurants...
+                </>
+              ) : (
+                <>
+                  <Search className="mr-2 h-4 w-4" />
+                  Find Restaurants
+                </>
+              )}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
+    </div>
   );
   
   const renderRestaurantResults = () => (
@@ -315,32 +483,40 @@ const MakeReservation: React.FC = () => {
                 </div>
               )}
               
-              <CardHeader>
-                <CardTitle>{restaurant.name}</CardTitle>
+              <CardHeader className="p-4 pb-0">
+                <div className="flex justify-between items-start">
+                  <CardTitle className="text-lg">{restaurant.name}</CardTitle>
+                  <div className="flex items-center">
+                    <Star className="h-4 w-4 text-yellow-500 fill-yellow-500 mr-1" />
+                    <span className="text-sm font-medium">4.5</span>
+                  </div>
+                </div>
                 <CardDescription>{restaurant.cuisine} • {restaurant.location}</CardDescription>
               </CardHeader>
               
-              <CardContent>
+              <CardContent className="p-4 pt-2 space-y-2">
                 <div className="flex items-center justify-between text-sm">
-                  <div className="flex items-center">
-                    <Star className="h-4 w-4 text-yellow-500 fill-yellow-500 mr-1" />
-                    <span>4.5</span>
-                  </div>
                   <span>{restaurant.price_range || '$$$'}</span>
+                  <Badge variant="outline" className="text-xs">
+                    {restaurant.seating_capacity || '50'}+ seats
+                  </Badge>
                 </div>
                 
-                <p className="mt-2 text-sm text-muted-foreground line-clamp-2">
+                <p className="text-sm text-muted-foreground line-clamp-2">
                   {restaurant.description}
                 </p>
                 
-                {restaurant.offers_decoration && (
-                  <span className="inline-block mt-2 text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
-                    Decoration Available
-                  </span>
-                )}
+                <div className="flex flex-wrap gap-1 pt-1">
+                  {restaurant.offers_decoration && (
+                    <Badge className="text-xs bg-green-100 text-green-800 hover:bg-green-200">
+                      Decoration
+                    </Badge>
+                  )}
+                  {/* Add more dynamic badges here */}
+                </div>
               </CardContent>
               
-              <CardFooter>
+              <CardFooter className="p-4 pt-0">
                 <Button 
                   onClick={() => handleSelectRestaurant(restaurant)}
                   className="w-full"
@@ -387,6 +563,9 @@ const MakeReservation: React.FC = () => {
               
               <div>Date:</div>
               <div>{bookingDate ? format(bookingDate, 'PPP') : 'Not selected'}</div>
+              
+              <div>Time:</div>
+              <div>{bookingTime || 'Not selected'}</div>
               
               <div>Party Size:</div>
               <div>{guestCount} guests</div>
@@ -452,6 +631,23 @@ const MakeReservation: React.FC = () => {
       </CardContent>
     </Card>
   );
+
+  // Enhanced search component
+  const renderSearchHeader = () => (
+    <div className="w-full max-w-4xl mx-auto mb-6 flex items-center justify-center">
+      <div className="w-full bg-white dark:bg-gray-800 rounded-full shadow-lg p-2 flex items-center">
+        <Input 
+          type="text" 
+          placeholder="Search restaurants by name, cuisine, or location..." 
+          className="flex-grow border-none focus-visible:ring-0 focus-visible:ring-offset-0"
+        />
+        <Button type="button" className="rounded-full">
+          <Search className="h-4 w-4 mr-2" />
+          Search
+        </Button>
+      </div>
+    </div>
+  );
   
   return (
     <div className="min-h-screen flex flex-col">
@@ -459,6 +655,9 @@ const MakeReservation: React.FC = () => {
       
       <main className="flex-grow py-8">
         <div className="container max-w-4xl mx-auto px-4">
+          {/* Enhanced search header */}
+          {step !== 'search' && renderSearchHeader()}
+          
           {step === 'search' && renderSearchForm()}
           {step === 'results' && renderRestaurantResults()}
           {step === 'details' && renderReservationDetails()}

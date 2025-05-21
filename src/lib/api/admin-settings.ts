@@ -89,6 +89,11 @@ export const getAdminCount = async () => {
 
 // Check if initial admin setup is complete
 export const isInitialAdminSetupComplete = async () => {
-  const adminCount = await getAdminCount();
-  return adminCount >= 2; // Return true if we already have 2 or more admins
+  try {
+    const adminCount = await getAdminCount();
+    return adminCount >= 1; // Return true if we already have 1 or more admins
+  } catch (error) {
+    console.error('Error checking admin setup status:', error);
+    return false;
+  }
 };

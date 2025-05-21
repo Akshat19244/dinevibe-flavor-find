@@ -1,10 +1,11 @@
+
 import React, { useState, useEffect } from 'react';
 import AdminLayout from '@/components/admin/AdminLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { useToast } from '@/components/ui/use-toast';
 import { getPendingRestaurants, updateRestaurantApprovalStatus } from '@/lib/api/restaurants';
+import { useToast } from '@/components/ui/use-toast';
 import { logAdminAction } from '@/lib/api/admin';
 import { useAuth } from '@/contexts/AuthContext';
 import { AlertCircle, CheckCircle, XCircle } from 'lucide-react';
@@ -15,9 +16,10 @@ import { Json } from '@/lib/api/types';
 interface RestaurantWithOwner {
   id: string;
   name: string;
+  description: string;
   location: string;
   cuisine: string;
-  description: string;
+  price_range?: string;
   created_at: string;
   owner_id: string;
   profiles: {
@@ -30,13 +32,15 @@ interface RestaurantWithOwner {
   seating_capacity?: number;
   offers_decoration?: boolean;
   is_approved?: boolean;
+  images?: string[];
 }
 
 const ManageRestaurants: React.FC = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [restaurants, setRestaurants] = useState<RestaurantWithOwner[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [processing, setProcessing] = useState<{[key: string]: boolean}>({});
   
   useEffect(() => {
     fetchPendingRestaurants();
@@ -52,143 +56,176 @@ const ManageRestaurants: React.FC = () => {
       console.error('Error fetching pending restaurants:', error);
       toast({
         title: 'Error',
-        description: 'Failed to load pending restaurants',
-        variant: 'destructive',
+        description: 'Could not load pending restaurant data.',
+        variant: 'destructive'
       });
     } finally {
       setLoading(false);
     }
   };
   
-  const handleApprove = async (id: string) => {
-    if (!user) return;
+  const handleApproval = async (id: string, isApproved: boolean) => {
+    // Set processing state for this restaurant
+    setProcessing(prev => ({ ...prev, [id]: true }));
     
     try {
-      await updateRestaurantApprovalStatus(id, true);
+      await updateRestaurantApprovalStatus(id, isApproved);
       
-      // Log the action
-      await logAdminAction(
-        user.id, 
-        'approve_restaurant', 
-        'restaurants',
-        id,
-        { action: 'approve' }
-      );
+      // Log the admin action
+      if (user) {
+        await logAdminAction(
+          user.id,
+          isApproved ? 'approve_restaurant' : 'reject_restaurant',
+          'restaurants',
+          id
+        );
+      }
       
       toast({
-        title: 'Success',
-        description: 'Restaurant approved successfully',
+        title: isApproved ? 'Restaurant Approved' : 'Restaurant Rejected',
+        description: isApproved 
+          ? 'The restaurant has been approved and is now visible to users.'
+          : 'The restaurant has been rejected.'
       });
       
-      // Remove from list
-      setRestaurants(restaurants.filter(r => r.id !== id));
+      // Remove the restaurant from the list
+      setRestaurants(prev => prev.filter(rest => rest.id !== id));
+      
     } catch (error) {
-      console.error('Error approving restaurant:', error);
+      console.error('Error updating restaurant approval:', error);
       toast({
-        title: 'Error',
-        description: 'Failed to approve restaurant',
-        variant: 'destructive',
+        title: 'Update Failed',
+        description: 'Could not update restaurant approval status.',
+        variant: 'destructive'
       });
+    } finally {
+      // Reset processing state
+      setProcessing(prev => ({ ...prev, [id]: false }));
     }
   };
   
-  const handleReject = async (id: string) => {
-    if (!user || !window.confirm('Are you sure you want to reject this restaurant?')) return;
-    
-    try {
-      // Alternative: you could delete or mark with special status
-      await updateRestaurantApprovalStatus(id, false);
-      
-      // Log the action
-      await logAdminAction(
-        user.id, 
-        'reject_restaurant', 
-        'restaurants',
-        id,
-        { action: 'reject' }
-      );
-      
-      toast({
-        title: 'Success',
-        description: 'Restaurant rejected',
-      });
-      
-      // Remove from list
-      setRestaurants(restaurants.filter(r => r.id !== id));
-    } catch (error) {
-      console.error('Error rejecting restaurant:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to reject restaurant',
-        variant: 'destructive',
-      });
-    }
+  // Format date function
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric', 
+      month: 'short', 
+      day: 'numeric'
+    });
   };
   
   return (
     <AdminLayout>
-      <div className="p-6">
-        <h1 className="text-3xl font-bold tracking-tight mb-6">Restaurant Approval</h1>
+      <div className="p-6 space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Pending Restaurants</h1>
+            <p className="text-muted-foreground">
+              Review and approve restaurant listings before they appear on the platform.
+            </p>
+          </div>
+          
+          <div className="flex gap-2">
+            <Button 
+              variant="outline" 
+              onClick={fetchPendingRestaurants}
+              disabled={loading}
+            >
+              Refresh
+            </Button>
+          </div>
+        </div>
         
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center justify-between">
-              <span>Pending Restaurant Applications</span>
-              <Button variant="outline" onClick={fetchPendingRestaurants}>Refresh</Button>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {loading ? (
-              <div className="flex justify-center p-4">
-                <div className="animate-spin h-6 w-6 border-2 border-primary border-t-transparent rounded-full"></div>
-              </div>
-            ) : restaurants.length === 0 ? (
-              <div className="flex items-center justify-center p-8 text-muted-foreground">
-                <CheckCircle className="mr-2 h-5 w-5 text-green-500" />
-                <span>No pending restaurant applications</span>
-              </div>
-            ) : (
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Restaurant</TableHead>
-                      <TableHead>Owner</TableHead>
-                      <TableHead>Location</TableHead>
-                      <TableHead>Cuisine</TableHead>
-                      <TableHead>Submitted</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
+        {loading ? (
+          <div className="space-y-4">
+            <div className="h-64 rounded-md bg-muted animate-pulse" />
+          </div>
+        ) : restaurants.length === 0 ? (
+          <Card>
+            <CardContent className="pt-6 text-center">
+              <AlertCircle className="mx-auto h-12 w-12 text-muted-foreground/80" />
+              <p className="mt-4 text-lg font-medium">No pending restaurants</p>
+              <p className="text-sm text-muted-foreground">
+                All restaurant submissions have been reviewed.
+              </p>
+            </CardContent>
+          </Card>
+        ) : (
+          <Card>
+            <CardHeader>
+              <CardTitle>Restaurant Applications ({restaurants.length})</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Restaurant</TableHead>
+                    <TableHead>Owner</TableHead>
+                    <TableHead>Location</TableHead>
+                    <TableHead>Cuisine</TableHead>
+                    <TableHead>Applied On</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {restaurants.map((restaurant) => (
+                    <TableRow key={restaurant.id}>
+                      <TableCell className="font-medium">
+                        <div>
+                          <div className="font-semibold">{restaurant.name}</div>
+                          <div className="text-sm text-muted-foreground line-clamp-1">
+                            {restaurant.description}
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div>
+                          <div>{restaurant.profiles.name}</div>
+                          <div className="text-sm text-muted-foreground">
+                            {restaurant.profiles.email}
+                          </div>
+                          {restaurant.profiles.contact_number && (
+                            <div className="text-xs text-muted-foreground">
+                              {restaurant.profiles.contact_number}
+                            </div>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell>{restaurant.location}</TableCell>
+                      <TableCell>
+                        <Badge variant="outline">
+                          {restaurant.cuisine}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>{formatDate(restaurant.created_at)}</TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex justify-end gap-2">
+                          <Button 
+                            variant="default" 
+                            size="sm"
+                            onClick={() => handleApproval(restaurant.id, true)}
+                            disabled={processing[restaurant.id]}
+                          >
+                            <CheckCircle className="mr-1 h-4 w-4" />
+                            Approve
+                          </Button>
+                          <Button 
+                            variant="destructive" 
+                            size="sm"
+                            onClick={() => handleApproval(restaurant.id, false)}
+                            disabled={processing[restaurant.id]}
+                          >
+                            <XCircle className="mr-1 h-4 w-4" />
+                            Reject
+                          </Button>
+                        </div>
+                      </TableCell>
                     </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {restaurants.map((restaurant) => (
-                      <TableRow key={restaurant.id}>
-                        <TableCell className="font-medium">{restaurant.name}</TableCell>
-                        <TableCell>
-                          <div>{restaurant.profiles?.name}</div>
-                          <div className="text-sm text-muted-foreground">{restaurant.profiles?.email}</div>
-                        </TableCell>
-                        <TableCell>{restaurant.location}</TableCell>
-                        <TableCell>
-                          <Badge variant="outline">{restaurant.cuisine}</Badge>
-                        </TableCell>
-                        <TableCell>{new Date(restaurant.created_at).toLocaleDateString()}</TableCell>
-                        <TableCell className="text-right space-x-2">
-                          <Button variant="default" size="sm" onClick={() => handleApprove(restaurant.id)}>
-                            <CheckCircle className="mr-1 h-4 w-4" /> Approve
-                          </Button>
-                          <Button variant="destructive" size="sm" onClick={() => handleReject(restaurant.id)}>
-                            <XCircle className="mr-1 h-4 w-4" /> Reject
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </AdminLayout>
   );
