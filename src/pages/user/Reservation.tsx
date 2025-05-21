@@ -4,21 +4,13 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import Navbar from '@/components/ui/navbar';
 import Footer from '@/components/ui/footer';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Switch } from '@/components/ui/switch';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Checkbox } from '@/components/ui/checkbox';
-import { SystemSelect } from '@/components/ui/system-select';
-import { Badge } from '@/components/ui/badge';
-import { useToast } from '@/components/ui/use-toast';
 import { format } from 'date-fns';
-import { CalendarIcon, Clock, Users, MapPin, CreditCard, Info, Phone } from 'lucide-react';
+import { useToast } from '@/components/ui/use-toast';
 import { getRestaurantById } from '@/lib/api/restaurants';
 import { Restaurant } from '@/lib/api/types';
+import { Skeleton } from "@/components/ui/skeleton";
+import ReservationForm from '@/components/reservation/ReservationForm';
+import ReservationSummary from '@/components/reservation/ReservationSummary';
 
 const Reservation: React.FC = () => {
   const { user } = useAuth();
@@ -148,31 +140,6 @@ const Reservation: React.FC = () => {
     }, 1500);
   };
   
-  // Get event type label
-  const getEventTypeLabel = (eventType: string) => {
-    switch (eventType) {
-      case 'casual': return 'Casual Dining';
-      case 'birthday': return 'Birthday Celebration';
-      case 'anniversary': return 'Anniversary';
-      case 'business': return 'Business Meeting';
-      case 'date': return 'Romantic Date';
-      case 'family': return 'Family Gathering';
-      default: return 'Other Event';
-    }
-  };
-  
-  // Helper function to safely display contact information
-  const getContactInfo = (): string => {
-    if (
-      restaurant?.manager_details && 
-      typeof restaurant.manager_details === 'object' && 
-      'contact' in restaurant.manager_details
-    ) {
-      return String(restaurant.manager_details.contact);
-    }
-    return 'Contact information not available';
-  };
-  
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar userType="customer" userName={user?.user_metadata?.name || 'User'} />
@@ -191,256 +158,33 @@ const Reservation: React.FC = () => {
         {/* Reservation form */}
         <div className="container mx-auto px-4 py-8">
           {loading ? (
-            <div className="text-center py-12">
-              <p className="text-lg">Loading reservation details...</p>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="lg:col-span-2">
+                <Skeleton className="h-[600px] w-full rounded-lg" />
+              </div>
+              <div>
+                <Skeleton className="h-[500px] w-full rounded-lg" />
+              </div>
             </div>
           ) : (
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Reservation form */}
               <div className="lg:col-span-2">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Reservation Details</CardTitle>
-                    <CardDescription>
-                      Fill in your information to complete the booking
-                    </CardDescription>
-                  </CardHeader>
-                  
-                  <CardContent>
-                    <form onSubmit={handleSubmit} className="space-y-6">
-                      <div className="space-y-6">
-                        <div>
-                          <h3 className="text-lg font-semibold mb-4">Contact Information</h3>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="space-y-2">
-                              <Label htmlFor="name">Full Name *</Label>
-                              <Input 
-                                id="name" 
-                                value={reservationData.name}
-                                onChange={(e) => setReservationData({ ...reservationData, name: e.target.value })}
-                                required
-                              />
-                            </div>
-                            
-                            <div className="space-y-2">
-                              <Label htmlFor="phone">Phone Number *</Label>
-                              <Input 
-                                id="phone" 
-                                value={reservationData.phone}
-                                onChange={(e) => setReservationData({ ...reservationData, phone: e.target.value })}
-                                required
-                              />
-                            </div>
-                            
-                            <div className="space-y-2 md:col-span-2">
-                              <Label htmlFor="email">Email *</Label>
-                              <Input 
-                                id="email" 
-                                type="email"
-                                value={reservationData.email}
-                                onChange={(e) => setReservationData({ ...reservationData, email: e.target.value })}
-                                required
-                              />
-                            </div>
-                          </div>
-                        </div>
-                        
-                        <div>
-                          <h3 className="text-lg font-semibold mb-4">Additional Requests</h3>
-                          <div className="space-y-4">
-                            <div className="space-y-2">
-                              <Label htmlFor="specialRequests">Special Requests</Label>
-                              <Textarea 
-                                id="specialRequests" 
-                                placeholder="Any special requests for your reservation? (e.g., seating preference, occasion details)"
-                                value={reservationData.specialRequests}
-                                onChange={(e) => setReservationData({ ...reservationData, specialRequests: e.target.value })}
-                                rows={3}
-                              />
-                            </div>
-                            
-                            <div className="space-y-2">
-                              <Label htmlFor="dietaryRestrictions">Dietary Restrictions</Label>
-                              <Textarea 
-                                id="dietaryRestrictions" 
-                                placeholder="Any food allergies or dietary restrictions? (e.g., vegetarian, gluten-free, nut allergy)"
-                                value={reservationData.dietaryRestrictions}
-                                onChange={(e) => setReservationData({ ...reservationData, dietaryRestrictions: e.target.value })}
-                                rows={2}
-                              />
-                            </div>
-                          </div>
-                        </div>
-                        
-                        <div>
-                          <h3 className="text-lg font-semibold mb-4">Payment Method</h3>
-                          <RadioGroup 
-                            value={reservationData.paymentMethod}
-                            onValueChange={(value) => setReservationData({ ...reservationData, paymentMethod: value })}
-                            className="space-y-3"
-                          >
-                            <div className="flex items-center space-x-2">
-                              <RadioGroupItem value="pay-at-venue" id="pay-at-venue" />
-                              <Label htmlFor="pay-at-venue" className="flex items-center cursor-pointer">
-                                Pay at Restaurant
-                              </Label>
-                            </div>
-                            
-                            <div className="flex items-center space-x-2">
-                              <RadioGroupItem value="credit-card" id="credit-card" />
-                              <Label htmlFor="credit-card" className="flex items-center cursor-pointer">
-                                <CreditCard className="h-4 w-4 mr-2" />
-                                Credit/Debit Card
-                              </Label>
-                            </div>
-                          </RadioGroup>
-                          
-                          {reservationData.paymentMethod === 'credit-card' && (
-                            <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-md">
-                              <p className="text-sm flex items-start">
-                                <Info className="h-4 w-4 mr-2 mt-0.5 text-blue-600 dark:text-blue-400" />
-                                In a production app, you would see a secure payment form here. For this demo, we're simulating the payment flow.
-                              </p>
-                            </div>
-                          )}
-                        </div>
-                        
-                        <div className="pt-2">
-                          <div className="flex items-center space-x-2">
-                            <Checkbox 
-                              id="terms" 
-                              checked={reservationData.agreeToTerms}
-                              onCheckedChange={(checked) => 
-                                setReservationData({
-                                  ...reservationData,
-                                  agreeToTerms: !!checked
-                                })
-                              }
-                              required
-                            />
-                            <Label 
-                              htmlFor="terms" 
-                              className="text-sm font-medium cursor-pointer"
-                            >
-                              I agree to the booking terms and cancellation policy
-                            </Label>
-                          </div>
-                          
-                          <p className="text-xs text-gray-500 mt-2 pl-6">
-                            Cancellations made less than 24 hours before the reservation may incur a fee.
-                            No-shows may be subject to a charge of up to 25% of the estimated bill.
-                          </p>
-                        </div>
-                      </div>
-                      
-                      <CardFooter className="px-0 pt-6">
-                        <div className="flex flex-col sm:flex-row sm:justify-between gap-4 w-full">
-                          <Button
-                            type="button"
-                            variant="outline"
-                            onClick={() => navigate(-1)}
-                          >
-                            Back
-                          </Button>
-                          <Button
-                            type="submit"
-                            className="bg-dineVibe-primary hover:bg-dineVibe-primary/90"
-                            disabled={!isFormValid()}
-                          >
-                            Confirm Reservation
-                          </Button>
-                        </div>
-                      </CardFooter>
-                    </form>
-                  </CardContent>
-                </Card>
+                <ReservationForm 
+                  reservationData={reservationData}
+                  setReservationData={setReservationData}
+                  isFormValid={isFormValid}
+                  handleSubmit={handleSubmit}
+                  onNavigateBack={() => navigate(-1)}
+                />
               </div>
               
               {/* Restaurant and reservation summary */}
               <div>
-                <Card className="bg-gray-50 dark:bg-gray-900">
-                  <CardHeader>
-                    <div className="mb-2">
-                      {restaurant?.price_range && (
-                        <Badge className="mb-2">
-                          {restaurant.price_range === 'budget' && 'Budget-friendly ($)'}
-                          {restaurant.price_range === 'moderate' && 'Moderate ($$)'}
-                          {restaurant.price_range === 'high-end' && 'Premium ($$$)'}
-                          {restaurant.price_range === 'luxury' && 'Luxury ($$$$)'}
-                        </Badge>
-                      )}
-                      <CardTitle>{restaurant?.name || 'Restaurant'}</CardTitle>
-                      <CardDescription>{restaurant?.cuisine || 'Cuisine'}</CardDescription>
-                    </div>
-                    
-                    <div className="aspect-video w-full overflow-hidden rounded-md">
-                      <img 
-                        src={restaurant?.images?.[0] || "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.0.3"} 
-                        alt={restaurant?.name || 'Restaurant'} 
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                  </CardHeader>
-                  
-                  <CardContent>
-                    <div className="space-y-4">
-                      <h3 className="font-semibold">Reservation Summary</h3>
-                      
-                      <div className="space-y-3 text-sm">
-                        <div className="flex items-start">
-                          <CalendarIcon className="h-4 w-4 mr-2 mt-0.5 text-dineVibe-primary" />
-                          <span>
-                            {format(new Date(reservationParams.date), 'EEEE, MMMM d, yyyy')}
-                          </span>
-                        </div>
-                        
-                        <div className="flex items-start">
-                          <Clock className="h-4 w-4 mr-2 mt-0.5 text-dineVibe-primary" />
-                          <span>{reservationParams.time}</span>
-                        </div>
-                        
-                        <div className="flex items-start">
-                          <Users className="h-4 w-4 mr-2 mt-0.5 text-dineVibe-primary" />
-                          <span>
-                            {reservationParams.guests} {reservationParams.guests === 1 ? 'guest' : 'guests'}
-                          </span>
-                        </div>
-                        
-                        <div className="flex items-start">
-                          <Info className="h-4 w-4 mr-2 mt-0.5 text-dineVibe-primary" />
-                          <span>{getEventTypeLabel(reservationParams.event)}</span>
-                        </div>
-                        
-                        {reservationParams.decor && (
-                          <div className="bg-dineVibe-accent/10 p-2 rounded-md text-dineVibe-accent">
-                            Special decoration requested
-                          </div>
-                        )}
-                      </div>
-                      
-                      <div className="border-t pt-4 mt-4">
-                        <h3 className="font-semibold mb-2">Restaurant Information</h3>
-                        <div className="space-y-3 text-sm">
-                          <div className="flex items-start">
-                            <MapPin className="h-4 w-4 mr-2 mt-0.5 text-dineVibe-primary" />
-                            <span>{restaurant?.location || 'Location not available'}</span>
-                          </div>
-                          
-                          <div className="flex items-start">
-                            <Phone className="h-4 w-4 mr-2 mt-0.5 text-dineVibe-primary" />
-                            <span>{getContactInfo()}</span>
-                          </div>
-                          
-                          {restaurant?.description && (
-                            <p className="text-gray-600 mt-2">
-                              {restaurant.description}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                <ReservationSummary 
+                  restaurant={restaurant}
+                  reservationParams={reservationParams}
+                />
               </div>
             </div>
           )}
