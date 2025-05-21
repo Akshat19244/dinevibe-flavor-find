@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -97,8 +96,8 @@ const Reservation: React.FC = () => {
       budget_range: { min: 50, max: 100 },
       manager_details: {
         name: "Mario Rossi",
-        phone: "+1 (555) 123-4567",
         email: "info@bellaitalia.com",
+        contact: "+1 (555) 123-4567"
       }
     };
   };
@@ -414,10 +413,10 @@ const Reservation: React.FC = () => {
                             <span>{restaurant?.location || 'Location not available'}</span>
                           </div>
                           
-                          {restaurant?.manager_details?.phone && (
+                          {restaurant?.manager_details && typeof restaurant.manager_details === 'object' && 'contact' in restaurant.manager_details && (
                             <div className="flex items-start">
                               <Phone className="h-4 w-4 mr-2 mt-0.5 text-dineVibe-primary" />
-                              <span>{restaurant.manager_details.phone}</span>
+                              <span>{restaurant.manager_details.contact}</span>
                             </div>
                           )}
                           

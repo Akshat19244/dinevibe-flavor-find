@@ -1,5 +1,5 @@
-
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import Navbar from '@/components/ui/navbar';
 import Footer from '@/components/ui/footer';
 import { useAuth } from '@/contexts/AuthContext';
@@ -15,7 +15,16 @@ import { getRestaurantsByOwner } from '@/lib/api/restaurants';
 import { useToast } from '@/components/ui/use-toast';
 import { Restaurant } from '@/lib/api/types';
 import { Badge } from '@/components/ui/badge';
-import { Clock, Map, Users, Calendar, Settings as SettingsIcon, Building, Phone } from 'lucide-react';
+import { 
+  Clock, 
+  Map, 
+  Users, 
+  Calendar, 
+  Settings as SettingsIcon, 
+  Building, 
+  Phone,
+  User as UserIcon
+} from 'lucide-react';
 
 const OwnerSettings: React.FC = () => {
   const { user } = useAuth();
@@ -133,7 +142,7 @@ const OwnerSettings: React.FC = () => {
             <Tabs defaultValue="profile" className="space-y-6">
               <TabsList className="grid grid-cols-1 md:grid-cols-3 lg:w-[600px] mx-auto">
                 <TabsTrigger value="profile">
-                  <User className="h-4 w-4 mr-2" />
+                  <UserIcon className="h-4 w-4 mr-2" />
                   Profile
                 </TabsTrigger>
                 <TabsTrigger value="restaurant">
