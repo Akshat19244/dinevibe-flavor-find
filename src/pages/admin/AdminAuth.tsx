@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/components/ui/use-toast';
@@ -165,6 +164,7 @@ const AdminAuth: React.FC = () => {
         const currentUser = await supabase.auth.getUser();
         if (currentUser.data.user) {
           await logAdminAction(
+            currentUser.data.user.id,
             'create_admin_account',
             'profiles',
             data.user.id,

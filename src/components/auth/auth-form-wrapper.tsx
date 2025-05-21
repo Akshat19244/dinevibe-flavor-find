@@ -5,6 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useToast } from '@/components/ui/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { incrementAdminCount } from '@/lib/api/admin';
 
 const AuthFormWrapper: React.FC<{ defaultTab?: 'login' | 'signup' }> = ({ defaultTab = 'login' }) => {
   const { signIn, signUp, signInWithGoogle } = useAuth();
@@ -161,7 +162,7 @@ const AuthFormWrapper: React.FC<{ defaultTab?: 'login' | 'signup' }> = ({ defaul
             // If admin was registered successfully, increment admin count
             if (isAdmin) {
               // Use the RPC function to increment admin count
-              await supabase.rpc('increment_admin_count');
+              await incrementAdminCount();
             }
           }
         }
