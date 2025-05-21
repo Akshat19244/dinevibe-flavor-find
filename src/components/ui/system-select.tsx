@@ -35,6 +35,14 @@ const ensureValidSelectValue = (value: string): string => {
   return value?.trim() ? value : 'placeholder-value';
 };
 
+// Filter out any options with empty values before rendering
+const getValidOptions = (options: SystemSelectOptionProps[]): SystemSelectOptionProps[] => {
+  return options.map(option => ({
+    ...option,
+    value: ensureValidSelectValue(option.value)
+  }));
+};
+
 export const SystemSelect: React.FC<SystemSelectProps> = ({
   value,
   onValueChange,
@@ -45,9 +53,13 @@ export const SystemSelect: React.FC<SystemSelectProps> = ({
   className = '',
   groupLabel,
 }) => {
+  // Make sure we're using a valid value
+  const safeValue = value?.trim() ? value : undefined;
+  const validOptions = getValidOptions(options);
+  
   return (
     <Select
-      value={value}
+      value={safeValue}
       onValueChange={onValueChange}
       disabled={disabled}
     >
@@ -57,10 +69,10 @@ export const SystemSelect: React.FC<SystemSelectProps> = ({
       <SelectContent>
         <SelectGroup>
           {groupLabel && <SelectLabel>{groupLabel}</SelectLabel>}
-          {options.map((option) => (
+          {validOptions.map((option) => (
             <SelectItem 
               key={option.value} 
-              value={ensureValidSelectValue(option.value)} 
+              value={option.value} // This is now guaranteed to be non-empty
               disabled={option.disabled}
             >
               {option.label}
