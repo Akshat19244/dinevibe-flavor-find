@@ -5,12 +5,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
-import { getUserProfiles, updateUserRole, toggleUserAdmin } from '@/lib/api/users';
+import { getAllUsers, updateUserRole, toggleUserAdmin } from '@/lib/api/users';
 import { logAdminAction } from '@/lib/api/admin';
 import { AlertCircle, CheckCircle, Shield, User as UserIcon } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { supabase } from '@/integrations/supabase/client';
 
 // User profile type
 interface UserProfile {
@@ -38,7 +39,7 @@ const AdminUsers: React.FC = () => {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const usersData = await getUserProfiles();
+      const usersData = await getAllUsers();
       setUsers(usersData);
     } catch (error) {
       console.error('Error fetching users:', error);

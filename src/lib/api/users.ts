@@ -71,7 +71,7 @@ export const getUserProfile = async (userId?: string) => {
   return data as User;
 };
 
-// Get all users (for admin)
+// Get all users (for admin) - renamed from getUserProfiles to getAllUsers
 export const getAllUsers = async () => {
   const { data, error } = await supabase
     .from('profiles')
@@ -109,6 +109,19 @@ export const updateUserRole = async (userId: string, role: string) => {
 
 // Set user as admin (for admin)
 export const setUserAsAdmin = async (userId: string, isAdmin: boolean) => {
+  const { data, error } = await supabase
+    .from('profiles')
+    .update({ is_admin: isAdmin })
+    .eq('id', userId)
+    .select()
+    .single();
+    
+  if (error) throw error;
+  return data as User;
+};
+
+// Toggle admin status (renamed from setUserAsAdmin for clarity)
+export const toggleUserAdmin = async (userId: string, isAdmin: boolean) => {
   const { data, error } = await supabase
     .from('profiles')
     .update({ is_admin: isAdmin })

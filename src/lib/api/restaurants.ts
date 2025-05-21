@@ -1,5 +1,5 @@
 import { supabase, isSupabaseConfigured } from './client';
-import { Restaurant } from './types';
+import { Restaurant, Json } from './types';
 
 // Restaurant functions
 export const createRestaurant = async (restaurantData: Omit<Restaurant, 'id' | 'created_at'>) => {
@@ -185,13 +185,16 @@ export const getRecommendedRestaurants = async (
   
   // Filter by budget in memory since Supabase doesn't support JSONB filtering in this way
   // This assumes budget_range is stored as { min: number, max: number }
-  let filteredData = data as Restaurant[];
-  if (budget) {
+  let filteredData = data as unknown as Restaurant[];
+  
+  // Now manually filter by budget range
+  if (budget && filteredData) {
     filteredData = filteredData.filter(restaurant => {
       if (!restaurant.budget_range) return true;
       
-      const min = restaurant.budget_range.min || 0;
-      const max = restaurant.budget_range.max || Infinity;
+      const budgetRange = restaurant.budget_range as { min: number; max: number };
+      const min = budgetRange.min || 0;
+      const max = budgetRange.max || Infinity;
       
       return (min <= maxBudget && max >= minBudget);
     });

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import AdminLayout from '@/components/admin/AdminLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,6 +9,7 @@ import { logAdminAction } from '@/lib/api/admin';
 import { useAuth } from '@/contexts/AuthContext';
 import { AlertCircle, CheckCircle, XCircle } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { Json } from '@/lib/api/types';
 
 // Restaurant profile type with owner info
 interface RestaurantWithOwner {
@@ -25,6 +25,11 @@ interface RestaurantWithOwner {
     email: string;
     contact_number?: string;
   };
+  // Additional properties that were added later
+  budget_range?: { min: number; max: number } | null;
+  seating_capacity?: number;
+  offers_decoration?: boolean;
+  is_approved?: boolean;
 }
 
 const ManageRestaurants: React.FC = () => {
@@ -41,7 +46,8 @@ const ManageRestaurants: React.FC = () => {
     try {
       setLoading(true);
       const data = await getPendingRestaurants();
-      setRestaurants(data as RestaurantWithOwner[]);
+      // Use type assertion to match the expected type
+      setRestaurants(data as unknown as RestaurantWithOwner[]);
     } catch (error) {
       console.error('Error fetching pending restaurants:', error);
       toast({
