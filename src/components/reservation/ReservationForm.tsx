@@ -52,8 +52,8 @@ const ReservationForm: React.FC<ReservationFormProps> = ({
       </CardHeader>
       
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-8">
+          <div className="space-y-8">
             <ContactForm 
               name={reservationData.name}
               phone={reservationData.phone}
