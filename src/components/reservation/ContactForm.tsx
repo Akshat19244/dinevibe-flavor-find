@@ -1,8 +1,7 @@
-
 import React from 'react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { InfoCircle } from 'lucide-react';
+import { Info } from 'lucide-react';
 
 interface ContactFormProps {
   name: string;
@@ -58,7 +57,7 @@ const ContactForm: React.FC<ContactFormProps> = ({
             />
             {!isPhoneValid && phone && (
               <p className="text-red-500 text-xs mt-1 flex items-center">
-                <InfoCircle className="h-3 w-3 mr-1" />
+                <Info className="h-3 w-3 mr-1" />
                 Please enter a valid phone number
               </p>
             )}
@@ -79,7 +78,7 @@ const ContactForm: React.FC<ContactFormProps> = ({
             />
             {!isEmailValid && email && (
               <p className="text-red-500 text-xs mt-1 flex items-center">
-                <InfoCircle className="h-3 w-3 mr-1" />
+                <Info className="h-3 w-3 mr-1" />
                 Please enter a valid email address
               </p>
             )}
