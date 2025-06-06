@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -64,7 +65,7 @@ const Navbar: React.FC<NavbarProps> = ({ userType = "customer", userName = "User
           { href: "/user/discovery", label: "Discover", icon: Compass },
           { href: "/user/planning", label: "Plan Event", icon: Calendar },
           { href: "/user/ai-assistant", label: "AI Assistant", icon: Brain, badge: "NEW" },
-          { href: "/user/upcoming", label: "Upcoming", icon: Clock },
+          { href: "/user/upcoming", label: "Upcoming", icon: Calendar },
           { href: "/user/deals", label: "Deals", icon: Tag },
           { href: "/user/bookings", label: "Bookings", icon: BookOpen },
         ];
