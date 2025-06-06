@@ -4,7 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { Toaster } from '@/components/ui/toaster';
-import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
+import ProtectedRoute from '@/components/auth/ProtectedRoute';
 
 // Import all page components
 import Index from '@/pages/Index';
@@ -56,7 +56,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <ThemeProvider defaultTheme="system" storageKey="vite-react-theme">
+        <ThemeProvider>
           <Router>
             <Routes>
               {/* Public routes */}
