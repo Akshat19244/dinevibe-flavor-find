@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -11,6 +10,17 @@ import {
   LogOut,
   Settings,
   Sparkles,
+  Compass,
+  Calendar,
+  Brain,
+  Tag,
+  BookOpen,
+  BarChart3,
+  Plus,
+  Users,
+  Building,
+  FileText,
+  Settings as SettingsIcon,
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -28,7 +38,7 @@ interface NavbarProps {
   userName?: string;
 }
 
-const Navbar: React.FC<NavbarProps> = ({ userType = null, userName = '' }) => {
+const Navbar: React.FC<NavbarProps> = ({ userType = "customer", userName = "User" }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { signOut } = useAuth();
   const { theme } = useTheme();
@@ -47,38 +57,39 @@ const Navbar: React.FC<NavbarProps> = ({ userType = null, userName = '' }) => {
   };
 
   // Define navigation links based on user type
-  const getNavLinks = () => {
-    if (userType === 'customer') {
-      return [
-        { to: '/user/discovery', label: 'Discovery' },
-        { to: '/user/upcoming', label: 'Events' },
-        { to: '/user/deals', label: 'Deals' },
-        { to: '/user/planning', label: 'Planning' },
-        { to: '/user/bookings', label: 'Bookings' },
-      ];
-    } else if (userType === 'owner') {
-      return [
-        { to: '/owner/upload-event', label: 'Events' },
-        { to: '/owner/deals', label: 'Deals' },
-        { to: '/owner/customers', label: 'Bookings' },
-      ];
-    } else if (userType === 'admin') {
-      return [
-        { to: '/admin/users', label: 'Users' },
-        { to: '/admin/reports', label: 'Reports' },
-        { to: '/admin/notify', label: 'Notifications' },
-      ];
-    } else {
-      return [
-        { to: '/', label: 'Home' },
-        { to: '/about', label: 'About' },
-        { to: '/features', label: 'Features' },
-        { to: '/contact', label: 'Contact' },
-      ];
+  const getNavigationLinks = () => {
+    switch (userType) {
+      case "customer":
+        return [
+          { href: "/user/discovery", label: "Discover", icon: Compass },
+          { href: "/user/planning", label: "Plan Event", icon: Calendar },
+          { href: "/user/ai-assistant", label: "AI Assistant", icon: Brain, badge: "NEW" },
+          { href: "/user/upcoming", label: "Upcoming", icon: Clock },
+          { href: "/user/deals", label: "Deals", icon: Tag },
+          { href: "/user/bookings", label: "Bookings", icon: BookOpen },
+        ];
+      case "owner":
+        return [
+          { href: "/owner/dashboard", label: "Dashboard", icon: BarChart3 },
+          { href: "/owner/register-restaurant", label: "Register Restaurant", icon: Plus },
+          { href: "/owner/upload-event", label: "Events", icon: Calendar },
+          { href: "/owner/deals", label: "Deals", icon: Tag },
+          { href: "/owner/customers", label: "Customers", icon: Users },
+        ];
+      case "admin":
+        return [
+          { href: "/admin/dashboard", label: "Dashboard", icon: BarChart3 },
+          { href: "/admin/users", label: "Users", icon: Users },
+          { href: "/admin/restaurants", label: "Restaurants", icon: Building },
+          { href: "/admin/reports", label: "Reports", icon: FileText },
+          { href: "/control", label: "Control Panel", icon: Settings },
+        ];
+      default:
+        return [];
     }
   };
 
-  const navLinks = getNavLinks();
+  const navLinks = getNavigationLinks();
 
   return (
     <nav className="glass-effect sticky top-0 z-50 border-b">
@@ -101,7 +112,7 @@ const Navbar: React.FC<NavbarProps> = ({ userType = null, userName = '' }) => {
             {navLinks.map((link, index) => (
               <Link
                 key={link.label}
-                to={link.to}
+                to={link.href}
                 className={`text-foreground/80 hover:text-primary font-medium transition-all duration-300 relative group animate-fade-in-up stagger-${index + 1}`}
               >
                 {link.label}
@@ -202,7 +213,7 @@ const Navbar: React.FC<NavbarProps> = ({ userType = null, userName = '' }) => {
             {navLinks.map((link) => (
               <Link
                 key={link.label}
-                to={link.to}
+                to={link.href}
                 className="block px-3 py-2 rounded-lg text-base font-medium text-foreground/80 hover:text-primary hover:bg-primary/10 transition-all duration-300"
                 onClick={() => setIsMenuOpen(false)}
               >

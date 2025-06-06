@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -28,6 +27,7 @@ import Bookings from "./pages/user/Bookings";
 import UserSettings from "./pages/user/Settings";
 import Reservation from "./pages/user/Reservation";
 import MakeReservation from "./pages/user/MakeReservation";
+import AIAssistant from "./pages/user/AIAssistant";
 
 // Restaurant owner pages
 import OwnerDashboard from "./pages/owner/Dashboard";
@@ -84,6 +84,11 @@ const App = () => (
               <Route path="/user/discovery" element={
                 <ProtectedRoute>
                   <Discovery />
+                </ProtectedRoute>
+              } />
+              <Route path="/user/ai-assistant" element={
+                <ProtectedRoute>
+                  <AIAssistant />
                 </ProtectedRoute>
               } />
               <Route path="/user/upcoming" element={
