@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -7,6 +8,16 @@ import { useEffect } from "react";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
+
+// Import missing page components
+import Home from "./pages/Home";
+import Auth from "./pages/Auth";
+import AuthCallback from "./pages/AuthCallback";
+import CompleteProfile from "./pages/auth/CompleteProfile";
+import About from "./pages/About";
+import Features from "./pages/Features";
+import Contact from "./pages/Contact";
+import NotFound from "./pages/NotFound";
 
 // User pages
 import Discovery from "./pages/user/Discovery";
