@@ -53,7 +53,7 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 1000 * 60 * 5, // 5 minutes
-      gcTime: 1000 * 60 * 10, // 10 minutes (renamed from cacheTime)
+      gcTime: 1000 * 60 * 10, // 10 minutes
     },
   },
 });
@@ -69,14 +69,15 @@ function App() {
               <Route path="/" element={<Home />} />
               <Route path="/home" element={<Home />} />
               <Route path="/auth" element={<Auth />} />
-              <Route path="/auth/*" element={<Auth />} />
+              <Route path="/auth/login" element={<Auth />} />
+              <Route path="/auth/signup" element={<Auth />} />
               <Route path="/auth/callback" element={<AuthCallback />} />
               <Route path="/auth/complete-profile" element={<CompleteProfile />} />
               <Route path="/about" element={<About />} />
               <Route path="/features" element={<Features />} />
               <Route path="/contact" element={<Contact />} />
 
-              {/* User routes - Fixed routing structure */}
+              {/* User routes */}
               <Route
                 path="/user/discovery"
                 element={
@@ -129,7 +130,12 @@ function App() {
                 path="/user/profile"
                 element={
                   <ProtectedRoute allowedRoles={['authenticated']}>
-                    <div>User Profile</div>
+                    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
+                      <div className="text-center text-white">
+                        <h1 className="text-2xl font-bold mb-4">User Profile</h1>
+                        <p>Profile page coming soon...</p>
+                      </div>
+                    </div>
                   </ProtectedRoute>
                 }
               />
@@ -158,7 +164,7 @@ function App() {
                 }
               />
 
-              {/* Owner routes - Fixed routing structure */}
+              {/* Owner routes */}
               <Route
                 path="/owner/dashboard"
                 element={
@@ -203,7 +209,12 @@ function App() {
                 path="/owner/customers"
                 element={
                   <ProtectedRoute allowedRoles={['business_owner']}>
-                    <div>Customers Management</div>
+                    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
+                      <div className="text-center text-white">
+                        <h1 className="text-2xl font-bold mb-4">Customer Management</h1>
+                        <p>Customer management coming soon...</p>
+                      </div>
+                    </div>
                   </ProtectedRoute>
                 }
               />
@@ -232,7 +243,7 @@ function App() {
                 }
               />
 
-              {/* Admin routes - Fixed routing structure */}
+              {/* Admin routes */}
               <Route
                 path="/admin/dashboard"
                 element={
@@ -281,8 +292,6 @@ function App() {
                   </ProtectedRoute>
                 }
               />
-
-              {/* Control panel route */}
               <Route
                 path="/control"
                 element={
@@ -291,8 +300,6 @@ function App() {
                   </ProtectedRoute>
                 }
               />
-
-              {/* Admin auth route */}
               <Route path="/admin-auth" element={<AdminAuth />} />
               <Route path="/admin-redirect" element={<AdminRedirect />} />
 

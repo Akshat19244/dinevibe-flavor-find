@@ -43,7 +43,7 @@
     min-height: 100vh;
   }
   
-  /* DineVibe Custom Classes */
+  /* DineVibe Custom Classes with Royal Blue + Gold Theme */
   .dv-card {
     @apply bg-slate-800 rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 border border-slate-700;
   }
@@ -86,6 +86,23 @@
   
   .dv-glass {
     @apply bg-slate-800/70 backdrop-blur-md border border-slate-700/50;
+  }
+  
+  /* Royal Blue Theme Utilities */
+  .royal-blue {
+    @apply bg-blue-600 text-white;
+  }
+  
+  .royal-blue-hover {
+    @apply hover:bg-blue-700 transition-colors duration-300;
+  }
+  
+  .gold-accent {
+    @apply text-yellow-500;
+  }
+  
+  .gold-bg {
+    @apply bg-yellow-500 text-slate-900;
   }
   
   /* Enhanced animations */
@@ -140,7 +157,7 @@
   }
 }
 
-/* Custom scrollbar */
+/* Custom scrollbar with Royal Blue theme */
 ::-webkit-scrollbar {
   width: 8px;
 }
@@ -160,9 +177,9 @@
 /* Loading and transition effects */
 .loading-shimmer {
   background: linear-gradient(90deg, 
-    rgba(148, 163, 184, 0.1) 25%, 
-    rgba(148, 163, 184, 0.3) 50%, 
-    rgba(148, 163, 184, 0.1) 75%
+    rgba(37, 99, 235, 0.1) 25%, 
+    rgba(37, 99, 235, 0.3) 50%, 
+    rgba(37, 99, 235, 0.1) 75%
   );
   background-size: 200% 100%;
   animation: shimmer 2s infinite;
@@ -182,6 +199,28 @@
   transform-style: preserve-3d;
 }
 
+/* Royal Blue themed cards */
+.royal-card {
+  @apply bg-slate-800 border border-blue-600/20 rounded-xl shadow-lg hover:shadow-blue-600/20 hover:shadow-xl transition-all duration-300;
+}
+
+.royal-card:hover {
+  box-shadow: 0 20px 25px -5px rgba(37, 99, 235, 0.1), 0 10px 10px -5px rgba(37, 99, 235, 0.04);
+}
+
+/* Gold accent elements */
+.gold-border {
+  @apply border-yellow-500;
+}
+
+.gold-text {
+  @apply text-yellow-500;
+}
+
+.gold-hover {
+  @apply hover:text-yellow-400 transition-colors duration-300;
+}
+
 /* Responsive design utilities */
 @media (max-width: 640px) {
   .dv-heading {
@@ -198,4 +237,21 @@
   .no-print {
     display: none !important;
   }
+}
+
+/* Currency formatting for INR */
+.currency-inr::before {
+  content: '₹';
+  margin-right: 2px;
+}
+
+/* Premium theme indicators */
+.premium-indicator {
+  @apply relative;
+}
+
+.premium-indicator::after {
+  content: '';
+  @apply absolute -inset-1 bg-gradient-to-r from-blue-600 to-yellow-500 rounded-lg blur-sm opacity-75 group-hover:opacity-100 transition duration-300;
+  z-index: -1;
 }

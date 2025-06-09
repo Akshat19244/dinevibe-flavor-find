@@ -42,27 +42,26 @@ const Navbar: React.FC<NavbarProps> = ({ userType = "customer", userName = "User
     navigate('/');
   };
 
-  // Get the settings path based on user type
   const getSettingsPath = () => {
     if (userType === 'admin') return '/admin/settings';
     if (userType === 'owner') return '/owner/settings';
     return '/user/settings';
   };
 
-  // Simplified navigation links
   const getNavigationLinks = () => {
     switch (userType) {
       case "customer":
         return [
           { href: "/user/discovery", label: "Discover", icon: Compass },
-          { href: "/user/planning", label: "Plan", icon: Calendar },
+          { href: "/user/planning", label: "Plan Events", icon: Calendar },
           { href: "/user/ai-assistant", label: "AI Assistant", icon: Brain },
-          { href: "/user/bookings", label: "Bookings", icon: Calendar },
+          { href: "/user/bookings", label: "My Bookings", icon: Calendar },
         ];
       case "owner":
         return [
           { href: "/owner/dashboard", label: "Dashboard", icon: BarChart3 },
           { href: "/owner/restaurant-dashboard", label: "Restaurant", icon: Building },
+          { href: "/owner/analytics", label: "Analytics", icon: BarChart3 },
         ];
       case "admin":
         return [
@@ -71,7 +70,11 @@ const Navbar: React.FC<NavbarProps> = ({ userType = "customer", userName = "User
           { href: "/admin/restaurants", label: "Restaurants", icon: Building },
         ];
       default:
-        return [];
+        return [
+          { href: "/about", label: "About", icon: null },
+          { href: "/features", label: "Features", icon: null },
+          { href: "/contact", label: "Contact", icon: null },
+        ];
     }
   };
 
@@ -97,7 +100,7 @@ const Navbar: React.FC<NavbarProps> = ({ userType = "customer", userName = "User
           <div className="hidden md:flex items-center space-x-8">
             {navLinks.map((link, index) => (
               <Link
-                key={link.label}
+                key={`${link.label}-${index}`}
                 to={link.href}
                 className="text-slate-300 hover:text-blue-400 font-medium transition-all duration-300 relative group"
               >
@@ -109,7 +112,7 @@ const Navbar: React.FC<NavbarProps> = ({ userType = "customer", userName = "User
 
           {/* User controls */}
           <div className="hidden md:flex items-center space-x-4">
-            {userType ? (
+            {userType && userType !== null ? (
               <>
                 <Button variant="ghost" size="icon" className="relative hover:bg-slate-800 text-slate-300">
                   <Bell className="h-5 w-5" />
@@ -155,12 +158,12 @@ const Navbar: React.FC<NavbarProps> = ({ userType = "customer", userName = "User
               </>
             ) : (
               <>
-                <Link to="/auth/login">
+                <Link to="/auth">
                   <Button variant="outline" className="border-slate-600 text-slate-300 hover:bg-slate-800">
                     Login
                   </Button>
                 </Link>
-                <Link to="/auth/signup">
+                <Link to="/auth">
                   <Button className="bg-blue-600 text-white hover:bg-blue-700 shadow-lg">
                     Sign Up
                   </Button>
@@ -171,7 +174,7 @@ const Navbar: React.FC<NavbarProps> = ({ userType = "customer", userName = "User
 
           {/* Mobile menu button */}
           <div className="md:hidden flex items-center space-x-2">
-            {userType && (
+            {userType && userType !== null && (
               <Button variant="ghost" size="icon" className="relative text-slate-300">
                 <Bell className="h-5 w-5" />
                 <span className="absolute -top-1 -right-1 h-2 w-2 bg-blue-600 rounded-full"></span>
@@ -193,9 +196,9 @@ const Navbar: React.FC<NavbarProps> = ({ userType = "customer", userName = "User
       {isMenuOpen && (
         <div className="md:hidden bg-slate-800 border-t border-slate-700">
           <div className="px-4 py-4 space-y-3">
-            {navLinks.map((link) => (
+            {navLinks.map((link, index) => (
               <Link
-                key={link.label}
+                key={`mobile-${link.label}-${index}`}
                 to={link.href}
                 className="block px-3 py-2 rounded-lg text-base font-medium text-slate-300 hover:text-blue-400 hover:bg-slate-700 transition-all duration-300"
                 onClick={() => setIsMenuOpen(false)}
@@ -204,14 +207,14 @@ const Navbar: React.FC<NavbarProps> = ({ userType = "customer", userName = "User
               </Link>
             ))}
             
-            {!userType && (
+            {(!userType || userType === null) && (
               <div className="pt-4 flex flex-col space-y-2 border-t border-slate-700">
-                <Link to="/auth/login">
+                <Link to="/auth" onClick={() => setIsMenuOpen(false)}>
                   <Button variant="outline" className="w-full border-slate-600 hover:bg-slate-700 text-slate-300">
                     Login
                   </Button>
                 </Link>
-                <Link to="/auth/signup">
+                <Link to="/auth" onClick={() => setIsMenuOpen(false)}>
                   <Button className="w-full bg-blue-600 text-white hover:bg-blue-700">
                     Sign Up
                   </Button>
@@ -219,7 +222,7 @@ const Navbar: React.FC<NavbarProps> = ({ userType = "customer", userName = "User
               </div>
             )}
             
-            {userType && (
+            {userType && userType !== null && (
               <div className="pt-4 border-t border-slate-700">
                 <div className="flex items-center px-3 py-2">
                   <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center">
@@ -229,15 +232,19 @@ const Navbar: React.FC<NavbarProps> = ({ userType = "customer", userName = "User
                   </div>
                   <span className="ml-3 text-sm font-medium text-slate-300">{userName || 'User'}</span>
                 </div>
-                <Link to="/user/profile" className="block px-3 py-2 rounded-lg text-base font-medium text-slate-300 hover:text-blue-400 hover:bg-slate-700 transition-all duration-300">
+                <Link to="/user/profile" className="block px-3 py-2 rounded-lg text-base font-medium text-slate-300 hover:text-blue-400 hover:bg-slate-700 transition-all duration-300" onClick={() => setIsMenuOpen(false)}>
                   Profile
                 </Link>
-                <Link to={getSettingsPath()} className="block px-3 py-2 rounded-lg text-base font-medium text-slate-300 hover:text-blue-400 hover:bg-slate-700 transition-all duration-300">
+                <Link to={getSettingsPath()} className="block px-3 py-2 rounded-lg text-base font-medium text-slate-300 hover:text-blue-400 hover:bg-slate-700 transition-all duration-300" onClick={() => setIsMenuOpen(false)}>
                   Settings
                 </Link>
                 <button 
-                  onClick={handleSignOut}
-                  className="w-full text-left px-3 py-2 rounded-lg text-base font-medium text-red-400 hover:bg-red-900 transition-all duration-300">
+                  onClick={() => {
+                    handleSignOut();
+                    setIsMenuOpen(false);
+                  }}
+                  className="w-full text-left px-3 py-2 rounded-lg text-base font-medium text-red-400 hover:bg-red-900 transition-all duration-300"
+                >
                   Log out
                 </button>
               </div>
