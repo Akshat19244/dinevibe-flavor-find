@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '@/components/ui/navbar';
@@ -34,13 +35,17 @@ const Discovery: React.FC = () => {
     }
   }, [searchTerm]);
 
+  const handleAIAssistantClick = () => {
+    navigate('/user/ai-assistant');
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar userType="customer" userName={user?.user_metadata?.name || 'User'} />
 
       <main className="flex-grow">
         {/* Hero section */}
-        <div className="bg-gradient-to-r from-primary to-primary/80 py-12">
+        <div className="bg-gradient-to-r from-blue-600 to-blue-800 py-12">
           <div className="container mx-auto px-4">
             <div className="text-center text-white">
               <h1 className="text-4xl font-bold mb-4">Discover Amazing Restaurants</h1>
@@ -49,7 +54,7 @@ const Discovery: React.FC = () => {
               </p>
               <div className="flex justify-center">
                 <Button 
-                  onClick={() => navigate('/user/ai-assistant')}
+                  onClick={handleAIAssistantClick}
                   size="lg"
                   variant="secondary"
                   className="bg-white/10 hover:bg-white/20 text-white border-white/20"
@@ -82,11 +87,11 @@ const Discovery: React.FC = () => {
               <Input
                 type="text"
                 placeholder="Search for restaurants, cuisines, or locations..."
-                className="mr-4"
+                className="mr-4 bg-slate-800 border-slate-600 text-white"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
-              <Button>
+              <Button className="bg-blue-600 hover:bg-blue-700">
                 <Search className="h-5 w-5 mr-2" />
                 Search
               </Button>
@@ -96,14 +101,14 @@ const Discovery: React.FC = () => {
           {/* Search results */}
           {searchTerm && searchResults.length > 0 && (
             <div>
-              <h2 className="text-2xl font-semibold mb-4">Search Results</h2>
+              <h2 className="text-2xl font-semibold mb-4 text-white">Search Results</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {searchResults.map((result) => (
-                  <Card key={result.id}>
-                    <CardContent>
-                      <h3 className="text-xl font-semibold mb-2">{result.name}</h3>
-                      <p className="text-gray-600">Cuisine: {result.cuisine}</p>
-                      <p className="text-gray-600">Location: {result.location}</p>
+                  <Card key={result.id} className="bg-slate-800 border-slate-700">
+                    <CardContent className="p-4">
+                      <h3 className="text-xl font-semibold mb-2 text-white">{result.name}</h3>
+                      <p className="text-slate-300">Cuisine: {result.cuisine}</p>
+                      <p className="text-slate-300">Location: {result.location}</p>
                     </CardContent>
                   </Card>
                 ))}
@@ -114,7 +119,7 @@ const Discovery: React.FC = () => {
           {/* Empty state */}
           {searchTerm && searchResults.length === 0 && (
             <div className="text-center">
-              <p className="text-gray-500">No results found for "{searchTerm}"</p>
+              <p className="text-slate-400">No results found for "{searchTerm}"</p>
             </div>
           )}
         </div>

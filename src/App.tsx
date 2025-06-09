@@ -65,9 +65,10 @@ function App() {
         <Router>
           <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
             <Routes>
-              {/* Public routes */}
+              {/* Home route - remove duplicate entries */}
               <Route path="/" element={<Home />} />
-              <Route path="/home" element={<Home />} />
+              
+              {/* Public routes */}
               <Route path="/auth" element={<Auth />} />
               <Route path="/auth/login" element={<Auth />} />
               <Route path="/auth/signup" element={<Auth />} />
@@ -83,6 +84,19 @@ function App() {
                 element={
                   <ProtectedRoute allowedRoles={['authenticated']}>
                     <Discovery />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/user/restaurant/:id"
+                element={
+                  <ProtectedRoute allowedRoles={['authenticated']}>
+                    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
+                      <div className="text-center text-white">
+                        <h1 className="text-2xl font-bold mb-4">Restaurant Details</h1>
+                        <p>Restaurant details page coming soon...</p>
+                      </div>
+                    </div>
                   </ProtectedRoute>
                 }
               />
@@ -303,7 +317,7 @@ function App() {
               <Route path="/admin-auth" element={<AdminAuth />} />
               <Route path="/admin-redirect" element={<AdminRedirect />} />
 
-              {/* 404 route */}
+              {/* 404 route - must be last */}
               <Route path="*" element={<NotFound />} />
             </Routes>
           </div>
