@@ -2,97 +2,42 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { SystemSelect } from '@/components/ui/system-select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { 
-  Sparkles, 
-  Palette, 
-  Users, 
-  DollarSign, 
-  Calendar,
-  Download,
-  Eye,
-  Wand2
-} from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Wand2, Download, Eye, Sparkles, Calendar, Users, DollarSign } from 'lucide-react';
 import { eventPlanningAI, EventRequirements, EventPlan } from '@/lib/ai/eventPlanningAI';
-import { useToast } from '@/components/ui/use-toast';
+import Preview3D from '@/components/ui/3d-preview';
 
 const EventPlanningAssistant: React.FC = () => {
-  const { toast } = useToast();
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [generatedPlan, setGeneratedPlan] = useState<EventPlan | null>(null);
-  const [requirements, setRequirements] = useState<EventRequirements>({
-    eventType: 'birthday',
-    budget: 50000,
+  const [requirements, setRequirements] = useState<Partial<EventRequirements>>({
+    eventType: 'wedding',
+    budget: 100000,
     guestCount: 50,
-    preferredColors: ['#FF69B4', '#FFD700'],
-    style: 'floral',
+    preferredColors: ['gold', 'red'],
+    style: 'royal',
     venueType: 'banquet_hall',
-    duration: 4,
-    specialRequests: ''
+    duration: 4
   });
-
-  const eventTypeOptions = [
-    { value: 'wedding', label: 'Wedding' },
-    { value: 'birthday', label: 'Birthday Party' },
-    { value: 'anniversary', label: 'Anniversary' },
-    { value: 'corporate', label: 'Corporate Event' },
-    { value: 'graduation', label: 'Graduation' },
-    { value: 'baby_shower', label: 'Baby Shower' },
-    { value: 'reception', label: 'Reception' }
-  ];
-
-  const styleOptions = [
-    { value: 'royal', label: 'Royal Elegance' },
-    { value: 'floral', label: 'Garden Paradise' },
-    { value: 'bollywood', label: 'Bollywood Glamour' },
-    { value: 'minimal', label: 'Modern Minimal' },
-    { value: 'vintage', label: 'Vintage Charm' },
-    { value: 'modern', label: 'Contemporary Chic' }
-  ];
-
-  const venueTypeOptions = [
-    { value: 'indoor', label: 'Indoor Venue' },
-    { value: 'outdoor', label: 'Outdoor Venue' },
-    { value: 'garden', label: 'Garden Setting' },
-    { value: 'banquet_hall', label: 'Banquet Hall' }
-  ];
+  
+  const [generatedPlan, setGeneratedPlan] = useState<EventPlan | null>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const handleGeneratePlan = async () => {
+    if (!requirements.eventType || !requirements.budget || !requirements.guestCount) {
+      return;
+    }
+
     setIsGenerating(true);
     
-    try {
-      // Simulate AI processing time
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      const plan = eventPlanningAI.generateEventPlan(requirements);
+    // Simulate AI processing time
+    setTimeout(() => {
+      const plan = eventPlanningAI.generateEventPlan(requirements as EventRequirements);
       setGeneratedPlan(plan);
-      
-      toast({
-        title: "Event Plan Generated! ✨",
-        description: `Your ${requirements.eventType} plan is ready with ${Math.round(plan.confidence * 100)}% confidence.`,
-      });
-    } catch (error) {
-      toast({
-        title: "Generation Failed",
-        description: "Failed to generate event plan. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
       setIsGenerating(false);
-    }
-  };
-
-  const handleDownloadPlan = () => {
-    if (!generatedPlan) return;
-    
-    toast({
-      title: "Downloading Plan",
-      description: "Your detailed event plan PDF is being prepared...",
-    });
+    }, 2000);
   };
 
   const formatCurrency = (amount: number) => {
@@ -105,109 +50,137 @@ const EventPlanningAssistant: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      {/* Requirements Form */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Wand2 className="h-6 w-6 text-primary" />
+            <Wand2 className="h-5 w-5 text-purple-600" />
             DineVibe AI Event Designer
           </CardTitle>
-          <p className="text-muted-foreground">
-            Tell us about your event and we'll create a complete plan with 3D visualization
+          <p className="text-slate-600">
+            Describe your perfect event and let our AI create a complete plan with 3D preview
           </p>
         </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <Label>Event Type</Label>
-              <SystemSelect
-                value={requirements.eventType}
-                onValueChange={(value) => setRequirements({...requirements, eventType: value as any})}
-                options={eventTypeOptions}
-              />
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="eventType">Event Type</Label>
+              <Select value={requirements.eventType} onValueChange={(value) => 
+                setRequirements(prev => ({ ...prev, eventType: value as any }))
+              }>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select event type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="wedding">Wedding</SelectItem>
+                  <SelectItem value="birthday">Birthday Party</SelectItem>
+                  <SelectItem value="anniversary">Anniversary</SelectItem>
+                  <SelectItem value="corporate">Corporate Event</SelectItem>
+                  <SelectItem value="graduation">Graduation</SelectItem>
+                  <SelectItem value="baby_shower">Baby Shower</SelectItem>
+                  <SelectItem value="reception">Reception</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-            
-            <div className="space-y-2">
-              <Label>Style Theme</Label>
-              <SystemSelect
-                value={requirements.style}
-                onValueChange={(value) => setRequirements({...requirements, style: value as any})}
-                options={styleOptions}
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label className="flex items-center gap-2">
-                <Users className="h-4 w-4" />
-                Guest Count
-              </Label>
+
+            <div>
+              <Label htmlFor="budget">Budget (₹)</Label>
               <Input
                 type="number"
-                min="10"
-                max="500"
-                value={requirements.guestCount}
-                onChange={(e) => setRequirements({...requirements, guestCount: parseInt(e.target.value) || 50})}
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label className="flex items-center gap-2">
-                <DollarSign className="h-4 w-4" />
-                Budget (INR)
-              </Label>
-              <Input
-                type="number"
-                min="10000"
-                max="1000000"
-                step="5000"
                 value={requirements.budget}
-                onChange={(e) => setRequirements({...requirements, budget: parseInt(e.target.value) || 50000})}
+                onChange={(e) => setRequirements(prev => ({ 
+                  ...prev, 
+                  budget: parseInt(e.target.value) || 0 
+                }))}
+                placeholder="Enter budget in rupees"
               />
             </div>
-            
-            <div className="space-y-2">
-              <Label>Venue Type</Label>
-              <SystemSelect
-                value={requirements.venueType}
-                onValueChange={(value) => setRequirements({...requirements, venueType: value as any})}
-                options={venueTypeOptions}
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label className="flex items-center gap-2">
-                <Calendar className="h-4 w-4" />
-                Duration (hours)
-              </Label>
+
+            <div>
+              <Label htmlFor="guestCount">Guest Count</Label>
               <Input
                 type="number"
-                min="2"
-                max="12"
+                value={requirements.guestCount}
+                onChange={(e) => setRequirements(prev => ({ 
+                  ...prev, 
+                  guestCount: parseInt(e.target.value) || 0 
+                }))}
+                placeholder="Number of guests"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="style">Theme Style</Label>
+              <Select value={requirements.style} onValueChange={(value) => 
+                setRequirements(prev => ({ ...prev, style: value as any }))
+              }>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select style" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="royal">Royal Elegance</SelectItem>
+                  <SelectItem value="floral">Garden Paradise</SelectItem>
+                  <SelectItem value="bollywood">Bollywood Glamour</SelectItem>
+                  <SelectItem value="minimal">Modern Minimal</SelectItem>
+                  <SelectItem value="vintage">Vintage Charm</SelectItem>
+                  <SelectItem value="modern">Contemporary Chic</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <Label htmlFor="venueType">Venue Type</Label>
+              <Select value={requirements.venueType} onValueChange={(value) => 
+                setRequirements(prev => ({ ...prev, venueType: value as any }))
+              }>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select venue type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="banquet_hall">Banquet Hall</SelectItem>
+                  <SelectItem value="garden">Garden/Outdoor</SelectItem>
+                  <SelectItem value="indoor">Indoor Space</SelectItem>
+                  <SelectItem value="outdoor">Party Plot</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <Label htmlFor="duration">Duration (hours)</Label>
+              <Input
+                type="number"
                 value={requirements.duration}
-                onChange={(e) => setRequirements({...requirements, duration: parseInt(e.target.value) || 4})}
+                onChange={(e) => setRequirements(prev => ({ 
+                  ...prev, 
+                  duration: parseInt(e.target.value) || 0 
+                }))}
+                placeholder="Event duration"
               />
             </div>
           </div>
-          
-          <div className="space-y-2">
-            <Label>Special Requests (Optional)</Label>
+
+          <div>
+            <Label htmlFor="specialRequests">Special Requests (Optional)</Label>
             <Textarea
-              placeholder="Any specific requirements, dietary restrictions, or special arrangements..."
-              value={requirements.specialRequests}
-              onChange={(e) => setRequirements({...requirements, specialRequests: e.target.value})}
-              className="min-h-[80px]"
+              value={requirements.specialRequests || ''}
+              onChange={(e) => setRequirements(prev => ({ 
+                ...prev, 
+                specialRequests: e.target.value 
+              }))}
+              placeholder="Any special requirements or preferences..."
+              rows={3}
             />
           </div>
-          
+
           <Button 
-            onClick={handleGeneratePlan}
+            onClick={handleGeneratePlan} 
             disabled={isGenerating}
-            className="w-full bg-primary hover:bg-primary/90"
-            size="lg"
+            className="w-full bg-purple-600 hover:bg-purple-700"
           >
             {isGenerating ? (
               <>
                 <Sparkles className="h-4 w-4 mr-2 animate-spin" />
-                Generating Your Perfect Event...
+                AI is designing your event...
               </>
             ) : (
               <>
@@ -219,25 +192,49 @@ const EventPlanningAssistant: React.FC = () => {
         </CardContent>
       </Card>
 
+      {/* Generated Plan */}
       {generatedPlan && (
-        <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-primary/10">
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle className="flex items-center gap-2">
-                <Palette className="h-5 w-5 text-primary" />
-                {generatedPlan.theme.name}
+        <div className="space-y-6">
+          {/* Plan Overview */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between">
+                <span className="flex items-center gap-2">
+                  <Sparkles className="h-5 w-5 text-gold-500" />
+                  {generatedPlan.theme.name} Event Plan
+                </span>
+                <Badge variant="secondary">
+                  {Math.round(generatedPlan.confidence * 100)}% match
+                </Badge>
               </CardTitle>
-              <Badge variant="secondary" className="bg-green-100 text-green-800">
-                {Math.round(generatedPlan.confidence * 100)}% Match
-              </Badge>
-            </div>
-            <p className="text-muted-foreground">{generatedPlan.theme.description}</p>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {/* Theme Colors */}
-            <div>
-              <h4 className="font-semibold mb-2">Color Palette</h4>
-              <div className="flex gap-2">
+              <p className="text-slate-600">{generatedPlan.theme.description}</p>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="flex items-center gap-3">
+                  <DollarSign className="h-5 w-5 text-green-600" />
+                  <div>
+                    <div className="font-semibold">{formatCurrency(generatedPlan.totalCost)}</div>
+                    <div className="text-sm text-slate-500">Total Cost</div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Users className="h-5 w-5 text-blue-600" />
+                  <div>
+                    <div className="font-semibold">{requirements.guestCount} guests</div>
+                    <div className="text-sm text-slate-500">Capacity</div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Calendar className="h-5 w-5 text-purple-600" />
+                  <div>
+                    <div className="font-semibold">{requirements.duration} hours</div>
+                    <div className="text-sm text-slate-500">Duration</div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-4 flex gap-2">
                 {generatedPlan.theme.colorPalette.map((color, index) => (
                   <div
                     key={index}
@@ -247,64 +244,93 @@ const EventPlanningAssistant: React.FC = () => {
                   />
                 ))}
               </div>
-            </div>
+            </CardContent>
+          </Card>
 
-            {/* Cost Breakdown */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-white/50 rounded-lg">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-primary">
-                  {formatCurrency(generatedPlan.totalCost)}
-                </div>
-                <div className="text-sm text-muted-foreground">Total Cost</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-green-600">
-                  {formatCurrency(generatedPlan.savings)}
-                </div>
-                <div className="text-sm text-muted-foreground">You Save</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-blue-600">
-                  {formatCurrency(generatedPlan.catering.estimatedCostPerPerson)}
-                </div>
-                <div className="text-sm text-muted-foreground">Per Person</div>
-              </div>
-            </div>
+          {/* 3D Preview */}
+          <Preview3D
+            title="3D Event Preview"
+            imageUrl="https://images.unsplash.com/photo-1519167758481-83f29c2c47bf?q=80&w=1000"
+            description="AI-generated 3D preview of your event setup"
+          />
 
-            {/* Services */}
-            <div>
-              <h4 className="font-semibold mb-3">Recommended Services</h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {generatedPlan.services.map((service, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 bg-white/50 rounded-lg">
-                    <div>
-                      <div className="font-medium capitalize">{service.type.replace('_', ' ')}</div>
-                      <div className="text-sm text-muted-foreground">{service.description}</div>
-                    </div>
-                    <div className="text-right">
-                      <div className="font-semibold">{formatCurrency(service.cost)}</div>
-                      {service.recommended && (
-                        <Badge variant="secondary" className="text-xs">Recommended</Badge>
-                      )}
-                    </div>
+          {/* Detailed Plans */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Decoration Plan */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Decoration & Setup</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div>
+                  <h4 className="font-medium mb-2">Lighting</h4>
+                  <ul className="text-sm text-slate-600 space-y-1">
+                    {generatedPlan.decoration.lighting.map((item, index) => (
+                      <li key={index}>• {item}</li>
+                    ))}
+                  </ul>
+                </div>
+                <div>
+                  <h4 className="font-medium mb-2">Flowers & Decor</h4>
+                  <ul className="text-sm text-slate-600 space-y-1">
+                    {generatedPlan.decoration.flowers.map((item, index) => (
+                      <li key={index}>• {item}</li>
+                    ))}
+                  </ul>
+                </div>
+                <div className="pt-2 border-t">
+                  <div className="flex justify-between text-sm">
+                    <span>Estimated Cost:</span>
+                    <span className="font-medium">{formatCurrency(generatedPlan.decoration.estimatedCost)}</span>
                   </div>
-                ))}
-              </div>
-            </div>
+                </div>
+              </CardContent>
+            </Card>
 
-            {/* Action Buttons */}
-            <div className="flex gap-3 pt-4">
-              <Button onClick={handleDownloadPlan} variant="outline" className="flex-1">
-                <Download className="h-4 w-4 mr-2" />
-                Download Plan
-              </Button>
-              <Button className="flex-1 bg-primary hover:bg-primary/90">
-                <Eye className="h-4 w-4 mr-2" />
-                View 3D Preview
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+            {/* Catering Plan */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Catering & Menu</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div>
+                  <h4 className="font-medium mb-2">Menu ({generatedPlan.catering.menuType})</h4>
+                  <ul className="text-sm text-slate-600 space-y-1">
+                    {generatedPlan.catering.courses.map((course, index) => (
+                      <li key={index}>• {course}</li>
+                    ))}
+                  </ul>
+                </div>
+                <div>
+                  <h4 className="font-medium mb-2">Beverages</h4>
+                  <ul className="text-sm text-slate-600 space-y-1">
+                    {generatedPlan.catering.beverages.map((beverage, index) => (
+                      <li key={index}>• {beverage}</li>
+                    ))}
+                  </ul>
+                </div>
+                <div className="pt-2 border-t">
+                  <div className="flex justify-between text-sm">
+                    <span>Per Person:</span>
+                    <span className="font-medium">{formatCurrency(generatedPlan.catering.estimatedCostPerPerson)}</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex gap-4">
+            <Button className="flex-1 bg-blue-600 hover:bg-blue-700">
+              <Eye className="h-4 w-4 mr-2" />
+              Book 3D Preview
+            </Button>
+            <Button variant="outline" className="flex-1">
+              <Download className="h-4 w-4 mr-2" />
+              Download PDF Plan
+            </Button>
+          </div>
+        </div>
       )}
     </div>
   );

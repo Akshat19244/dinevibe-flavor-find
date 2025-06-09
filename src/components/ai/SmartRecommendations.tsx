@@ -1,279 +1,217 @@
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Star, MapPin, Clock, Zap, Heart } from 'lucide-react';
-import { smartRecommendationEngine, SmartRecommendation, UserPreferences } from '@/lib/ai/smartRecommendations';
+import { Badge } from '@/components/ui/badge';
+import { Sparkles, MapPin, Star, Clock, Users, Utensils } from 'lucide-react';
+
+interface Restaurant {
+  id: string;
+  name: string;
+  cuisine: string;
+  location: string;
+  rating: number;
+  priceRange: string;
+  waitTime: number;
+  image: string;
+  specialties: string[];
+  distance: string;
+}
+
+interface UserPreferences {
+  cuisinePreferences: string[];
+  budgetRange: { min: number; max: number };
+  locationPreferences: string[];
+  diningStyle: string;
+}
 
 interface SmartRecommendationsProps {
-  userPreferences?: Partial<UserPreferences>;
+  userPreferences: UserPreferences;
   context?: {
     isSpecialOccasion?: boolean;
-    groupSize: number;
+    groupSize?: number;
   };
 }
 
 const SmartRecommendations: React.FC<SmartRecommendationsProps> = ({
-  userPreferences = {},
-  context = { groupSize: 2 }
+  userPreferences,
+  context = {}
 }) => {
-  const [recommendations, setRecommendations] = useState<SmartRecommendation[]>([]);
+  const [recommendations, setRecommendations] = useState<Restaurant[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Mock restaurant data for demo
-  const mockRestaurants = [
-    {
-      id: 'rest1',
-      name: 'Bella Italia',
-      cuisine: 'Italian',
-      price_range: 'moderate',
-      rating: 4.5,
-      location: 'Downtown Mumbai',
-      images: ['https://images.unsplash.com/photo-1551218808-94e220e084d2?q=80&w=1170'],
-      description: 'Authentic Italian cuisine in a romantic setting',
-      offers_decoration: true,
-      seating_capacity: 80
-    },
-    {
-      id: 'rest2',
-      name: 'Spice Garden',
-      cuisine: 'Indian',
-      price_range: 'budget',
-      rating: 4.2,
-      location: 'Bandra West',
-      images: ['https://images.unsplash.com/photo-1631452180519-c014fe946bc7?q=80&w=1074'],
-      description: 'Traditional Indian flavors with modern presentation',
-      offers_decoration: false,
-      seating_capacity: 60
-    },
-    {
-      id: 'rest3',
-      name: 'Zen Sushi',
-      cuisine: 'Japanese',
-      price_range: 'premium',
-      rating: 4.7,
-      location: 'Juhu',
-      images: ['https://images.unsplash.com/photo-1579584425555-c3ce17fd4351?q=80&w=1000'],
-      description: 'Fresh sushi and Japanese cuisine in a zen atmosphere',
-      offers_decoration: true,
-      seating_capacity: 45
-    },
-    {
-      id: 'rest4',
-      name: 'Café Mocha',
-      cuisine: 'Continental',
-      price_range: 'budget',
-      rating: 4.0,
-      location: 'Powai',
-      images: ['https://images.unsplash.com/photo-1554118811-1e0d58224f24?q=80&w=1000'],
-      description: 'Casual dining with great coffee and continental dishes',
-      offers_decoration: false,
-      seating_capacity: 35
-    },
-    {
-      id: 'rest5',
-      name: 'The Royal Feast',
-      cuisine: 'Indian',
-      price_range: 'luxury',
-      rating: 4.8,
-      location: 'South Mumbai',
-      images: ['https://images.unsplash.com/photo-1552566842-2a35720d3421?q=80&w=1000'],
-      description: 'Royal dining experience with traditional Indian cuisine',
-      offers_decoration: true,
-      seating_capacity: 120
-    }
-  ];
-
-  const defaultPreferences: UserPreferences = {
-    cuisinePreferences: ['italian', 'indian'],
-    budgetRange: { min: 500, max: 2000 },
-    locationPreferences: ['mumbai', 'downtown'],
-    diningStyle: 'casual',
-    previousBookings: [],
-    dietaryRestrictions: [],
-    averagePartySize: 2,
-    ...userPreferences
-  };
-
+  // Mock AI-generated recommendations
   useEffect(() => {
-    const generateRecommendations = async () => {
-      setIsLoading(true);
-      
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      const recs = smartRecommendationEngine.generateRecommendations(
-        defaultPreferences,
-        mockRestaurants,
+    const generateRecommendations = () => {
+      const mockRestaurants: Restaurant[] = [
         {
-          currentTime: new Date(),
-          ...context
+          id: '1',
+          name: 'Bella Italia Ristorante',
+          cuisine: 'Italian',
+          location: 'Bandra West, Mumbai',
+          rating: 4.7,
+          priceRange: '₹₹₹',
+          waitTime: 15,
+          image: 'https://images.unsplash.com/photo-1551218808-94e220e084d2?q=80&w=1000',
+          specialties: ['Authentic Pasta', 'Wood-fired Pizza', 'Tiramisu'],
+          distance: '1.2 km'
+        },
+        {
+          id: '2',
+          name: 'Spice Garden',
+          cuisine: 'Indian',
+          location: 'Juhu, Mumbai',
+          rating: 4.5,
+          priceRange: '₹₹',
+          waitTime: 8,
+          image: 'https://images.unsplash.com/photo-1585937421612-70a008356fbe?q=80&w=1000',
+          specialties: ['Butter Chicken', 'Biryani', 'Naan Bread'],
+          distance: '2.1 km'
+        },
+        {
+          id: '3',
+          name: 'Sakura Sushi',
+          cuisine: 'Japanese',
+          location: 'Lower Parel, Mumbai',
+          rating: 4.6,
+          priceRange: '₹₹₹₹',
+          waitTime: 25,
+          image: 'https://images.unsplash.com/photo-1579584425555-c3ce17fd4351?q=80&w=1000',
+          specialties: ['Fresh Sashimi', 'Dragon Roll', 'Miso Soup'],
+          distance: '3.5 km'
         }
-      );
-      
-      setRecommendations(recs);
-      setIsLoading(false);
+      ];
+
+      // Simulate AI processing delay
+      setTimeout(() => {
+        setRecommendations(mockRestaurants);
+        setIsLoading(false);
+      }, 1500);
     };
 
     generateRecommendations();
-  }, [userPreferences, context]);
+  }, [userPreferences]);
 
-  const getPriceRangeDisplay = (priceRange: string) => {
-    const ranges = {
-      'budget': '₹₹',
-      'moderate': '₹₹₹',
-      'premium': '₹₹₹₹',
-      'luxury': '₹₹₹₹₹'
-    };
-    return ranges[priceRange] || '₹₹₹';
-  };
-
-  const getScoreColor = (score: number) => {
-    if (score >= 0.8) return 'text-green-600 bg-green-50';
-    if (score >= 0.6) return 'text-blue-600 bg-blue-50';
-    if (score >= 0.4) return 'text-orange-600 bg-orange-50';
-    return 'text-gray-600 bg-gray-50';
+  const getWaitTimeColor = (minutes: number) => {
+    if (minutes <= 10) return 'text-green-600';
+    if (minutes <= 20) return 'text-yellow-600';
+    return 'text-red-600';
   };
 
   if (isLoading) {
     return (
-      <div className="space-y-4">
-        <div className="flex items-center gap-2 mb-4">
-          <Zap className="h-5 w-5 text-primary animate-pulse" />
-          <h3 className="text-lg font-semibold">AI is finding perfect matches...</h3>
-        </div>
-        {[1, 2, 3].map((i) => (
-          <Card key={i} className="animate-pulse">
-            <CardContent className="p-4">
-              <div className="flex gap-4">
-                <div className="w-20 h-20 bg-gray-200 rounded-lg"></div>
-                <div className="flex-1 space-y-2">
-                  <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                  <div className="h-3 bg-gray-200 rounded w-1/2"></div>
-                  <div className="h-3 bg-gray-200 rounded w-2/3"></div>
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Sparkles className="h-5 w-5 animate-pulse text-blue-600" />
+            AI is finding perfect restaurants for you...
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="animate-pulse">
+                <div className="flex gap-4">
+                  <div className="w-24 h-24 bg-slate-200 rounded-lg"></div>
+                  <div className="flex-1 space-y-2">
+                    <div className="h-4 bg-slate-200 rounded w-3/4"></div>
+                    <div className="h-3 bg-slate-200 rounded w-1/2"></div>
+                    <div className="h-3 bg-slate-200 rounded w-1/4"></div>
+                  </div>
                 </div>
               </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
     );
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center gap-2 mb-6">
-        <Zap className="h-5 w-5 text-primary" />
-        <h3 className="text-lg font-semibold">AI-Powered Recommendations</h3>
-        <Badge variant="secondary" className="bg-primary/10 text-primary">
-          {recommendations.length} matches found
-        </Badge>
-      </div>
-
-      <div className="grid gap-4">
-        {recommendations.map((rec, index) => (
-          <Card 
-            key={rec.restaurant.id} 
-            className={`transition-all hover:shadow-lg cursor-pointer ${
-              index === 0 ? 'ring-2 ring-primary/20 bg-primary/5' : ''
-            }`}
-          >
-            <CardContent className="p-4">
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Sparkles className="h-5 w-5 text-blue-600" />
+          AI-Powered Recommendations
+        </CardTitle>
+        <p className="text-slate-600 text-sm">
+          Based on your preferences: {userPreferences.cuisinePreferences.join(', ')} • 
+          {userPreferences.diningStyle} dining • Group of {context.groupSize || 2}
+        </p>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-4">
+          {recommendations.map((restaurant, index) => (
+            <div key={restaurant.id} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
               <div className="flex gap-4">
                 <img
-                  src={rec.restaurant.image}
-                  alt={rec.restaurant.name}
-                  className="w-20 h-20 object-cover rounded-lg"
+                  src={restaurant.image}
+                  alt={restaurant.name}
+                  className="w-24 h-24 object-cover rounded-lg"
                 />
-                
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-start justify-between mb-2">
+                <div className="flex-1">
+                  <div className="flex items-start justify-between">
                     <div>
-                      <h4 className="font-semibold text-lg truncate">
-                        {rec.restaurant.name}
-                        {index === 0 && (
-                          <Badge className="ml-2 bg-primary text-white">
-                            <Heart className="h-3 w-3 mr-1" />
-                            Top Pick
-                          </Badge>
-                        )}
-                      </h4>
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <span className="capitalize">{rec.restaurant.cuisine}</span>
-                        <span>•</span>
-                        <span>{getPriceRangeDisplay(rec.restaurant.priceRange)}</span>
-                        <span>•</span>
+                      <h3 className="font-semibold text-lg">{restaurant.name}</h3>
+                      <div className="flex items-center gap-2 mt-1">
+                        <Badge variant="secondary">{restaurant.cuisine}</Badge>
+                        <span className="text-sm text-slate-600">{restaurant.priceRange}</span>
                         <div className="flex items-center gap-1">
-                          <Star className="h-3 w-3 fill-current text-yellow-500" />
-                          <span>{rec.restaurant.rating}</span>
+                          <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                          <span className="text-sm font-medium">{restaurant.rating}</span>
                         </div>
                       </div>
                     </div>
-                    
-                    <Badge className={`${getScoreColor(rec.score)} font-semibold`}>
-                      {Math.round(rec.score * 100)}% match
+                    <Badge className="bg-blue-100 text-blue-800">
+                      #{index + 1} AI Pick
                     </Badge>
                   </div>
 
-                  <div className="flex items-center gap-1 text-sm text-muted-foreground mb-2">
-                    <MapPin className="h-3 w-3" />
-                    <span>{rec.restaurant.location}</span>
-                    {rec.waitTime !== undefined && (
-                      <>
-                        <span className="mx-1">•</span>
-                        <Clock className="h-3 w-3" />
-                        <span>
-                          {rec.waitTime === 0 ? 'Available now' : `~${rec.waitTime} min wait`}
-                        </span>
-                      </>
-                    )}
-                  </div>
-
-                  <p className="text-sm text-primary font-medium mb-2">
-                    {rec.aiInsight}
-                  </p>
-
-                  <div className="flex flex-wrap gap-1 mb-3">
-                    {rec.reasons.slice(0, 3).map((reason, idx) => (
-                      <Badge key={idx} variant="outline" className="text-xs">
-                        {reason}
-                      </Badge>
-                    ))}
-                  </div>
-
-                  {rec.specialOffers && rec.specialOffers.length > 0 && (
-                    <div className="mb-3">
-                      <div className="text-xs font-medium text-green-700 mb-1">Special Offers:</div>
-                      {rec.specialOffers.map((offer, idx) => (
-                        <Badge key={idx} variant="secondary" className="text-xs mr-1 bg-green-50 text-green-700">
-                          {offer}
-                        </Badge>
-                      ))}
+                  <div className="flex items-center gap-4 mt-2 text-sm text-slate-600">
+                    <div className="flex items-center gap-1">
+                      <MapPin className="h-4 w-4" />
+                      {restaurant.location} • {restaurant.distance}
                     </div>
-                  )}
+                    <div className={`flex items-center gap-1 ${getWaitTimeColor(restaurant.waitTime)}`}>
+                      <Clock className="h-4 w-4" />
+                      {restaurant.waitTime} min wait
+                    </div>
+                  </div>
 
-                  <div className="flex gap-2">
-                    <Button size="sm" className="flex-1">
-                      Book Now
+                  <div className="flex items-center gap-2 mt-2">
+                    <Utensils className="h-4 w-4 text-slate-500" />
+                    <div className="text-sm text-slate-600">
+                      {restaurant.specialties.join(' • ')}
+                    </div>
+                  </div>
+
+                  <div className="flex gap-2 mt-3">
+                    <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
+                      Book Table
                     </Button>
                     <Button size="sm" variant="outline">
-                      View Details
+                      <Sparkles className="h-4 w-4 mr-1" />
+                      3D Preview
                     </Button>
                   </div>
                 </div>
               </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+            </div>
+          ))}
+        </div>
 
-      <div className="text-center pt-4">
-        <p className="text-xs text-muted-foreground">
-          🤖 Recommendations powered by DineVibe AI • Updated in real-time
-        </p>
-      </div>
-    </div>
+        <div className="mt-6 p-4 bg-blue-50 rounded-lg">
+          <div className="flex items-center gap-2 mb-2">
+            <Sparkles className="h-4 w-4 text-blue-600" />
+            <span className="text-sm font-medium text-blue-800">AI Insight</span>
+          </div>
+          <p className="text-sm text-blue-700">
+            Based on your dining history and current preferences, these restaurants have a 94% match rate. 
+            Bella Italia is perfect for your Italian craving and has the shortest wait time right now.
+          </p>
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 

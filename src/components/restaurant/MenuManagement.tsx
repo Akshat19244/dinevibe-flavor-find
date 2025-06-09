@@ -6,18 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { 
-  Plus, 
-  Edit, 
-  Trash2, 
-  Save, 
-  X,
-  Upload,
-  DollarSign,
-  Clock,
-  Users
-} from 'lucide-react';
-import { useToast } from '@/components/ui/use-toast';
+import { Plus, Edit, Trash2, Save, X } from 'lucide-react';
 
 interface MenuItem {
   id: string;
@@ -25,148 +14,59 @@ interface MenuItem {
   description: string;
   price: number;
   category: string;
-  image?: string;
   isVegetarian: boolean;
   isVegan: boolean;
-  isSpicy: boolean;
-  allergens: string[];
-  preparationTime: number;
-  isAvailable: boolean;
-}
-
-interface MenuCategory {
-  id: string;
-  name: string;
-  items: MenuItem[];
+  isGlutenFree: boolean;
+  image?: string;
 }
 
 interface MenuManagementProps {
-  isOwner?: boolean;
   restaurantId: string;
+  isOwner?: boolean;
 }
 
-const MenuManagement: React.FC<MenuManagementProps> = ({ isOwner = false, restaurantId }) => {
-  const { toast } = useToast();
-  const [categories, setCategories] = useState<MenuCategory[]>([
+const MenuManagement: React.FC<MenuManagementProps> = ({ restaurantId, isOwner = false }) => {
+  const [menuItems, setMenuItems] = useState<MenuItem[]>([
     {
       id: '1',
-      name: 'Appetizers',
-      items: [
-        {
-          id: '1',
-          name: 'Samosa',
-          description: 'Crispy pastries filled with spiced potatoes and peas',
-          price: 120,
-          category: 'Appetizers',
-          isVegetarian: true,
-          isVegan: false,
-          isSpicy: true,
-          allergens: ['gluten'],
-          preparationTime: 15,
-          isAvailable: true
-        }
-      ]
+      name: 'Margherita Pizza',
+      description: 'Fresh tomato sauce, mozzarella cheese, and basil leaves',
+      price: 450,
+      category: 'Main Course',
+      isVegetarian: true,
+      isVegan: false,
+      isGlutenFree: false,
+      image: 'https://images.unsplash.com/photo-1604382354936-07c5d9983bd3?q=80&w=500'
     },
     {
       id: '2',
-      name: 'Main Course',
-      items: [
-        {
-          id: '2',
-          name: 'Butter Chicken',
-          description: 'Tender chicken in rich tomato and cream sauce',
-          price: 450,
-          category: 'Main Course',
-          isVegetarian: false,
-          isVegan: false,
-          isSpicy: false,
-          allergens: ['dairy'],
-          preparationTime: 25,
-          isAvailable: true
-        }
-      ]
+      name: 'Chicken Biryani',
+      description: 'Aromatic basmati rice with tender chicken and spices',
+      price: 380,
+      category: 'Main Course',
+      isVegetarian: false,
+      isVegan: false,
+      isGlutenFree: true,
+      image: 'https://images.unsplash.com/photo-1563379091774-d5822f9823f0?q=80&w=500'
+    },
+    {
+      id: '3',
+      name: 'Caesar Salad',
+      description: 'Crisp romaine lettuce with parmesan and Caesar dressing',
+      price: 280,
+      category: 'Appetizer',
+      isVegetarian: true,
+      isVegan: false,
+      isGlutenFree: false,
+      image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=500'
     }
   ]);
 
-  const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
-  const [newCategory, setNewCategory] = useState('');
-  const [showAddCategory, setShowAddCategory] = useState(false);
+  const [editingItem, setEditingItem] = useState<string | null>(null);
+  const [newItem, setNewItem] = useState<Partial<MenuItem>>({});
+  const [showAddForm, setShowAddForm] = useState(false);
 
-  const handleAddCategory = () => {
-    if (newCategory.trim()) {
-      const category: MenuCategory = {
-        id: Date.now().toString(),
-        name: newCategory,
-        items: []
-      };
-      setCategories([...categories, category]);
-      setNewCategory('');
-      setShowAddCategory(false);
-      toast({
-        title: "Category Added",
-        description: `"${newCategory}" category has been added to the menu.`,
-      });
-    }
-  };
-
-  const handleAddItem = (categoryId: string) => {
-    const newItem: MenuItem = {
-      id: Date.now().toString(),
-      name: '',
-      description: '',
-      price: 0,
-      category: categories.find(c => c.id === categoryId)?.name || '',
-      isVegetarian: false,
-      isVegan: false,
-      isSpicy: false,
-      allergens: [],
-      preparationTime: 15,
-      isAvailable: true
-    };
-    setEditingItem(newItem);
-  };
-
-  const handleSaveItem = () => {
-    if (!editingItem) return;
-
-    const categoryIndex = categories.findIndex(c => c.name === editingItem.category);
-    if (categoryIndex === -1) return;
-
-    const updatedCategories = [...categories];
-    const existingItemIndex = updatedCategories[categoryIndex].items.findIndex(
-      item => item.id === editingItem.id
-    );
-
-    if (existingItemIndex >= 0) {
-      updatedCategories[categoryIndex].items[existingItemIndex] = editingItem;
-    } else {
-      updatedCategories[categoryIndex].items.push(editingItem);
-    }
-
-    setCategories(updatedCategories);
-    setEditingItem(null);
-    toast({
-      title: "Item Saved",
-      description: "Menu item has been successfully saved.",
-    });
-  };
-
-  const handleDeleteItem = (categoryId: string, itemId: string) => {
-    const updatedCategories = categories.map(category => {
-      if (category.id === categoryId) {
-        return {
-          ...category,
-          items: category.items.filter(item => item.id !== itemId)
-        };
-      }
-      return category;
-    });
-    setCategories(updatedCategories);
-    toast({
-      title: "Item Deleted",
-      description: "Menu item has been removed from the menu.",
-    });
-  };
+  const categories = ['Appetizer', 'Main Course', 'Dessert', 'Beverages', 'Sides'];
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('en-IN', {
@@ -176,136 +76,160 @@ const MenuManagement: React.FC<MenuManagementProps> = ({ isOwner = false, restau
     }).format(price);
   };
 
+  const handleAddItem = () => {
+    if (newItem.name && newItem.price && newItem.category) {
+      const item: MenuItem = {
+        id: Date.now().toString(),
+        name: newItem.name,
+        description: newItem.description || '',
+        price: newItem.price,
+        category: newItem.category,
+        isVegetarian: newItem.isVegetarian || false,
+        isVegan: newItem.isVegan || false,
+        isGlutenFree: newItem.isGlutenFree || false,
+        image: newItem.image
+      };
+      setMenuItems(prev => [...prev, item]);
+      setNewItem({});
+      setShowAddForm(false);
+    }
+  };
+
+  const handleUpdateItem = (id: string, updatedItem: Partial<MenuItem>) => {
+    setMenuItems(prev => prev.map(item => 
+      item.id === id ? { ...item, ...updatedItem } : item
+    ));
+    setEditingItem(null);
+  };
+
+  const handleDeleteItem = (id: string) => {
+    setMenuItems(prev => prev.filter(item => item.id !== id));
+  };
+
+  const groupedItems = menuItems.reduce((acc, item) => {
+    if (!acc[item.category]) {
+      acc[item.category] = [];
+    }
+    acc[item.category].push(item);
+    return acc;
+  }, {} as Record<string, MenuItem[]>);
+
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      {/* Header */}
+      <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold">Menu Management</h2>
-          <p className="text-muted-foreground">Manage your restaurant's menu items and categories</p>
+          <p className="text-slate-600">Manage your restaurant menu items and categories</p>
         </div>
         {isOwner && (
-          <Button onClick={() => setShowAddCategory(true)}>
+          <Button onClick={() => setShowAddForm(true)} className="bg-blue-600 hover:bg-blue-700">
             <Plus className="h-4 w-4 mr-2" />
-            Add Category
+            Add Menu Item
           </Button>
         )}
       </div>
 
-      {/* Add Category Modal */}
-      {showAddCategory && (
+      {/* Add New Item Form */}
+      {showAddForm && isOwner && (
         <Card>
           <CardHeader>
-            <CardTitle>Add New Category</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex gap-2">
-              <Input
-                placeholder="Category name"
-                value={newCategory}
-                onChange={(e) => setNewCategory(e.target.value)}
-                className="flex-1"
-              />
-              <Button onClick={handleAddCategory}>Add</Button>
-              <Button variant="outline" onClick={() => setShowAddCategory(false)}>
-                Cancel
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Edit Item Modal */}
-      {editingItem && (
-        <Card className="border-primary">
-          <CardHeader>
-            <div className="flex justify-between items-center">
-              <CardTitle>{editingItem.id ? 'Edit Item' : 'Add New Item'}</CardTitle>
-              <Button variant="ghost" size="icon" onClick={() => setEditingItem(null)}>
-                <X className="h-4 w-4" />
-              </Button>
-            </div>
+            <CardTitle>Add New Menu Item</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Label>Item Name</Label>
+                <Label htmlFor="name">Item Name</Label>
                 <Input
-                  value={editingItem.name}
-                  onChange={(e) => setEditingItem({...editingItem, name: e.target.value})}
-                  placeholder="Item name"
+                  id="name"
+                  value={newItem.name || ''}
+                  onChange={(e) => setNewItem(prev => ({ ...prev, name: e.target.value }))}
+                  placeholder="Enter item name"
                 />
               </div>
               <div>
-                <Label>Price (INR)</Label>
+                <Label htmlFor="price">Price (₹)</Label>
                 <Input
+                  id="price"
                   type="number"
-                  value={editingItem.price}
-                  onChange={(e) => setEditingItem({...editingItem, price: parseInt(e.target.value) || 0})}
-                  placeholder="0"
+                  value={newItem.price || ''}
+                  onChange={(e) => setNewItem(prev => ({ ...prev, price: parseInt(e.target.value) || 0 }))}
+                  placeholder="Enter price"
                 />
               </div>
             </div>
 
             <div>
-              <Label>Description</Label>
+              <Label htmlFor="description">Description</Label>
               <Textarea
-                value={editingItem.description}
-                onChange={(e) => setEditingItem({...editingItem, description: e.target.value})}
-                placeholder="Describe the item..."
-                rows={3}
+                id="description"
+                value={newItem.description || ''}
+                onChange={(e) => setNewItem(prev => ({ ...prev, description: e.target.value }))}
+                placeholder="Enter item description"
+                rows={2}
               />
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <label className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  checked={editingItem.isVegetarian}
-                  onChange={(e) => setEditingItem({...editingItem, isVegetarian: e.target.checked})}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="category">Category</Label>
+                <select
+                  id="category"
+                  value={newItem.category || ''}
+                  onChange={(e) => setNewItem(prev => ({ ...prev, category: e.target.value }))}
+                  className="w-full p-2 border rounded-md"
+                >
+                  <option value="">Select category</option>
+                  {categories.map(cat => (
+                    <option key={cat} value={cat}>{cat}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <Label htmlFor="image">Image URL (Optional)</Label>
+                <Input
+                  id="image"
+                  value={newItem.image || ''}
+                  onChange={(e) => setNewItem(prev => ({ ...prev, image: e.target.value }))}
+                  placeholder="Enter image URL"
                 />
-                <span className="text-sm">Vegetarian</span>
-              </label>
-              <label className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  checked={editingItem.isVegan}
-                  onChange={(e) => setEditingItem({...editingItem, isVegan: e.target.checked})}
-                />
-                <span className="text-sm">Vegan</span>
-              </label>
-              <label className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  checked={editingItem.isSpicy}
-                  onChange={(e) => setEditingItem({...editingItem, isSpicy: e.target.checked})}
-                />
-                <span className="text-sm">Spicy</span>
-              </label>
-              <label className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  checked={editingItem.isAvailable}
-                  onChange={(e) => setEditingItem({...editingItem, isAvailable: e.target.checked})}
-                />
-                <span className="text-sm">Available</span>
-              </label>
+              </div>
             </div>
 
-            <div>
-              <Label>Preparation Time (minutes)</Label>
-              <Input
-                type="number"
-                value={editingItem.preparationTime}
-                onChange={(e) => setEditingItem({...editingItem, preparationTime: parseInt(e.target.value) || 15})}
-              />
+            <div className="flex gap-4">
+              <label className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={newItem.isVegetarian || false}
+                  onChange={(e) => setNewItem(prev => ({ ...prev, isVegetarian: e.target.checked }))}
+                />
+                Vegetarian
+              </label>
+              <label className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={newItem.isVegan || false}
+                  onChange={(e) => setNewItem(prev => ({ ...prev, isVegan: e.target.checked }))}
+                />
+                Vegan
+              </label>
+              <label className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={newItem.isGlutenFree || false}
+                  onChange={(e) => setNewItem(prev => ({ ...prev, isGlutenFree: e.target.checked }))}
+                />
+                Gluten-Free
+              </label>
             </div>
 
             <div className="flex gap-2">
-              <Button onClick={handleSaveItem}>
+              <Button onClick={handleAddItem} className="bg-green-600 hover:bg-green-700">
                 <Save className="h-4 w-4 mr-2" />
-                Save Item
+                Add Item
               </Button>
-              <Button variant="outline" onClick={() => setEditingItem(null)}>
+              <Button variant="outline" onClick={() => setShowAddForm(false)}>
+                <X className="h-4 w-4 mr-2" />
                 Cancel
               </Button>
             </div>
@@ -313,75 +237,66 @@ const MenuManagement: React.FC<MenuManagementProps> = ({ isOwner = false, restau
         </Card>
       )}
 
-      {/* Menu Categories */}
-      {categories.map((category) => (
-        <Card key={category.id}>
+      {/* Menu Items by Category */}
+      {Object.entries(groupedItems).map(([category, items]) => (
+        <Card key={category}>
           <CardHeader>
-            <div className="flex justify-between items-center">
-              <CardTitle>{category.name}</CardTitle>
-              {isOwner && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleAddItem(category.id)}
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Item
-                </Button>
-              )}
-            </div>
+            <CardTitle>{category}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {category.items.map((item) => (
-                <div key={item.id} className="flex justify-between items-start p-4 border rounded-lg">
+              {items.map((item) => (
+                <div key={item.id} className="flex gap-4 p-4 border rounded-lg">
+                  {item.image && (
+                    <img
+                      src={item.image}
+                      alt={item.name}
+                      className="w-20 h-20 object-cover rounded-lg"
+                    />
+                  )}
+                  
                   <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-2">
-                      <h3 className="font-semibold">{item.name}</h3>
-                      <div className="flex gap-1">
-                        {item.isVegetarian && <Badge variant="secondary">Veg</Badge>}
-                        {item.isVegan && <Badge variant="secondary">Vegan</Badge>}
-                        {item.isSpicy && <Badge variant="destructive">Spicy</Badge>}
-                        {!item.isAvailable && <Badge variant="outline">Unavailable</Badge>}
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <h3 className="font-semibold text-lg">{item.name}</h3>
+                        <p className="text-slate-600 text-sm mt-1">{item.description}</p>
+                        
+                        <div className="flex gap-2 mt-2">
+                          {item.isVegetarian && <Badge variant="secondary" className="text-green-700 bg-green-100">Veg</Badge>}
+                          {item.isVegan && <Badge variant="secondary" className="text-green-700 bg-green-100">Vegan</Badge>}
+                          {item.isGlutenFree && <Badge variant="secondary" className="text-blue-700 bg-blue-100">Gluten-Free</Badge>}
+                        </div>
                       </div>
-                    </div>
-                    <p className="text-muted-foreground text-sm mb-2">{item.description}</p>
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                      <div className="flex items-center gap-1">
-                        <DollarSign className="h-3 w-3" />
-                        {formatPrice(item.price)}
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Clock className="h-3 w-3" />
-                        {item.preparationTime} min
+                      
+                      <div className="text-right">
+                        <div className="text-xl font-bold text-blue-600">
+                          {formatPrice(item.price)}
+                        </div>
+                        
+                        {isOwner && (
+                          <div className="flex gap-1 mt-2">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => setEditingItem(item.id)}
+                            >
+                              <Edit className="h-3 w-3" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleDeleteItem(item.id)}
+                              className="text-red-600 hover:text-red-700"
+                            >
+                              <Trash2 className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
-                  {isOwner && (
-                    <div className="flex gap-2">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => setEditingItem(item)}
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleDeleteItem(category.id, item.id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  )}
                 </div>
               ))}
-              {category.items.length === 0 && (
-                <div className="text-center py-8 text-muted-foreground">
-                  <p>No items in this category yet.</p>
-                </div>
-              )}
             </div>
           </CardContent>
         </Card>

@@ -2,15 +2,15 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Clock, Users, TrendingUp } from 'lucide-react';
-import { waitingTimePredictor, WaitTimeData, WaitTimePrediction } from '@/lib/ai/waitingTimePredictor';
+import { Clock, Users, TrendingUp, AlertCircle } from 'lucide-react';
+import { waitingTimePredictor, WaitTimeData } from '@/lib/ai/waitingTimePredictor';
 
 interface WaitTimePredictorProps {
   restaurantId: string;
   restaurantName: string;
   capacity: number;
   currentGuests: number;
-  averageDiningTime?: number;
+  averageDiningTime: number;
 }
 
 const WaitTimePredictor: React.FC<WaitTimePredictorProps> = ({
@@ -18,18 +18,17 @@ const WaitTimePredictor: React.FC<WaitTimePredictorProps> = ({
   restaurantName,
   capacity,
   currentGuests,
-  averageDiningTime = 60
+  averageDiningTime
 }) => {
-  const [prediction, setPrediction] = useState<WaitTimePrediction | null>(null);
+  const [prediction, setPrediction] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const calculateWaitTime = () => {
-      const now = new Date();
-      const currentHour = now.getHours();
-      const dayOfWeek = now.getDay();
+      const currentHour = new Date().getHours();
+      const dayOfWeek = new Date().getDay();
       const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
-
+      
       const waitTimeData: WaitTimeData = {
         restaurantId,
         currentSeatedGuests: currentGuests,
@@ -47,10 +46,8 @@ const WaitTimePredictor: React.FC<WaitTimePredictorProps> = ({
     };
 
     calculateWaitTime();
-    
-    // Update every 5 minutes
-    const interval = setInterval(calculateWaitTime, 5 * 60 * 1000);
-    
+    const interval = setInterval(calculateWaitTime, 30000); // Update every 30 seconds
+
     return () => clearInterval(interval);
   }, [restaurantId, currentGuests, capacity, averageDiningTime]);
 
@@ -64,84 +61,69 @@ const WaitTimePredictor: React.FC<WaitTimePredictorProps> = ({
     }
   };
 
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case 'available_now': return 'Available Now';
-      case 'short_wait': return 'Short Wait';
-      case 'moderate_wait': return 'Moderate Wait';
-      case 'long_wait': return 'Longer Wait';
-      default: return 'Calculating...';
-    }
-  };
+  const occupancyRate = (currentGuests / capacity) * 100;
 
   if (isLoading) {
     return (
-      <Card className="w-full">
-        <CardHeader className="pb-3">
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <Clock className="h-5 w-5" />
-            Live Wait Time
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="animate-pulse">
-            <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-            <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-          </div>
+      <Card className="animate-pulse">
+        <CardContent className="p-6">
+          <div className="h-20 bg-slate-200 rounded"></div>
         </CardContent>
       </Card>
     );
   }
 
-  if (!prediction) return null;
-
   return (
-    <Card className="w-full border-l-4 border-l-primary">
+    <Card className="hover:shadow-lg transition-shadow">
       <CardHeader className="pb-3">
-        <CardTitle className="flex items-center justify-between text-lg">
-          <div className="flex items-center gap-2">
-            <Clock className="h-5 w-5 text-primary" />
-            Live Wait Time
-          </div>
-          <Badge 
-            className={`${getStatusColor(prediction.status)} text-white px-3 py-1`}
-          >
-            {getStatusText(prediction.status)}
-          </Badge>
+        <CardTitle className="flex items-center gap-2 text-lg">
+          <Clock className="h-5 w-5 text-blue-600" />
+          {restaurantName} - Wait Time
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="text-center">
-          <div className="text-3xl font-bold text-primary mb-1">
-            {prediction.estimatedWaitMinutes === 0 ? '0' : `~${prediction.estimatedWaitMinutes}`}
+        <div className="flex items-center justify-between">
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <Badge className={`${getStatusColor(prediction.status)} text-white`}>
+                {prediction.estimatedWaitMinutes === 0 ? 'Available Now' : `${prediction.estimatedWaitMinutes} min wait`}
+              </Badge>
+              <span className="text-sm text-slate-600">
+                {Math.round(prediction.confidence * 100)}% confidence
+              </span>
+            </div>
+            <p className="text-sm text-slate-700">{prediction.message}</p>
           </div>
-          <div className="text-sm text-muted-foreground">
-            {prediction.estimatedWaitMinutes === 0 ? 'minutes' : 'minutes wait'}
+          <div className="text-right">
+            <div className="text-2xl font-bold text-blue-600">
+              {prediction.estimatedWaitMinutes}
+            </div>
+            <div className="text-xs text-slate-500">minutes</div>
           </div>
-          <p className="text-sm font-medium text-foreground mt-2">
-            {prediction.message}
-          </p>
         </div>
 
-        <div className="grid grid-cols-2 gap-4 pt-4 border-t">
+        <div className="grid grid-cols-2 gap-4 pt-2 border-t">
           <div className="flex items-center gap-2">
-            <Users className="h-4 w-4 text-muted-foreground" />
+            <Users className="h-4 w-4 text-slate-500" />
             <div>
               <div className="text-sm font-medium">{currentGuests}/{capacity}</div>
-              <div className="text-xs text-muted-foreground">Current occupancy</div>
+              <div className="text-xs text-slate-500">Occupancy</div>
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+            <TrendingUp className="h-4 w-4 text-slate-500" />
             <div>
-              <div className="text-sm font-medium">{Math.round(prediction.confidence * 100)}%</div>
-              <div className="text-xs text-muted-foreground">Accuracy</div>
+              <div className="text-sm font-medium">{Math.round(occupancyRate)}%</div>
+              <div className="text-xs text-slate-500">Full</div>
             </div>
           </div>
         </div>
 
-        <div className="text-xs text-muted-foreground text-center pt-2 border-t">
-          🤖 AI-powered prediction • Updates every 5 minutes
+        <div className="w-full bg-slate-200 rounded-full h-2">
+          <div 
+            className="bg-blue-600 h-2 rounded-full transition-all duration-500"
+            style={{ width: `${Math.min(occupancyRate, 100)}%` }}
+          ></div>
         </div>
       </CardContent>
     </Card>

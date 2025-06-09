@@ -1,5 +1,4 @@
 
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
@@ -8,21 +7,21 @@
 
 @layer base {
   :root {
-    /* Fixed Modern Dark Color Scheme */
+    /* Royal Blue + White + Gold Theme */
     --background: 15 23 42; /* slate-900 */
     --foreground: 248 250 252; /* slate-50 */
     --card: 30 41 59; /* slate-800 */
     --card-foreground: 248 250 252;
     --popover: 30 41 59;
     --popover-foreground: 248 250 252;
-    --primary: 37 99 235; /* blue-600 */
+    --primary: 37 99 235; /* blue-600 - Royal Blue */
     --primary-foreground: 248 250 252;
     --secondary: 51 65 85; /* slate-600 */
     --secondary-foreground: 248 250 252;
     --muted: 51 65 85;
     --muted-foreground: 148 163 184; /* slate-400 */
-    --accent: 147 51 234; /* purple-600 */
-    --accent-foreground: 248 250 252;
+    --accent: 234 179 8; /* yellow-500 - Gold Accent */
+    --accent-foreground: 15 23 42;
     --destructive: 239 68 68; /* red-500 */
     --destructive-foreground: 248 250 252;
     --border: 71 85 105; /* slate-600 */
@@ -39,33 +38,26 @@
   
   body {
     @apply bg-background text-foreground transition-colors duration-300;
-    font-family: 'Inter', 'Poppins', sans-serif;
+    font-family: 'Inter', sans-serif;
     background: linear-gradient(135deg, rgb(15, 23, 42), rgb(30, 41, 59));
     min-height: 100vh;
   }
   
-  .glass-effect {
-    @apply bg-slate-800/70 backdrop-blur-md border border-slate-700/50;
-  }
-  
-  .hover-scale {
-    @apply transition-all duration-300 hover:scale-105;
-  }
-  
-  .smooth-transition {
-    @apply transition-all duration-300 ease-in-out;
-  }
-  
+  /* DineVibe Custom Classes */
   .dv-card {
     @apply bg-slate-800 rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 border border-slate-700;
   }
   
   .dv-button-primary {
-    @apply bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-all duration-300 font-medium;
+    @apply bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-all duration-300 font-medium shadow-lg hover:shadow-xl;
   }
   
   .dv-button-secondary {
-    @apply bg-slate-700 text-slate-200 px-6 py-3 rounded-lg hover:bg-slate-600 transition-all duration-300 font-medium;
+    @apply bg-slate-700 text-slate-200 px-6 py-3 rounded-lg hover:bg-slate-600 transition-all duration-300 font-medium border border-slate-600;
+  }
+  
+  .dv-button-gold {
+    @apply bg-yellow-500 text-slate-900 px-6 py-3 rounded-lg hover:bg-yellow-400 transition-all duration-300 font-medium shadow-lg;
   }
   
   .dv-container {
@@ -88,6 +80,15 @@
     @apply text-base md:text-lg text-slate-300 leading-relaxed;
   }
   
+  .dv-gradient-text {
+    @apply bg-gradient-to-r from-blue-400 via-blue-500 to-yellow-500 bg-clip-text text-transparent;
+  }
+  
+  .dv-glass {
+    @apply bg-slate-800/70 backdrop-blur-md border border-slate-700/50;
+  }
+  
+  /* Enhanced animations */
   .animate-float {
     animation: float 6s ease-in-out infinite;
   }
@@ -96,9 +97,46 @@
     animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   }
   
+  .animate-fade-in-up {
+    animation: fadeInUp 0.6s ease-out forwards;
+  }
+  
+  .animate-slide-in-right {
+    animation: slideInRight 0.6s ease-out forwards;
+  }
+  
+  /* Staggered animations */
+  .stagger-1 { animation-delay: 0.1s; }
+  .stagger-2 { animation-delay: 0.2s; }
+  .stagger-3 { animation-delay: 0.3s; }
+  .stagger-4 { animation-delay: 0.4s; }
+  .stagger-5 { animation-delay: 0.5s; }
+  
   @keyframes float {
     0%, 100% { transform: translateY(0px); }
     50% { transform: translateY(-20px); }
+  }
+  
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  @keyframes slideInRight {
+    from {
+      opacity: 0;
+      transform: translateX(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
   }
 }
 
@@ -119,49 +157,45 @@
   @apply bg-blue-500;
 }
 
-/* Enhanced animations */
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+/* Loading and transition effects */
+.loading-shimmer {
+  background: linear-gradient(90deg, 
+    rgba(148, 163, 184, 0.1) 25%, 
+    rgba(148, 163, 184, 0.3) 50%, 
+    rgba(148, 163, 184, 0.1) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
 }
 
-@keyframes slideInRight {
-  from {
-    opacity: 0;
-    transform: translateX(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
 }
-
-.animate-fade-in-up {
-  animation: fadeInUp 0.6s ease-out forwards;
-}
-
-.animate-slide-in-right {
-  animation: slideInRight 0.6s ease-out forwards;
-}
-
-/* Staggered animations */
-.stagger-1 { animation-delay: 0.1s; }
-.stagger-2 { animation-delay: 0.2s; }
-.stagger-3 { animation-delay: 0.3s; }
-.stagger-4 { animation-delay: 0.4s; }
-.stagger-5 { animation-delay: 0.5s; }
 
 /* 3D Effects */
+.perspective {
+  perspective: 1000px;
+}
+
 .preserve-3d {
   transform-style: preserve-3d;
 }
 
-.perspective {
-  perspective: 1000px;
+/* Responsive design utilities */
+@media (max-width: 640px) {
+  .dv-heading {
+    @apply text-3xl;
+  }
+  
+  .dv-subheading {
+    @apply text-lg;
+  }
+}
+
+/* Print styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
 }
