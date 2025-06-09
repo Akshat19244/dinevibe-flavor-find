@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -75,60 +76,208 @@ function App() {
               <Route path="/features" element={<Features />} />
               <Route path="/contact" element={<Contact />} />
 
-              {/* User routes */}
+              {/* User routes - Fixed routing structure */}
               <Route
-                path="/user/*"
+                path="/user/discovery"
                 element={
                   <ProtectedRoute allowedRoles={['authenticated']}>
-                    <Routes>
-                      <Route path="/discovery" element={<Discovery />} />
-                      <Route path="/planning" element={<Planning />} />
-                      <Route path="/ai-assistant" element={<AIAssistant />} />
-                      <Route path="/upcoming" element={<UpcomingEvents />} />
-                      <Route path="/deals" element={<Deals />} />
-                      <Route path="/bookings" element={<Bookings />} />
-                      <Route path="/profile" element={<div>User Profile</div>} />
-                      <Route path="/settings" element={<UserSettings />} />
-                      <Route path="/reservation" element={<Reservation />} />
-                      <Route path="/make-reservation" element={<MakeReservation />} />
-                    </Routes>
+                    <Discovery />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/user/planning"
+                element={
+                  <ProtectedRoute allowedRoles={['authenticated']}>
+                    <Planning />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/user/ai-assistant"
+                element={
+                  <ProtectedRoute allowedRoles={['authenticated']}>
+                    <AIAssistant />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/user/upcoming"
+                element={
+                  <ProtectedRoute allowedRoles={['authenticated']}>
+                    <UpcomingEvents />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/user/deals"
+                element={
+                  <ProtectedRoute allowedRoles={['authenticated']}>
+                    <Deals />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/user/bookings"
+                element={
+                  <ProtectedRoute allowedRoles={['authenticated']}>
+                    <Bookings />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/user/profile"
+                element={
+                  <ProtectedRoute allowedRoles={['authenticated']}>
+                    <div>User Profile</div>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/user/settings"
+                element={
+                  <ProtectedRoute allowedRoles={['authenticated']}>
+                    <UserSettings />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/user/reservation"
+                element={
+                  <ProtectedRoute allowedRoles={['authenticated']}>
+                    <Reservation />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/user/make-reservation"
+                element={
+                  <ProtectedRoute allowedRoles={['authenticated']}>
+                    <MakeReservation />
                   </ProtectedRoute>
                 }
               />
 
-              {/* Owner routes */}
+              {/* Owner routes - Fixed routing structure */}
               <Route
-                path="/owner/*"
+                path="/owner/dashboard"
                 element={
                   <ProtectedRoute allowedRoles={['business_owner']}>
-                    <Routes>
-                      <Route path="/dashboard" element={<OwnerDashboard />} />
-                      <Route path="/restaurant-dashboard" element={<RestaurantDashboard />} />
-                      <Route path="/register-restaurant" element={<RegisterRestaurant />} />
-                      <Route path="/upload-event" element={<UploadEvent />} />
-                      <Route path="/deals" element={<OwnerDeals />} />
-                      <Route path="/customers" element={<div>Customers Management</div>} />
-                      <Route path="/settings" element={<OwnerSettings />} />
-                      <Route path="/analytics" element={<Analytics />} />
-                      <Route path="/track-bookings" element={<TrackBookings />} />
-                    </Routes>
+                    <OwnerDashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/owner/restaurant-dashboard"
+                element={
+                  <ProtectedRoute allowedRoles={['business_owner']}>
+                    <RestaurantDashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/owner/register-restaurant"
+                element={
+                  <ProtectedRoute allowedRoles={['business_owner']}>
+                    <RegisterRestaurant />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/owner/upload-event"
+                element={
+                  <ProtectedRoute allowedRoles={['business_owner']}>
+                    <UploadEvent />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/owner/deals"
+                element={
+                  <ProtectedRoute allowedRoles={['business_owner']}>
+                    <OwnerDeals />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/owner/customers"
+                element={
+                  <ProtectedRoute allowedRoles={['business_owner']}>
+                    <div>Customers Management</div>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/owner/settings"
+                element={
+                  <ProtectedRoute allowedRoles={['business_owner']}>
+                    <OwnerSettings />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/owner/analytics"
+                element={
+                  <ProtectedRoute allowedRoles={['business_owner']}>
+                    <Analytics />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/owner/track-bookings"
+                element={
+                  <ProtectedRoute allowedRoles={['business_owner']}>
+                    <TrackBookings />
                   </ProtectedRoute>
                 }
               />
 
-              {/* Admin routes */}
+              {/* Admin routes - Fixed routing structure */}
               <Route
-                path="/admin/*"
+                path="/admin/dashboard"
                 element={
                   <ProtectedRoute allowedRoles={['admin']}>
-                    <Routes>
-                      <Route path="/dashboard" element={<AdminDashboard />} />
-                      <Route path="/users" element={<AdminUsers />} />
-                      <Route path="/restaurants" element={<ManageRestaurants />} />
-                      <Route path="/reports" element={<Reports />} />
-                      <Route path="/settings" element={<AdminSettings />} />
-                      <Route path="/notifications" element={<Notifications />} />
-                    </Routes>
+                    <AdminDashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/users"
+                element={
+                  <ProtectedRoute allowedRoles={['admin']}>
+                    <AdminUsers />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/restaurants"
+                element={
+                  <ProtectedRoute allowedRoles={['admin']}>
+                    <ManageRestaurants />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/reports"
+                element={
+                  <ProtectedRoute allowedRoles={['admin']}>
+                    <Reports />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/settings"
+                element={
+                  <ProtectedRoute allowedRoles={['admin']}>
+                    <AdminSettings />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/notifications"
+                element={
+                  <ProtectedRoute allowedRoles={['admin']}>
+                    <Notifications />
                   </ProtectedRoute>
                 }
               />
