@@ -9,8 +9,8 @@ import { useAuth } from '@/contexts/AuthContext';
 const Home: React.FC = () => {
   const { user } = useAuth();
 
-  // Mock featured restaurants data with ratings > 4.2
-  const featuredRestaurants = [
+  // Top-rated restaurants (>4.2 stars) for homepage display
+  const topRatedRestaurants = [
     {
       id: '1',
       name: 'Bella Italia Ristorante',
@@ -18,7 +18,7 @@ const Home: React.FC = () => {
       cuisine: 'Italian',
       rating: 4.7,
       priceRange: '₹₹₹',
-      location: 'Bandra West',
+      location: 'Bandra West, Mumbai',
       isNew: false,
       hasDeals: true,
       waitTime: 15
@@ -30,7 +30,7 @@ const Home: React.FC = () => {
       cuisine: 'Indian',
       rating: 4.5,
       priceRange: '₹₹',
-      location: 'Juhu',
+      location: 'Juhu, Mumbai',
       isNew: true,
       hasDeals: false,
       waitTime: 8
@@ -42,7 +42,7 @@ const Home: React.FC = () => {
       cuisine: 'Japanese',
       rating: 4.6,
       priceRange: '₹₹₹₹',
-      location: 'Lower Parel',
+      location: 'Lower Parel, Mumbai',
       isNew: false,
       hasDeals: false,
       waitTime: 25
@@ -54,12 +54,39 @@ const Home: React.FC = () => {
       cuisine: 'Multi-Cuisine',
       rating: 4.8,
       priceRange: '₹₹₹₹',
-      location: 'Andheri East',
+      location: 'Andheri East, Mumbai',
       isNew: false,
       hasDeals: true,
       waitTime: 0
+    },
+    {
+      id: '5',
+      name: 'Mumbai Darbar',
+      imageUrl: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=1000',
+      cuisine: 'North Indian',
+      rating: 4.4,
+      priceRange: '₹₹₹',
+      location: 'Colaba, Mumbai',
+      isNew: false,
+      hasDeals: true,
+      waitTime: 12
+    },
+    {
+      id: '6',
+      name: 'Coastal Breeze',
+      imageUrl: 'https://images.unsplash.com/photo-1559339352-11d035aa65de?q=80&w=1000',
+      cuisine: 'Seafood',
+      rating: 4.3,
+      priceRange: '₹₹₹',
+      location: 'Worli, Mumbai',
+      isNew: true,
+      hasDeals: false,
+      waitTime: 5
     }
   ];
+
+  // Filter only restaurants with rating > 4.2
+  const premiumRestaurants = topRatedRestaurants.filter(restaurant => restaurant.rating > 4.2);
 
   const trendingEvents = [
     {
@@ -83,6 +110,28 @@ const Home: React.FC = () => {
       location: 'Garden Venues',
       isNew: false,
       hasDeals: false
+    },
+    {
+      id: 'corporate1',
+      name: 'Corporate Event Packages',
+      imageUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1000',
+      cuisine: 'Corporate Events',
+      rating: 4.6,
+      priceRange: '₹₹₹',
+      location: 'Business Hotels',
+      isNew: false,
+      hasDeals: true
+    },
+    {
+      id: 'birthday1',
+      name: 'Birthday Celebration Themes',
+      imageUrl: 'https://images.unsplash.com/photo-1464207687429-7505649dae38?q=80&w=1000',
+      cuisine: 'Birthday Planning',
+      rating: 4.5,
+      priceRange: '₹₹',
+      location: 'Party Venues',
+      isNew: true,
+      hasDeals: true
     }
   ];
 
@@ -99,14 +148,14 @@ const Home: React.FC = () => {
         <div className="bg-slate-900 text-white">
           <FeaturedSection
             title="Top Rated Restaurants"
-            subtitle="Discover restaurants with ratings above 4.2 stars"
+            subtitle="Discover premium restaurants with ratings above 4.2 stars - personally verified and customer approved"
             viewAllLink="/user/discovery"
-            restaurants={featuredRestaurants}
+            restaurants={premiumRestaurants}
           />
           
           <FeaturedSection
             title="Trending Events"
-            subtitle="Popular event planning packages curated by our AI"
+            subtitle="Popular event planning packages curated by our AI - from intimate gatherings to grand celebrations"
             viewAllLink="/user/planning"
             restaurants={trendingEvents}
           />

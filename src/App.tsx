@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -14,6 +13,12 @@ import CompleteProfile from '@/pages/auth/CompleteProfile';
 import About from '@/pages/About';
 import Features from '@/pages/Features';
 import Contact from '@/pages/Contact';
+import QuickLinks from '@/pages/QuickLinks';
+import ForBusiness from '@/pages/ForBusiness';
+import Events from '@/pages/Events';
+import Media from '@/pages/Media';
+import OurStory from '@/pages/OurStory';
+import ThreeDPreview from '@/pages/ThreeDPreview';
 
 // User pages
 import Discovery from '@/pages/user/Discovery';
@@ -65,10 +70,8 @@ function App() {
         <Router>
           <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
             <Routes>
-              {/* Home route - remove duplicate entries */}
-              <Route path="/" element={<Home />} />
-              
               {/* Public routes */}
+              <Route path="/" element={<Home />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/auth/login" element={<Auth />} />
               <Route path="/auth/signup" element={<Auth />} />
@@ -77,6 +80,12 @@ function App() {
               <Route path="/about" element={<About />} />
               <Route path="/features" element={<Features />} />
               <Route path="/contact" element={<Contact />} />
+              <Route path="/quick-links" element={<QuickLinks />} />
+              <Route path="/for-business" element={<ForBusiness />} />
+              <Route path="/events" element={<Events />} />
+              <Route path="/media" element={<Media />} />
+              <Route path="/our-story" element={<OurStory />} />
+              <Route path="/3d-preview" element={<ThreeDPreview />} />
 
               {/* User routes */}
               <Route
