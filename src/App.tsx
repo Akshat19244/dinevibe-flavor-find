@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -33,6 +34,7 @@ import Bookings from '@/pages/user/Bookings';
 import UserSettings from '@/pages/user/Settings';
 import Reservation from '@/pages/user/Reservation';
 import MakeReservation from '@/pages/user/MakeReservation';
+import Planning from '@/pages/user/Planning';
 
 // Owner pages
 import OwnerDashboard from '@/pages/owner/Dashboard';
