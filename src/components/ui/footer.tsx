@@ -1,16 +1,16 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { MapPin, Phone, Mail, Sparkles } from 'lucide-react';
+import { Sparkles, MapPin, Phone, Mail, Facebook, Twitter, Instagram } from 'lucide-react';
 
 const Footer: React.FC = () => {
   return (
-    <footer className="bg-slate-900 text-white py-12">
-      <div className="container mx-auto px-4">
+    <footer className="bg-slate-900 text-white">
+      <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Brand Section */}
-          <div className="space-y-4">
-            <div className="flex items-center space-x-2">
+          <div className="col-span-1 md:col-span-2">
+            <div className="flex items-center space-x-2 mb-4">
               <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center">
                 <Sparkles className="h-5 w-5 text-white" />
               </div>
@@ -18,81 +18,86 @@ const Footer: React.FC = () => {
                 DineVibe
               </span>
             </div>
-            <p className="text-slate-400 text-sm">
-              AI-powered dining and event platform with immersive 3D experiences. 
-              Find your flavor, feel your vibe.
+            <p className="text-slate-300 mb-4 max-w-md">
+              India's premium dining and event platform, powered by AI technology for unforgettable experiences.
             </p>
             <div className="flex space-x-4">
-              <a href="#" className="text-slate-400 hover:text-blue-400 transition-colors">
-                Facebook
-              </a>
-              <a href="#" className="text-slate-400 hover:text-blue-400 transition-colors">
-                Instagram
-              </a>
-              <a href="#" className="text-slate-400 hover:text-blue-400 transition-colors">
-                Twitter
-              </a>
+              <div className="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center hover:bg-blue-600 transition-colors cursor-pointer">
+                <Facebook className="h-5 w-5" />
+              </div>
+              <div className="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center hover:bg-blue-600 transition-colors cursor-pointer">
+                <Twitter className="h-5 w-5" />
+              </div>
+              <div className="w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center hover:bg-blue-600 transition-colors cursor-pointer">
+                <Instagram className="h-5 w-5" />
+              </div>
             </div>
           </div>
 
           {/* Quick Links */}
           <div>
-            <h3 className="font-semibold text-lg mb-4">Quick Links</h3>
-            <ul className="space-y-2 text-sm">
-              <li><Link to="/user/discovery" className="text-slate-400 hover:text-white transition-colors">Discover Restaurants</Link></li>
-              <li><Link to="/user/planning" className="text-slate-400 hover:text-white transition-colors">Event Planning</Link></li>
-              <li><Link to="/user/ai-assistant" className="text-slate-400 hover:text-white transition-colors">AI Assistant</Link></li>
-              <li><Link to="/user/deals" className="text-slate-400 hover:text-white transition-colors">Deals & Offers</Link></li>
-            </ul>
+            <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
+            <div className="space-y-2">
+              <Link to="/user/featured-restaurants" className="block text-slate-300 hover:text-blue-400 transition-colors">
+                Featured Restaurants
+              </Link>
+              <Link to="/user/trending-dishes" className="block text-slate-300 hover:text-blue-400 transition-colors">
+                Trending Dishes
+              </Link>
+              <Link to="/user/curated-plans" className="block text-slate-300 hover:text-blue-400 transition-colors">
+                Curated Plans
+              </Link>
+              <Link to="/user/event-planning" className="block text-slate-300 hover:text-blue-400 transition-colors">
+                Event Planning
+              </Link>
+              <Link to="/3d-preview" className="block text-slate-300 hover:text-blue-400 transition-colors">
+                3D Preview
+              </Link>
+            </div>
           </div>
 
-          {/* For Business */}
+          {/* Company */}
           <div>
-            <h3 className="font-semibold text-lg mb-4">For Business</h3>
-            <ul className="space-y-2 text-sm">
-              <li><Link to="/owner/register-restaurant" className="text-slate-400 hover:text-white transition-colors">List Your Restaurant</Link></li>
-              <li><Link to="/owner/dashboard" className="text-slate-400 hover:text-white transition-colors">Owner Dashboard</Link></li>
-              <li><Link to="/owner/analytics" className="text-slate-400 hover:text-white transition-colors">Analytics</Link></li>
-              <li><Link to="/contact" className="text-slate-400 hover:text-white transition-colors">Partner With Us</Link></li>
-            </ul>
-          </div>
-
-          {/* Contact */}
-          <div>
-            <h3 className="font-semibold text-lg mb-4">Contact Us</h3>
-            <div className="space-y-3 text-sm">
-              <div className="flex items-center space-x-2">
-                <MapPin className="h-4 w-4 text-blue-400" />
-                <span className="text-slate-400">Mumbai, Maharashtra, India</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Phone className="h-4 w-4 text-blue-400" />
-                <span className="text-slate-400">+91 98765 43210</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Mail className="h-4 w-4 text-blue-400" />
-                <span className="text-slate-400">hello@dinevibe.com</span>
-              </div>
+            <h3 className="text-lg font-semibold mb-4">Company</h3>
+            <div className="space-y-2">
+              <Link to="/about" className="block text-slate-300 hover:text-blue-400 transition-colors">
+                About Us
+              </Link>
+              <Link to="/our-story" className="block text-slate-300 hover:text-blue-400 transition-colors">
+                Our Story
+              </Link>
+              <Link to="/media" className="block text-slate-300 hover:text-blue-400 transition-colors">
+                Media & Press
+              </Link>
+              <Link to="/events" className="block text-slate-300 hover:text-blue-400 transition-colors">
+                Events
+              </Link>
+              <Link to="/for-business" className="block text-slate-300 hover:text-blue-400 transition-colors">
+                For Business
+              </Link>
             </div>
           </div>
         </div>
 
-        {/* Bottom Section */}
-        <div className="border-t border-slate-800 mt-8 pt-8">
+        {/* Contact Info */}
+        <div className="border-t border-slate-700 pt-8 mt-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
-            <p className="text-slate-400 text-sm">
+            <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-6 mb-4 md:mb-0">
+              <div className="flex items-center text-slate-300">
+                <MapPin className="h-4 w-4 mr-2" />
+                Mumbai, India
+              </div>
+              <div className="flex items-center text-slate-300">
+                <Phone className="h-4 w-4 mr-2" />
+                +91 99999 99999
+              </div>
+              <div className="flex items-center text-slate-300">
+                <Mail className="h-4 w-4 mr-2" />
+                hello@dinevibe.com
+              </div>
+            </div>
+            <div className="text-slate-400 text-sm">
               © 2024 DineVibe. All rights reserved.
-            </p>
-            <div className="flex space-x-6 mt-4 md:mt-0">
-              <Link to="/privacy" className="text-slate-400 hover:text-white text-sm transition-colors">
-                Privacy Policy
-              </Link>
-              <Link to="/terms" className="text-slate-400 hover:text-white text-sm transition-colors">
-                Terms of Service
-              </Link>
-              <Link to="/support" className="text-slate-400 hover:text-white text-sm transition-colors">
-                Support
-              </Link>
             </div>
           </div>
         </div>

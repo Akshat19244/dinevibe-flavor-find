@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -26,6 +25,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useAuth } from '@/contexts/AuthContext';
+import NotificationBell from '@/components/notifications/NotificationBell';
 
 interface NavbarProps {
   userType?: 'customer' | 'owner' | 'admin' | null;
@@ -53,7 +53,7 @@ const Navbar: React.FC<NavbarProps> = ({ userType = "customer", userName = "User
       case "customer":
         return [
           { href: "/user/discovery", label: "Discover", icon: Compass },
-          { href: "/user/planning", label: "Plan Events", icon: Calendar },
+          { href: "/user/event-planning", label: "Plan Events", icon: Calendar },
           { href: "/user/ai-assistant", label: "AI Assistant", icon: Brain },
           { href: "/user/bookings", label: "My Bookings", icon: Calendar },
         ];
@@ -68,11 +68,13 @@ const Navbar: React.FC<NavbarProps> = ({ userType = "customer", userName = "User
           { href: "/admin/dashboard", label: "Dashboard", icon: BarChart3 },
           { href: "/admin/users", label: "Users", icon: Users },
           { href: "/admin/restaurants", label: "Restaurants", icon: Building },
+          { href: "/admin/media-management", label: "Media", icon: Building },
         ];
       default:
         return [
           { href: "/about", label: "About", icon: null },
-          { href: "/features", label: "Features", icon: null },
+          { href: "/media", label: "Media", icon: null },
+          { href: "/events", label: "Events", icon: null },
           { href: "/contact", label: "Contact", icon: null },
         ];
     }
@@ -114,12 +116,7 @@ const Navbar: React.FC<NavbarProps> = ({ userType = "customer", userName = "User
           <div className="hidden md:flex items-center space-x-4">
             {userType && userType !== null ? (
               <>
-                <Button variant="ghost" size="icon" className="relative hover:bg-slate-800 text-slate-300">
-                  <Bell className="h-5 w-5" />
-                  <span className="absolute -top-1 -right-1 h-3 w-3 bg-blue-600 rounded-full flex items-center justify-center">
-                    <span className="text-xs text-white font-bold">3</span>
-                  </span>
-                </Button>
+                <NotificationBell />
                 
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -175,10 +172,7 @@ const Navbar: React.FC<NavbarProps> = ({ userType = "customer", userName = "User
           {/* Mobile menu button */}
           <div className="md:hidden flex items-center space-x-2">
             {userType && userType !== null && (
-              <Button variant="ghost" size="icon" className="relative text-slate-300">
-                <Bell className="h-5 w-5" />
-                <span className="absolute -top-1 -right-1 h-2 w-2 bg-blue-600 rounded-full"></span>
-              </Button>
+              <NotificationBell />
             )}
             <Button
               variant="ghost"

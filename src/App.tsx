@@ -22,7 +22,10 @@ import ThreeDPreview from '@/pages/ThreeDPreview';
 
 // User pages
 import Discovery from '@/pages/user/Discovery';
-import Planning from '@/pages/user/Planning';
+import FeaturedRestaurants from '@/pages/user/FeaturedRestaurants';
+import TrendingDishes from '@/pages/user/TrendingDishes';
+import CuratedPlans from '@/pages/user/CuratedPlans';
+import EventPlanning from '@/pages/user/EventPlanning';
 import AIAssistant from '@/pages/user/AIAssistant';
 import UpcomingEvents from '@/pages/user/UpcomingEvents';
 import Deals from '@/pages/user/Deals';
@@ -51,6 +54,7 @@ import Notifications from '@/pages/admin/Notifications';
 import ControlPanel from '@/pages/admin/ControlPanel';
 import AdminAuth from '@/pages/admin/AdminAuth';
 import AdminRedirect from '@/pages/admin/AdminRedirect';
+import MediaManagement from '@/pages/admin/MediaManagement';
 
 import NotFound from '@/pages/NotFound';
 
@@ -93,6 +97,38 @@ function App() {
                 element={
                   <ProtectedRoute allowedRoles={['authenticated']}>
                     <Discovery />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/user/featured-restaurants"
+                element={
+                  <ProtectedRoute allowedRoles={['authenticated']}>
+                    <FeaturedRestaurants />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/user/trending-dishes"
+                element={
+                  <ProtectedRoute allowedRoles={['authenticated']}>
+                    <TrendingDishes />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/user/curated-plans"
+                element={
+                  <ProtectedRoute allowedRoles={['authenticated']}>
+                    <CuratedPlans />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/user/event-planning"
+                element={
+                  <ProtectedRoute allowedRoles={['authenticated']}>
+                    <EventPlanning />
                   </ProtectedRoute>
                 }
               />
@@ -325,6 +361,14 @@ function App() {
               />
               <Route path="/admin-auth" element={<AdminAuth />} />
               <Route path="/admin-redirect" element={<AdminRedirect />} />
+              <Route
+                path="/admin/media-management"
+                element={
+                  <ProtectedRoute allowedRoles={['admin']}>
+                    <MediaManagement />
+                  </ProtectedRoute>
+                }
+              />
 
               {/* 404 route - must be last */}
               <Route path="*" element={<NotFound />} />

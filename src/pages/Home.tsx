@@ -149,16 +149,41 @@ const Home: React.FC = () => {
           <FeaturedSection
             title="Top Rated Restaurants"
             subtitle="Discover premium restaurants with ratings above 4.2 stars - personally verified and customer approved"
-            viewAllLink="/user/discovery"
+            viewAllLink="/user/featured-restaurants"
             restaurants={premiumRestaurants}
           />
           
           <FeaturedSection
             title="Trending Events"
             subtitle="Popular event planning packages curated by our AI - from intimate gatherings to grand celebrations"
-            viewAllLink="/user/planning"
+            viewAllLink="/user/event-planning"
             restaurants={trendingEvents}
           />
+        </div>
+
+        {/* Quick Access Section */}
+        <div className="bg-slate-50 py-16">
+          <div className="container mx-auto px-4 text-center">
+            <h2 className="text-3xl font-bold mb-8">Quick Access</h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+              <Link to="/user/featured-restaurants" className="p-6 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
+                <div className="text-2xl mb-2">🍽️</div>
+                <h3 className="font-semibold">Featured Restaurants</h3>
+              </Link>
+              <Link to="/user/trending-dishes" className="p-6 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
+                <div className="text-2xl mb-2">🔥</div>
+                <h3 className="font-semibold">Trending Dishes</h3>
+              </Link>
+              <Link to="/user/curated-plans" className="p-6 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
+                <div className="text-2xl mb-2">✨</div>
+                <h3 className="font-semibold">Curated Plans</h3>
+              </Link>
+              <Link to="/user/event-planning" className="p-6 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
+                <div className="text-2xl mb-2">🎉</div>
+                <h3 className="font-semibold">Event Planning</h3>
+              </Link>
+            </div>
+          </div>
         </div>
       </main>
       
