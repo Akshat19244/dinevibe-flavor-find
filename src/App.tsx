@@ -20,9 +20,11 @@ import Events from '@/pages/Events';
 import Media from '@/pages/Media';
 import OurStory from '@/pages/OurStory';
 import ThreeDPreview from '@/pages/ThreeDPreview';
+import PartnerWithUs from '@/pages/PartnerWithUs';
 
 // User pages
 import Discovery from '@/pages/user/Discovery';
+import MyBookings from '@/pages/user/MyBookings';
 import FeaturedRestaurants from '@/pages/user/FeaturedRestaurants';
 import TrendingDishes from '@/pages/user/TrendingDishes';
 import CuratedPlans from '@/pages/user/CuratedPlans';
@@ -38,6 +40,7 @@ import Planning from '@/pages/user/Planning';
 
 // Owner pages
 import OwnerDashboard from '@/pages/owner/Dashboard';
+import ListRestaurant from '@/pages/owner/ListRestaurant';
 import RestaurantDashboard from '@/pages/owner/RestaurantDashboard';
 import RegisterRestaurant from '@/pages/owner/RegisterRestaurant';
 import UploadEvent from '@/pages/owner/UploadEvent';
@@ -92,6 +95,7 @@ function App() {
               <Route path="/media" element={<Media />} />
               <Route path="/our-story" element={<OurStory />} />
               <Route path="/3d-preview" element={<ThreeDPreview />} />
+              <Route path="/partner-with-us" element={<PartnerWithUs />} />
 
               {/* User routes */}
               <Route
@@ -99,6 +103,14 @@ function App() {
                 element={
                   <ProtectedRoute allowedRoles={['authenticated']}>
                     <Discovery />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/user/my-bookings"
+                element={
+                  <ProtectedRoute allowedRoles={['authenticated']}>
+                    <MyBookings />
                   </ProtectedRoute>
                 }
               />
@@ -231,6 +243,14 @@ function App() {
                 element={
                   <ProtectedRoute allowedRoles={['business_owner']}>
                     <OwnerDashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/owner/list-restaurant"
+                element={
+                  <ProtectedRoute allowedRoles={['business_owner']}>
+                    <ListRestaurant />
                   </ProtectedRoute>
                 }
               />

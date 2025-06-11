@@ -1,21 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import {
-  Bell,
-  Menu,
-  X,
-  User,
-  LogOut,
-  Settings,
-  Sparkles,
-  Compass,
-  Calendar,
-  Brain,
-  BarChart3,
-  Users,
-  Building,
-} from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,229 +9,255 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { useAuth } from '@/contexts/AuthContext';
-import NotificationBell from '@/components/notifications/NotificationBell';
+} from "@/components/ui/dropdown-menu"
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import {
+  Menu,
+  User,
+  Settings,
+  LogOut,
+  Calendar,
+  Search,
+  Users,
+  Building,
+  BarChart,
+  ChevronDown,
+  Bell,
+  Badge as LucideBadge,
+} from 'lucide-react';
 
 interface NavbarProps {
-  userType?: 'customer' | 'owner' | 'admin' | null;
-  userName?: string;
+  userType?: string | null;
+  userName?: string | null;
 }
 
-const Navbar: React.FC<NavbarProps> = ({ userType = "customer", userName = "User" }) => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { signOut } = useAuth();
+const NotificationBell = ({ notifications }) => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const toggleNotifications = () => {
+    setIsOpen(!isOpen);
+  };
+
+  return (
+    <div className="relative">
+      <Button variant="ghost" size="icon" onClick={toggleNotifications}>
+        <Bell className="h-5 w-5" />
+        {notifications.length > 0 && (
+          <LucideBadge className="absolute top-0 right-0 rounded-full bg-red-500 text-white text-xs px-1">
+            {notifications.length}
+          </LucideBadge>
+        )}
+      </Button>
+      {isOpen && (
+        <div className="absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
+          <div className="py-1" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
+            {notifications.length > 0 ? (
+              notifications.map((notification, index) => (
+                <a
+                  key={index}
+                  href="#"
+                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                  role="menuitem"
+                >
+                  {notification.message}
+                </a>
+              ))
+            ) : (
+              <span className="block px-4 py-2 text-sm text-gray-500">No new notifications</span>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+const Navbar: React.FC<NavbarProps> = ({ userType, userName }) => {
   const navigate = useNavigate();
+  const { user, signOut } = useAuth();
+  const [notifications, setNotifications] = useState([]);
+
+  useEffect(() => {
+    // Simulate fetching notifications
+    const fetchNotifications = async () => {
+      // Replace this with your actual API call
+      const mockNotifications = [
+        { id: 1, message: 'Your booking has been confirmed!' },
+        { id: 2, message: 'New restaurant added near you.' },
+      ];
+      setNotifications(mockNotifications);
+    };
+
+    fetchNotifications();
+  }, []);
 
   const handleSignOut = async () => {
     await signOut();
     navigate('/');
   };
 
-  const getSettingsPath = () => {
-    if (userType === 'admin') return '/admin/settings';
-    if (userType === 'owner') return '/owner/settings';
-    return '/user/settings';
-  };
-
-  const getNavigationLinks = () => {
+  const getUserDashboardLink = () => {
+    if (!userType) return '/auth/login';
+    
     switch (userType) {
-      case "customer":
-        return [
-          { href: "/user/discovery", label: "Discover", icon: Compass },
-          { href: "/user/event-planning", label: "Plan Events", icon: Calendar },
-          { href: "/user/ai-assistant", label: "AI Assistant", icon: Brain },
-          { href: "/user/bookings", label: "My Bookings", icon: Calendar },
-        ];
-      case "owner":
-        return [
-          { href: "/owner/dashboard", label: "Dashboard", icon: BarChart3 },
-          { href: "/owner/restaurant-dashboard", label: "Restaurant", icon: Building },
-          { href: "/owner/analytics", label: "Analytics", icon: BarChart3 },
-        ];
-      case "admin":
-        return [
-          { href: "/admin/dashboard", label: "Dashboard", icon: BarChart3 },
-          { href: "/admin/users", label: "Users", icon: Users },
-          { href: "/admin/restaurants", label: "Restaurants", icon: Building },
-          { href: "/admin/media-management", label: "Media", icon: Building },
-        ];
+      case 'admin':
+        return '/admin/dashboard';
+      case 'business_owner':
+        return '/owner/dashboard';
       default:
-        return [
-          { href: "/about", label: "About", icon: null },
-          { href: "/media", label: "Media", icon: null },
-          { href: "/events", label: "Events", icon: null },
-          { href: "/contact", label: "Contact", icon: null },
-        ];
+        return '/user/discovery';
     }
   };
 
-  const navLinks = getNavigationLinks();
-
   return (
-    <nav className="bg-slate-900 sticky top-0 z-50 border-b border-slate-700">
+    <nav className="bg-white border-b border-slate-200 sticky top-0 z-50">
       <div className="container mx-auto px-4">
-        <div className="flex justify-between items-center h-16">
-          {/* Logo and brand name */}
-          <div className="flex items-center">
-            <Link to="/" className="flex items-center space-x-2 group">
-              <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                <Sparkles className="h-5 w-5 text-white" />
-              </div>
-              <span className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                DineVibe
-              </span>
+        <div className="flex items-center justify-between h-16">
+          {/* Logo */}
+          <Link to="/" className="flex items-center space-x-2">
+            <div className="w-8 h-8 bg-[#FF6F61] rounded-full flex items-center justify-center">
+              <span className="text-white font-bold text-sm">DV</span>
+            </div>
+            <span className="text-xl font-bold text-[#2E3A59]">DineVibe</span>
+          </Link>
+
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex items-center space-x-8">
+            <Link to="/about" className="text-slate-700 hover:text-[#FF6F61] transition-colors">
+              About
+            </Link>
+            <Link to="/events" className="text-slate-700 hover:text-[#FF6F61] transition-colors">
+              Events
+            </Link>
+            <Link to="/for-business" className="text-slate-700 hover:text-[#FF6F61] transition-colors">
+              For Business
+            </Link>
+            <Link to="/partner-with-us" className="text-slate-700 hover:text-[#FF6F61] transition-colors">
+              Partner With Us
+            </Link>
+            <Link to="/3d-preview" className="text-slate-700 hover:text-[#FF6F61] transition-colors">
+              3D Preview
+            </Link>
+            <Link to="/media" className="text-slate-700 hover:text-[#FF6F61] transition-colors">
+              Media
             </Link>
           </div>
 
-          {/* Desktop navigation */}
-          <div className="hidden md:flex items-center space-x-8">
-            {navLinks.map((link, index) => (
-              <Link
-                key={`${link.label}-${index}`}
-                to={link.href}
-                className="text-slate-300 hover:text-blue-400 font-medium transition-all duration-300 relative group"
-              >
-                {link.label}
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-400 transition-all duration-300 group-hover:w-full"></span>
-              </Link>
-            ))}
-          </div>
-
-          {/* User controls */}
-          <div className="hidden md:flex items-center space-x-4">
-            {userType && userType !== null ? (
+          {/* User Actions */}
+          <div className="flex items-center space-x-4">
+            {user ? (
               <>
-                <NotificationBell />
-                
+                <NotificationBell notifications={notifications} />
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="flex items-center space-x-2 hover:bg-slate-800 text-slate-300">
-                      <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center">
+                    <Button variant="ghost" className="flex items-center space-x-2">
+                      <div className="w-8 h-8 bg-[#FF6F61] rounded-full flex items-center justify-center">
                         <span className="text-white text-sm font-medium">
                           {userName ? userName.charAt(0).toUpperCase() : 'U'}
                         </span>
                       </div>
-                      <span className="text-sm font-medium hidden lg:inline">
-                        {userName || 'User'}
-                      </span>
+                      <span className="hidden md:block text-slate-700">{userName || 'User'}</span>
+                      <ChevronDown className="h-4 w-4 text-slate-500" />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="bg-slate-800 border-slate-700">
-                    <DropdownMenuLabel className="text-slate-200">My Account</DropdownMenuLabel>
-                    <DropdownMenuSeparator className="bg-slate-700" />
-                    <DropdownMenuItem className="cursor-pointer hover:bg-slate-700 text-slate-300" 
-                      onClick={() => navigate('/user/profile')}>
+                  <DropdownMenuContent align="end" className="w-56">
+                    <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => navigate(getUserDashboardLink())}>
                       <User className="mr-2 h-4 w-4" />
-                      <span>Profile</span>
+                      Dashboard
                     </DropdownMenuItem>
-                    <DropdownMenuItem className="cursor-pointer hover:bg-slate-700 text-slate-300"
-                      onClick={() => navigate(getSettingsPath())}>
+                    {userType === 'customer' && (
+                      <>
+                        <DropdownMenuItem onClick={() => navigate('/user/my-bookings')}>
+                          <Calendar className="mr-2 h-4 w-4" />
+                          My Bookings
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => navigate('/user/discovery')}>
+                          <Search className="mr-2 h-4 w-4" />
+                          Discovery
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => navigate('/user/event-planning')}>
+                          <Users className="mr-2 h-4 w-4" />
+                          Plan Event
+                        </DropdownMenuItem>
+                      </>
+                    )}
+                    {userType === 'business_owner' && (
+                      <>
+                        <DropdownMenuItem onClick={() => navigate('/owner/list-restaurant')}>
+                          <Building className="mr-2 h-4 w-4" />
+                          List Restaurant
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => navigate('/owner/analytics')}>
+                          <BarChart className="mr-2 h-4 w-4" />
+                          Analytics
+                        </DropdownMenuItem>
+                      </>
+                    )}
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => navigate('/user/settings')}>
                       <Settings className="mr-2 h-4 w-4" />
-                      <span>Settings</span>
+                      Settings
                     </DropdownMenuItem>
-                    <DropdownMenuSeparator className="bg-slate-700" />
-                    <DropdownMenuItem className="cursor-pointer hover:bg-red-900 text-red-400"
-                      onClick={handleSignOut}>
+                    <DropdownMenuItem onClick={handleSignOut}>
                       <LogOut className="mr-2 h-4 w-4" />
-                      <span>Log out</span>
+                      Sign Out
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </>
             ) : (
-              <>
-                <Link to="/auth">
-                  <Button variant="outline" className="border-slate-600 text-slate-300 hover:bg-slate-800">
-                    Login
-                  </Button>
-                </Link>
-                <Link to="/auth">
-                  <Button className="bg-blue-600 text-white hover:bg-blue-700 shadow-lg">
-                    Sign Up
-                  </Button>
-                </Link>
-              </>
+              <div className="flex items-center space-x-2">
+                <Button
+                  variant="ghost"
+                  onClick={() => navigate('/auth/login')}
+                  className="text-slate-700 hover:text-[#FF6F61]"
+                >
+                  Sign In
+                </Button>
+                <Button
+                  onClick={() => navigate('/auth/signup')}
+                  className="bg-[#FF6F61] hover:bg-[#FF6F61]/90 text-white"
+                >
+                  Sign Up
+                </Button>
+              </div>
             )}
-          </div>
 
-          {/* Mobile menu button */}
-          <div className="md:hidden flex items-center space-x-2">
-            {userType && userType !== null && (
-              <NotificationBell />
-            )}
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="hover:bg-slate-800 text-slate-300"
-            >
-              {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-            </Button>
+            {/* Mobile Menu */}
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" className="md:hidden">
+                  <Menu className="h-5 w-5" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent>
+                <div className="flex flex-col space-y-4 mt-8">
+                  <Link to="/about" className="text-slate-700 hover:text-[#FF6F61] transition-colors">
+                    About
+                  </Link>
+                  <Link to="/events" className="text-slate-700 hover:text-[#FF6F61] transition-colors">
+                    Events
+                  </Link>
+                  <Link to="/for-business" className="text-slate-700 hover:text-[#FF6F61] transition-colors">
+                    For Business
+                  </Link>
+                  <Link to="/partner-with-us" className="text-slate-700 hover:text-[#FF6F61] transition-colors">
+                    Partner With Us
+                  </Link>
+                  <Link to="/3d-preview" className="text-slate-700 hover:text-[#FF6F61] transition-colors">
+                    3D Preview
+                  </Link>
+                  <Link to="/media" className="text-slate-700 hover:text-[#FF6F61] transition-colors">
+                    Media
+                  </Link>
+                </div>
+              </SheetContent>
+            </Sheet>
           </div>
         </div>
       </div>
-
-      {/* Mobile menu */}
-      {isMenuOpen && (
-        <div className="md:hidden bg-slate-800 border-t border-slate-700">
-          <div className="px-4 py-4 space-y-3">
-            {navLinks.map((link, index) => (
-              <Link
-                key={`mobile-${link.label}-${index}`}
-                to={link.href}
-                className="block px-3 py-2 rounded-lg text-base font-medium text-slate-300 hover:text-blue-400 hover:bg-slate-700 transition-all duration-300"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                {link.label}
-              </Link>
-            ))}
-            
-            {(!userType || userType === null) && (
-              <div className="pt-4 flex flex-col space-y-2 border-t border-slate-700">
-                <Link to="/auth" onClick={() => setIsMenuOpen(false)}>
-                  <Button variant="outline" className="w-full border-slate-600 hover:bg-slate-700 text-slate-300">
-                    Login
-                  </Button>
-                </Link>
-                <Link to="/auth" onClick={() => setIsMenuOpen(false)}>
-                  <Button className="w-full bg-blue-600 text-white hover:bg-blue-700">
-                    Sign Up
-                  </Button>
-                </Link>
-              </div>
-            )}
-            
-            {userType && userType !== null && (
-              <div className="pt-4 border-t border-slate-700">
-                <div className="flex items-center px-3 py-2">
-                  <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center">
-                    <span className="text-white text-sm font-medium">
-                      {userName ? userName.charAt(0).toUpperCase() : 'U'}
-                    </span>
-                  </div>
-                  <span className="ml-3 text-sm font-medium text-slate-300">{userName || 'User'}</span>
-                </div>
-                <Link to="/user/profile" className="block px-3 py-2 rounded-lg text-base font-medium text-slate-300 hover:text-blue-400 hover:bg-slate-700 transition-all duration-300" onClick={() => setIsMenuOpen(false)}>
-                  Profile
-                </Link>
-                <Link to={getSettingsPath()} className="block px-3 py-2 rounded-lg text-base font-medium text-slate-300 hover:text-blue-400 hover:bg-slate-700 transition-all duration-300" onClick={() => setIsMenuOpen(false)}>
-                  Settings
-                </Link>
-                <button 
-                  onClick={() => {
-                    handleSignOut();
-                    setIsMenuOpen(false);
-                  }}
-                  className="w-full text-left px-3 py-2 rounded-lg text-base font-medium text-red-400 hover:bg-red-900 transition-all duration-300"
-                >
-                  Log out
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
     </nav>
   );
 };

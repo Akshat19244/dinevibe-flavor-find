@@ -146,7 +146,7 @@ const Home: React.FC = () => {
       <main className="flex-grow">
         <HeroSection />
         
-        <div className="bg-slate-900 text-white">
+        <div className="bg-[#2E3A59] text-white">
           <FeaturedSection
             title="Top Rated Restaurants"
             subtitle="Discover premium restaurants with ratings above 4.2 stars - personally verified and customer approved"
@@ -163,25 +163,49 @@ const Home: React.FC = () => {
         </div>
 
         {/* Quick Access Section */}
-        <div className="bg-slate-50 py-16">
+        <div className="bg-[#FDF5E6] py-16">
           <div className="container mx-auto px-4 text-center">
-            <h2 className="text-3xl font-bold mb-8">Quick Access</h2>
+            <h2 className="text-3xl font-bold text-[#2E3A59] mb-8">Quick Access</h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-              <Link to="/user/featured-restaurants" className="p-6 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
+              <Link to="/user/featured-restaurants" className="p-6 bg-white rounded-lg shadow-sm hover:shadow-md hover:bg-[#FF6F61]/5 transition-all duration-300 border border-[#FF6F61]/20">
                 <div className="text-2xl mb-2">🍽️</div>
-                <h3 className="font-semibold">Featured Restaurants</h3>
+                <h3 className="font-semibold text-[#2E3A59]">Featured Restaurants</h3>
               </Link>
-              <Link to="/user/trending-dishes" className="p-6 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
+              <Link to="/user/trending-dishes" className="p-6 bg-white rounded-lg shadow-sm hover:shadow-md hover:bg-[#FF6F61]/5 transition-all duration-300 border border-[#FF6F61]/20">
                 <div className="text-2xl mb-2">🔥</div>
-                <h3 className="font-semibold">Trending Dishes</h3>
+                <h3 className="font-semibold text-[#2E3A59]">Trending Dishes</h3>
               </Link>
-              <Link to="/user/curated-plans" className="p-6 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
+              <Link to="/user/curated-plans" className="p-6 bg-white rounded-lg shadow-sm hover:shadow-md hover:bg-[#FF6F61]/5 transition-all duration-300 border border-[#FF6F61]/20">
                 <div className="text-2xl mb-2">✨</div>
-                <h3 className="font-semibold">Curated Plans</h3>
+                <h3 className="font-semibold text-[#2E3A59]">Curated Plans</h3>
               </Link>
-              <Link to="/user/event-planning" className="p-6 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
+              <Link to="/user/event-planning" className="p-6 bg-white rounded-lg shadow-sm hover:shadow-md hover:bg-[#FF6F61]/5 transition-all duration-300 border border-[#FF6F61]/20">
                 <div className="text-2xl mb-2">🎉</div>
-                <h3 className="font-semibold">Event Planning</h3>
+                <h3 className="font-semibold text-[#2E3A59]">Event Planning</h3>
+              </Link>
+            </div>
+          </div>
+        </div>
+
+        {/* CTA Section */}
+        <div className="bg-gradient-to-r from-[#2E3A59] to-[#FF6F61] py-16">
+          <div className="container mx-auto px-4 text-center">
+            <h2 className="text-3xl font-bold text-white mb-4">Ready to Start Your Culinary Journey?</h2>
+            <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
+              Join thousands of food lovers and event planners who trust DineVibe for their perfect dining experiences.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link 
+                to="/user/discovery" 
+                className="bg-white text-[#2E3A59] px-8 py-3 rounded-lg font-semibold hover:bg-[#FDF5E6] transition-colors"
+              >
+                Discover Restaurants
+              </Link>
+              <Link 
+                to="/partner-with-us" 
+                className="bg-transparent border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-[#2E3A59] transition-colors"
+              >
+                Partner With Us
               </Link>
             </div>
           </div>
