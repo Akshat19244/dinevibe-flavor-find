@@ -3,84 +3,45 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from '@/contexts/AuthContext';
-import { Toaster } from '@/components/ui/toaster';
-import ProtectedRoute from '@/components/auth/ProtectedRoute';
+import { Toaster } from '@/components/ui/sonner';
 
-// Import all page components
+// Pages
 import Home from '@/pages/Home';
 import Discovery from '@/pages/Discovery';
 import Dining from '@/pages/Dining';
 import Events from '@/pages/Events';
 import AIAssistant from '@/pages/AIAssistant';
 import ThreeDPreview from '@/pages/ThreeDPreview';
-import Auth from '@/pages/Auth';
-import AuthCallback from '@/pages/AuthCallback';
-import CompleteProfile from '@/pages/auth/CompleteProfile';
-import About from '@/pages/About';
-import Features from '@/pages/Features';
-import Contact from '@/pages/Contact';
-import QuickLinks from '@/pages/QuickLinks';
-import ForBusiness from '@/pages/ForBusiness';
-import Media from '@/pages/Media';
-import OurStory from '@/pages/OurStory';
 import PartnerWithUs from '@/pages/PartnerWithUs';
-
-// User pages
-import MyBookings from '@/pages/user/MyBookings';
-import FeaturedRestaurants from '@/pages/user/FeaturedRestaurants';
-import TrendingDishes from '@/pages/user/TrendingDishes';
-import CuratedPlans from '@/pages/user/CuratedPlans';
-import EventPlanning from '@/pages/user/EventPlanning';
-import UpcomingEvents from '@/pages/user/UpcomingEvents';
-import Deals from '@/pages/user/Deals';
-import Bookings from '@/pages/user/Bookings';
-import UserSettings from '@/pages/user/Settings';
-import Reservation from '@/pages/user/Reservation';
-import MakeReservation from '@/pages/user/MakeReservation';
-import Planning from '@/pages/user/Planning';
+import Contact from '@/pages/Contact';
+import Auth from '@/pages/Auth';
+import NotFound from '@/pages/NotFound';
 
 // Owner pages
 import OwnerDashboard from '@/pages/owner/Dashboard';
-import ListRestaurant from '@/pages/owner/ListRestaurant';
-import RestaurantDashboard from '@/pages/owner/RestaurantDashboard';
-import RegisterRestaurant from '@/pages/owner/RegisterRestaurant';
-import UploadEvent from '@/pages/owner/UploadEvent';
+import OwnerAnalytics from '@/pages/owner/Analytics';
+import OwnerUploadEvent from '@/pages/owner/UploadEvent';
 import OwnerDeals from '@/pages/owner/Deals';
+import OwnerTrackBookings from '@/pages/owner/TrackBookings';
 import OwnerSettings from '@/pages/owner/Settings';
-import Analytics from '@/pages/owner/Analytics';
-import TrackBookings from '@/pages/owner/TrackBookings';
+
+// User pages
+import UserDashboard from '@/pages/user/AIAssistant';
+import UserMyBookings from '@/pages/user/MyBookings';
 
 // Admin pages
 import AdminDashboard from '@/pages/admin/Dashboard';
-import AdminUsers from '@/pages/admin/AdminUsers';
-import ManageRestaurants from '@/pages/admin/ManageRestaurants';
-import Reports from '@/pages/admin/Reports';
-import AdminSettings from '@/pages/admin/Settings';
-import Notifications from '@/pages/admin/Notifications';
-import ControlPanel from '@/pages/admin/ControlPanel';
-import AdminAuth from '@/pages/admin/AdminAuth';
-import AdminRedirect from '@/pages/admin/AdminRedirect';
-import MediaManagement from '@/pages/admin/MediaManagement';
 
-import NotFound from '@/pages/NotFound';
-
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 1000 * 60 * 5, // 5 minutes
-      gcTime: 1000 * 60 * 10, // 10 minutes
-    },
-  },
-});
+const queryClient = new QueryClient();
 
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <Router>
-          <div className="min-h-screen bg-[#FFF5E1]">
+          <div className="App">
             <Routes>
-              {/* Public routes */}
+              {/* Public Routes */}
               <Route path="/" element={<Home />} />
               <Route path="/discovery" element={<Discovery />} />
               <Route path="/dining" element={<Dining />} />
@@ -88,287 +49,30 @@ function App() {
               <Route path="/ai-assistant" element={<AIAssistant />} />
               <Route path="/3d-preview" element={<ThreeDPreview />} />
               <Route path="/partner-with-us" element={<PartnerWithUs />} />
-              
-              <Route path="/auth" element={<Auth />} />
-              <Route path="/auth/login" element={<Auth />} />
-              <Route path="/auth/signup" element={<Auth />} />
-              <Route path="/auth/callback" element={<AuthCallback />} />
-              <Route path="/auth/complete-profile" element={<CompleteProfile />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/features" element={<Features />} />
               <Route path="/contact" element={<Contact />} />
-              <Route path="/quick-links" element={<QuickLinks />} />
-              <Route path="/for-business" element={<ForBusiness />} />
-              <Route path="/media" element={<Media />} />
-              <Route path="/our-story" element={<OurStory />} />
+              <Route path="/auth/*" element={<Auth />} />
 
-              {/* User routes */}
-              <Route
-                path="/user/dashboard"
-                element={
-                  <ProtectedRoute allowedRoles={['authenticated']}>
-                    <MyBookings />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/user/my-bookings"
-                element={
-                  <ProtectedRoute allowedRoles={['authenticated']}>
-                    <MyBookings />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/user/featured-restaurants"
-                element={
-                  <ProtectedRoute allowedRoles={['authenticated']}>
-                    <FeaturedRestaurants />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/user/trending-dishes"
-                element={
-                  <ProtectedRoute allowedRoles={['authenticated']}>
-                    <TrendingDishes />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/user/curated-plans"
-                element={
-                  <ProtectedRoute allowedRoles={['authenticated']}>
-                    <CuratedPlans />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/user/event-planning"
-                element={
-                  <ProtectedRoute allowedRoles={['authenticated']}>
-                    <EventPlanning />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/user/restaurant/:id"
-                element={
-                  <ProtectedRoute allowedRoles={['authenticated']}>
-                    <div className="min-h-screen flex items-center justify-center bg-[#FFF5E1]">
-                      <div className="text-center text-[#0C0C0C]">
-                        <h1 className="text-2xl font-bold mb-4">Restaurant Details</h1>
-                        <p>Restaurant details page coming soon...</p>
-                      </div>
-                    </div>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/user/planning"
-                element={
-                  <ProtectedRoute allowedRoles={['authenticated']}>
-                    <Planning />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/user/upcoming"
-                element={
-                  <ProtectedRoute allowedRoles={['authenticated']}>
-                    <UpcomingEvents />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/user/deals"
-                element={
-                  <ProtectedRoute allowedRoles={['authenticated']}>
-                    <Deals />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/user/bookings"
-                element={
-                  <ProtectedRoute allowedRoles={['authenticated']}>
-                    <Bookings />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/user/settings"
-                element={
-                  <ProtectedRoute allowedRoles={['authenticated']}>
-                    <UserSettings />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/user/reservation"
-                element={
-                  <ProtectedRoute allowedRoles={['authenticated']}>
-                    <Reservation />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/user/make-reservation"
-                element={
-                  <ProtectedRoute allowedRoles={['authenticated']}>
-                    <MakeReservation />
-                  </ProtectedRoute>
-                }
-              />
+              {/* Owner Routes */}
+              <Route path="/owner/dashboard" element={<OwnerDashboard />} />
+              <Route path="/owner/analytics" element={<OwnerAnalytics />} />
+              <Route path="/owner/upload-event" element={<OwnerUploadEvent />} />
+              <Route path="/owner/deals" element={<OwnerDeals />} />
+              <Route path="/owner/track-bookings" element={<OwnerTrackBookings />} />
+              <Route path="/owner/settings" element={<OwnerSettings />} />
 
-              {/* Owner routes */}
-              <Route
-                path="/owner/dashboard"
-                element={
-                  <ProtectedRoute allowedRoles={['business_owner']}>
-                    <OwnerDashboard />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/owner/list-restaurant"
-                element={
-                  <ProtectedRoute allowedRoles={['business_owner']}>
-                    <ListRestaurant />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/owner/restaurant-dashboard"
-                element={
-                  <ProtectedRoute allowedRoles={['business_owner']}>
-                    <RestaurantDashboard />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/owner/register-restaurant"
-                element={
-                  <ProtectedRoute allowedRoles={['business_owner']}>
-                    <RegisterRestaurant />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/owner/upload-event"
-                element={
-                  <ProtectedRoute allowedRoles={['business_owner']}>
-                    <UploadEvent />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/owner/deals"
-                element={
-                  <ProtectedRoute allowedRoles={['business_owner']}>
-                    <OwnerDeals />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/owner/settings"
-                element={
-                  <ProtectedRoute allowedRoles={['business_owner']}>
-                    <OwnerSettings />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/analytics"
-                element={
-                  <ProtectedRoute allowedRoles={['business_owner']}>
-                    <Analytics />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/owner/track-bookings"
-                element={
-                  <ProtectedRoute allowedRoles={['business_owner']}>
-                    <TrackBookings />
-                  </ProtectedRoute>
-                }
-              />
+              {/* User Routes */}
+              <Route path="/user/dashboard" element={<UserDashboard />} />
+              <Route path="/user/my-bookings" element={<UserMyBookings />} />
 
-              {/* Admin routes */}
-              <Route
-                path="/admin/dashboard"
-                element={
-                  <ProtectedRoute allowedRoles={['admin']}>
-                    <AdminDashboard />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/admin/users"
-                element={
-                  <ProtectedRoute allowedRoles={['admin']}>
-                    <AdminUsers />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/admin/restaurants"
-                element={
-                  <ProtectedRoute allowedRoles={['admin']}>
-                    <ManageRestaurants />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/admin/reports"
-                element={
-                  <ProtectedRoute allowedRoles={['admin']}>
-                    <Reports />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/admin/settings"
-                element={
-                  <ProtectedRoute allowedRoles={['admin']}>
-                    <AdminSettings />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/admin/notifications"
-                element={
-                  <ProtectedRoute allowedRoles={['admin']}>
-                    <Notifications />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/control"
-                element={
-                  <ProtectedRoute allowedRoles={['admin']}>
-                    <ControlPanel />
-                  </ProtectedRoute>
-                }
-              />
-              <Route path="/admin-auth" element={<AdminAuth />} />
-              <Route path="/admin-redirect" element={<AdminRedirect />} />
-              <Route
-                path="/admin/media-management"
-                element={
-                  <ProtectedRoute allowedRoles={['admin']}>
-                    <MediaManagement />
-                  </ProtectedRoute>
-                }
-              />
+              {/* Admin Routes */}
+              <Route path="/admin/dashboard" element={<AdminDashboard />} />
 
-              {/* 404 route - must be last */}
+              {/* Catch all route */}
               <Route path="*" element={<NotFound />} />
             </Routes>
+            <Toaster />
           </div>
         </Router>
-        <Toaster />
       </AuthProvider>
     </QueryClientProvider>
   );
