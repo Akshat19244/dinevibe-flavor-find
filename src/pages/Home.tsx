@@ -1,215 +1,231 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import Navbar from '@/components/ui/navbar';
-import Footer from '@/components/ui/footer';
-import HeroSection from '@/components/home/hero-section';
-import FeaturedSection from '@/components/home/featured-section';
-import { useAuth } from '@/contexts/AuthContext';
+import Navbar from '@/components/layout/Navbar';
+import Footer from '@/components/layout/Footer';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Star, Users, Calendar, Sparkles, Eye, ChefHat } from 'lucide-react';
 
 const Home: React.FC = () => {
-  const { user } = useAuth();
-
-  // Top-rated restaurants (>4.2 stars) for homepage display
-  const topRatedRestaurants = [
+  const topRestaurants = [
     {
       id: '1',
-      name: 'Bella Italia Ristorante',
-      imageUrl: 'https://images.unsplash.com/photo-1551218808-94e220e084d2?q=80&w=1000',
-      cuisine: 'Italian',
-      rating: 4.7,
-      priceRange: '₹₹₹',
-      location: 'Bandra West, Mumbai',
-      isNew: false,
-      hasDeals: true,
-      waitTime: 15
+      name: 'The Royal Feast',
+      image: 'https://images.unsplash.com/photo-1551218808-94e220e084d2?q=80&w=400',
+      cuisine: 'Multi-Cuisine',
+      rating: 4.8,
+      location: 'Mumbai',
+      price: '₹₹₹₹'
     },
     {
       id: '2',
-      name: 'Spice Garden',
-      imageUrl: 'https://images.unsplash.com/photo-1585937421612-70a008356fbe?q=80&w=1000',
+      name: 'Spice Symphony',
+      image: 'https://images.unsplash.com/photo-1585937421612-70a008356fbe?q=80&w=400',
       cuisine: 'Indian',
-      rating: 4.5,
-      priceRange: '₹₹',
-      location: 'Juhu, Mumbai',
-      isNew: true,
-      hasDeals: false,
-      waitTime: 8
+      rating: 4.6,
+      location: 'Delhi',
+      price: '₹₹₹'
     },
     {
       id: '3',
-      name: 'Sakura Sushi',
-      imageUrl: 'https://images.unsplash.com/photo-1579584425555-c3ce17fd4351?q=80&w=1000',
-      cuisine: 'Japanese',
-      rating: 4.6,
-      priceRange: '₹₹₹₹',
-      location: 'Lower Parel, Mumbai',
-      isNew: false,
-      hasDeals: false,
-      waitTime: 25
-    },
-    {
-      id: '4',
-      name: 'The Royal Feast',
-      imageUrl: 'https://images.unsplash.com/photo-1514933651103-005eec06c04b?q=80&w=1000',
-      cuisine: 'Multi-Cuisine',
-      rating: 4.8,
-      priceRange: '₹₹₹₹',
-      location: 'Andheri East, Mumbai',
-      isNew: false,
-      hasDeals: true,
-      waitTime: 0
-    },
-    {
-      id: '5',
-      name: 'Mumbai Darbar',
-      imageUrl: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=1000',
-      cuisine: 'North Indian',
-      rating: 4.4,
-      priceRange: '₹₹₹',
-      location: 'Colaba, Mumbai',
-      isNew: false,
-      hasDeals: true,
-      waitTime: 12
-    },
-    {
-      id: '6',
-      name: 'Coastal Breeze',
-      imageUrl: 'https://images.unsplash.com/photo-1559339352-11d035aa65de?q=80&w=1000',
-      cuisine: 'Seafood',
-      rating: 4.3,
-      priceRange: '₹₹₹',
-      location: 'Worli, Mumbai',
-      isNew: true,
-      hasDeals: false,
-      waitTime: 5
-    }
-  ];
-
-  // Filter only restaurants with rating > 4.2
-  const premiumRestaurants = topRatedRestaurants.filter(restaurant => restaurant.rating > 4.2);
-
-  const trendingEvents = [
-    {
-      id: 'wedding1',
-      name: 'Royal Wedding Package',
-      imageUrl: 'https://images.unsplash.com/photo-1519167758481-83f29c2c47bf?q=80&w=1000',
-      cuisine: 'Wedding Planning',
-      rating: 4.9,
-      priceRange: '₹₹₹₹',
-      location: 'Multiple Venues',
-      isNew: true,
-      hasDeals: true
-    },
-    {
-      id: 'reception1',
-      name: 'Garden Reception Setup',
-      imageUrl: 'https://images.unsplash.com/photo-1464207687429-7505649dae38?q=80&w=1000',
-      cuisine: 'Reception Planning',
+      name: 'Golden Terrace',
+      image: 'https://images.unsplash.com/photo-1579584425555-c3ce17fd4351?q=80&w=400',
+      cuisine: 'Continental',
       rating: 4.7,
-      priceRange: '₹₹₹',
-      location: 'Garden Venues',
-      isNew: false,
-      hasDeals: false
-    },
-    {
-      id: 'corporate1',
-      name: 'Corporate Event Packages',
-      imageUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1000',
-      cuisine: 'Corporate Events',
-      rating: 4.6,
-      priceRange: '₹₹₹',
-      location: 'Business Hotels',
-      isNew: false,
-      hasDeals: true
-    },
-    {
-      id: 'birthday1',
-      name: 'Birthday Celebration Themes',
-      imageUrl: 'https://images.unsplash.com/photo-1464207687429-7505649dae38?q=80&w=1000',
-      cuisine: 'Birthday Planning',
-      rating: 4.5,
-      priceRange: '₹₹',
-      location: 'Party Venues',
-      isNew: true,
-      hasDeals: true
+      location: 'Bangalore',
+      price: '₹₹₹₹'
     }
   ];
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Navbar 
-        userType={user ? (user.user_metadata?.userType || 'customer') : null}
-        userName={user?.user_metadata?.name}
-      />
+    <div className="min-h-screen flex flex-col bg-[#FFF5E1]">
+      <Navbar />
       
       <main className="flex-grow">
-        <HeroSection />
-        
-        <div className="bg-[#2E3A59] text-white">
-          <FeaturedSection
-            title="Top Rated Restaurants"
-            subtitle="Discover premium restaurants with ratings above 4.2 stars - personally verified and customer approved"
-            viewAllLink="/user/featured-restaurants"
-            restaurants={premiumRestaurants}
-          />
-          
-          <FeaturedSection
-            title="Trending Events"
-            subtitle="Popular event planning packages curated by our AI - from intimate gatherings to grand celebrations"
-            viewAllLink="/user/event-planning"
-            restaurants={trendingEvents}
-          />
-        </div>
-
-        {/* Quick Access Section */}
-        <div className="bg-[#FDF5E6] py-16">
-          <div className="container mx-auto px-4 text-center">
-            <h2 className="text-3xl font-bold text-[#2E3A59] mb-8">Quick Access</h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-              <Link to="/user/featured-restaurants" className="p-6 bg-white rounded-lg shadow-sm hover:shadow-md hover:bg-[#FF6F61]/5 transition-all duration-300 border border-[#FF6F61]/20">
-                <div className="text-2xl mb-2">🍽️</div>
-                <h3 className="font-semibold text-[#2E3A59]">Featured Restaurants</h3>
+        {/* Hero Section */}
+        <div className="hero-gradient min-h-[80vh] flex items-center justify-center text-center px-4">
+          <div className="max-w-4xl mx-auto">
+            <h1 className="text-5xl md:text-7xl font-bold text-[#FFF5E1] mb-6 animate-fade-in">
+              Luxury Dining & 
+              <span className="text-[#D4AF37]"> Events</span>
+            </h1>
+            <p className="text-xl md:text-2xl text-[#FFF5E1]/90 mb-8 animate-slide-in">
+              Experience premium dining and create unforgettable events with AI-powered planning
+            </p>
+            
+            <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in">
+              <Link to="/dining">
+                <Button className="btn-primary text-lg px-8 py-4">
+                  <ChefHat className="mr-2 h-5 w-5" />
+                  Book Your Table
+                </Button>
               </Link>
-              <Link to="/user/trending-dishes" className="p-6 bg-white rounded-lg shadow-sm hover:shadow-md hover:bg-[#FF6F61]/5 transition-all duration-300 border border-[#FF6F61]/20">
-                <div className="text-2xl mb-2">🔥</div>
-                <h3 className="font-semibold text-[#2E3A59]">Trending Dishes</h3>
+              <Link to="/events">
+                <Button className="btn-secondary text-lg px-8 py-4">
+                  <Calendar className="mr-2 h-5 w-5" />
+                  Plan Event
+                </Button>
               </Link>
-              <Link to="/user/curated-plans" className="p-6 bg-white rounded-lg shadow-sm hover:shadow-md hover:bg-[#FF6F61]/5 transition-all duration-300 border border-[#FF6F61]/20">
-                <div className="text-2xl mb-2">✨</div>
-                <h3 className="font-semibold text-[#2E3A59]">Curated Plans</h3>
-              </Link>
-              <Link to="/user/event-planning" className="p-6 bg-white rounded-lg shadow-sm hover:shadow-md hover:bg-[#FF6F61]/5 transition-all duration-300 border border-[#FF6F61]/20">
-                <div className="text-2xl mb-2">🎉</div>
-                <h3 className="font-semibold text-[#2E3A59]">Event Planning</h3>
+              <Link to="/discovery">
+                <Button variant="outline" className="text-[#FFF5E1] border-[#FFF5E1] hover:bg-[#FFF5E1] hover:text-[#0C0C0C] text-lg px-8 py-4">
+                  <Eye className="mr-2 h-5 w-5" />
+                  Explore Venues
+                </Button>
               </Link>
             </div>
           </div>
         </div>
+
+        {/* Top Rated Restaurants */}
+        <section className="py-16 bg-[#FFF5E1]">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-12">
+              <h2 className="text-4xl font-bold text-[#0C0C0C] mb-4">Top Rated Restaurants</h2>
+              <p className="text-lg text-[#2F2F2F] max-w-2xl mx-auto">
+                Discover premium restaurants with ratings above 4.5 stars - personally verified and guest approved
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {topRestaurants.map((restaurant) => (
+                <Card key={restaurant.id} className="card-luxury overflow-hidden">
+                  <div className="relative">
+                    <img 
+                      src={restaurant.image} 
+                      alt={restaurant.name}
+                      className="w-full h-48 object-cover"
+                    />
+                    <div className="absolute top-4 right-4 bg-[#8B0000] text-[#FFF5E1] px-2 py-1 rounded-full text-sm font-semibold">
+                      {restaurant.price}
+                    </div>
+                  </div>
+                  <CardHeader>
+                    <CardTitle className="text-[#0C0C0C]">{restaurant.name}</CardTitle>
+                    <div className="flex items-center justify-between">
+                      <span className="text-[#2F2F2F]">{restaurant.cuisine}</span>
+                      <div className="flex items-center">
+                        <Star className="h-4 w-4 text-[#D4AF37] fill-current" />
+                        <span className="ml-1 font-semibold">{restaurant.rating}</span>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-[#2F2F2F] mb-4">{restaurant.location}</p>
+                    <Link to={`/restaurant/${restaurant.id}`}>
+                      <Button className="w-full btn-primary">View Details</Button>
+                    </Link>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+            
+            <div className="text-center mt-8">
+              <Link to="/discovery">
+                <Button className="btn-secondary">View All Restaurants</Button>
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* AI Assistant Preview */}
+        <section className="py-16 bg-[#0C0C0C]">
+          <div className="container mx-auto px-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+              <div>
+                <h2 className="text-4xl font-bold text-[#FFF5E1] mb-6">AI-Powered Event Planning</h2>
+                <p className="text-lg text-[#FFF5E1]/80 mb-8">
+                  Let our advanced AI assistant help you plan the perfect event. From venue selection to menu curation, 
+                  get personalized recommendations based on your preferences, budget, and guest count.
+                </p>
+                <div className="space-y-4 mb-8">
+                  <div className="flex items-center space-x-3">
+                    <Sparkles className="h-5 w-5 text-[#D4AF37]" />
+                    <span className="text-[#FFF5E1]">Smart venue matching based on your requirements</span>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <Users className="h-5 w-5 text-[#D4AF37]" />
+                    <span className="text-[#FFF5E1]">Optimized for guest count and budget</span>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <Calendar className="h-5 w-5 text-[#D4AF37]" />
+                    <span className="text-[#FFF5E1]">Real-time availability and instant booking</span>
+                  </div>
+                </div>
+                <Link to="/ai-assistant">
+                  <Button className="btn-secondary">Try AI Assistant</Button>
+                </Link>
+              </div>
+              <div className="relative">
+                <div className="bg-[#2F2F2F] rounded-lg p-6 border border-[#D4AF37]">
+                  <div className="flex items-center space-x-2 mb-4">
+                    <Sparkles className="h-5 w-5 text-[#D4AF37]" />
+                    <span className="text-[#D4AF37] font-semibold">AI Assistant</span>
+                  </div>
+                  <p className="text-[#FFF5E1] text-sm">
+                    "Based on your requirements for a wedding with 150 guests and a budget of ₹5,00,000, 
+                    I recommend The Royal Gardens venue with their premium package..."
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Quick Search */}
+        <section className="py-16 bg-[#FFF5E1]">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-12">
+              <h2 className="text-4xl font-bold text-[#0C0C0C] mb-4">Find Your Perfect Experience</h2>
+              <p className="text-lg text-[#2F2F2F]">Quick access to our most popular categories</p>
+            </div>
+            
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+              <Link to="/dining" className="card-luxury p-6 text-center">
+                <ChefHat className="h-12 w-12 text-[#8B0000] mx-auto mb-4" />
+                <h3 className="font-semibold text-[#0C0C0C] mb-2">Fine Dining</h3>
+                <p className="text-sm text-[#2F2F2F]">Premium restaurants</p>
+              </Link>
+              <Link to="/events" className="card-luxury p-6 text-center">
+                <Calendar className="h-12 w-12 text-[#8B0000] mx-auto mb-4" />
+                <h3 className="font-semibold text-[#0C0C0C] mb-2">Events</h3>
+                <p className="text-sm text-[#2F2F2F]">Banquet halls</p>
+              </Link>
+              <Link to="/ai-assistant" className="card-luxury p-6 text-center">
+                <Sparkles className="h-12 w-12 text-[#8B0000] mx-auto mb-4" />
+                <h3 className="font-semibold text-[#0C0C0C] mb-2">AI Assistant</h3>
+                <p className="text-sm text-[#2F2F2F]">Smart planning</p>
+              </Link>
+              <Link to="/3d-preview" className="card-luxury p-6 text-center">
+                <Eye className="h-12 w-12 text-[#8B0000] mx-auto mb-4" />
+                <h3 className="font-semibold text-[#0C0C0C] mb-2">3D Preview</h3>
+                <p className="text-sm text-[#2F2F2F]">Virtual tours</p>
+              </Link>
+            </div>
+          </div>
+        </section>
 
         {/* CTA Section */}
-        <div className="bg-gradient-to-r from-[#2E3A59] to-[#FF6F61] py-16">
+        <section className="py-16 bg-gradient-to-r from-[#8B0000] to-[#D4AF37]">
           <div className="container mx-auto px-4 text-center">
-            <h2 className="text-3xl font-bold text-white mb-4">Ready to Start Your Culinary Journey?</h2>
-            <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
-              Join thousands of food lovers and event planners who trust DineVibe for their perfect dining experiences.
+            <h2 className="text-4xl font-bold text-[#FFF5E1] mb-4">Ready to Create Magic?</h2>
+            <p className="text-xl text-[#FFF5E1]/90 mb-8 max-w-2xl mx-auto">
+              Join thousands of satisfied customers who trust DineVibe for their perfect dining and event experiences.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link 
-                to="/user/discovery" 
-                className="bg-white text-[#2E3A59] px-8 py-3 rounded-lg font-semibold hover:bg-[#FDF5E6] transition-colors"
-              >
-                Discover Restaurants
+              <Link to="/discovery">
+                <Button className="bg-[#FFF5E1] text-[#0C0C0C] hover:bg-[#FFF5E1]/90 px-8 py-3">
+                  Explore Venues
+                </Button>
               </Link>
-              <Link 
-                to="/partner-with-us" 
-                className="bg-transparent border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-[#2E3A59] transition-colors"
-              >
-                Partner With Us
+              <Link to="/partner-with-us">
+                <Button variant="outline" className="border-[#FFF5E1] text-[#FFF5E1] hover:bg-[#FFF5E1] hover:text-[#0C0C0C] px-8 py-3">
+                  Become a Partner
+                </Button>
               </Link>
             </div>
           </div>
-        </div>
+        </section>
       </main>
       
       <Footer />

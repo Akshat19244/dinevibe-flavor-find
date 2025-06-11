@@ -1,328 +1,260 @@
 
 import React, { useState } from 'react';
-import Navbar from '@/components/ui/navbar';
-import Footer from '@/components/ui/footer';
+import Navbar from '@/components/layout/Navbar';
+import Footer from '@/components/layout/Footer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import Preview3D from '@/components/ui/3d-preview';
-import { 
-  Camera, 
-  Eye, 
-  Upload, 
-  Zap, 
-  Clock, 
-  CheckCircle,
-  Play,
-  Download,
-  Maximize2,
-  RotateCcw
-} from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Eye, RotateCcw, ZoomIn, ZoomOut, Move, Camera, Maximize } from 'lucide-react';
 
 const ThreeDPreview: React.FC = () => {
-  const [activeDemo, setActiveDemo] = useState<string>('banquet');
+  const [selectedVenue, setSelectedVenue] = useState('');
+  const [selectedLayout, setSelectedLayout] = useState('');
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
-  const supportedVenues = [
-    {
-      type: "Indoor Banquet Halls",
-      description: "Air-conditioned halls perfect for weddings and receptions",
-      capacity: "100-1000 guests",
-      features: ["Professional lighting", "Sound systems", "Kitchen facilities", "Parking"],
-      sampleImage: "https://images.unsplash.com/photo-1519167758481-83f29c2c47bf"
-    },
-    {
-      type: "Open Garden Venues", 
-      description: "Beautiful outdoor spaces for natural, airy celebrations",
-      capacity: "50-500 guests",
-      features: ["Natural lighting", "Landscaped gardens", "Weather contingency", "Outdoor bar"],
-      sampleImage: "https://images.unsplash.com/photo-1464207687429-7505649dae38"
-    },
-    {
-      type: "Rooftop Locations",
-      description: "Spectacular city views for memorable events",
-      capacity: "30-300 guests", 
-      features: ["Panoramic views", "Sky dining", "Private access", "Sunset timing"],
-      sampleImage: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d"
-    },
-    {
-      type: "Beach/Waterfront",
-      description: "Seaside venues for romantic and unique celebrations",
-      capacity: "20-200 guests",
-      features: ["Ocean views", "Natural acoustics", "Tidal timing", "Coastal catering"],
-      sampleImage: "https://images.unsplash.com/photo-1514933651103-005eec06c04b"
-    }
+  const venues = [
+    { value: 'royal-garden', label: 'Royal Garden Palace', type: 'Garden Venue' },
+    { value: 'grand-banquet', label: 'Grand Banquet Hall', type: 'Banquet Hall' },
+    { value: 'luxury-resort', label: 'Luxury Resort', type: 'Resort' },
+    { value: 'heritage-hotel', label: 'Heritage Hotel', type: 'Hotel' }
   ];
 
-  const techStack = [
-    {
-      name: "Gaussian Splatting",
-      description: "Advanced 3D reconstruction from 2D images with photorealistic quality",
-      accuracy: "92%",
-      purpose: "Core 3D modeling engine"
-    },
-    {
-      name: "Luma AI",
-      description: "NeRF-based scene reconstruction for complex lighting and materials",
-      accuracy: "89%", 
-      purpose: "Lighting & texture optimization"
-    },
-    {
-      name: "Nerfstudio",
-      description: "Neural radiance fields for immersive walkthrough experiences",
-      accuracy: "91%",
-      purpose: "Interactive navigation"
-    },
-    {
-      name: "Three.js",
-      description: "WebGL-powered real-time rendering in the browser",
-      accuracy: "95%",
-      purpose: "Real-time visualization"
-    }
+  const layouts = [
+    { value: 'wedding', label: 'Wedding Setup' },
+    { value: 'conference', label: 'Conference Layout' },
+    { value: 'birthday', label: 'Birthday Party' },
+    { value: 'corporate', label: 'Corporate Event' }
   ];
 
-  const process = [
-    {
-      step: 1,
-      title: "Photo Upload",
-      description: "Upload 3-5 clear photos: front view, side angles, and top-down perspective",
-      icon: Upload,
-      requirements: ["High resolution (min 1080p)", "Good lighting", "Multiple angles", "Clear visibility"]
-    },
-    {
-      step: 2, 
-      title: "AI Processing",
-      description: "Our AI analyzes spatial relationships, lighting, and architectural features",
-      icon: Zap,
-      requirements: ["Depth mapping", "Feature extraction", "Lighting analysis", "Scale calibration"]
-    },
-    {
-      step: 3,
-      title: "3D Generation", 
-      description: "Advanced algorithms create a photorealistic 3D model with accurate proportions",
-      icon: Eye,
-      requirements: ["Geometry reconstruction", "Texture mapping", "Material properties", "Lighting setup"]
-    },
-    {
-      step: 4,
-      title: "Interactive Preview",
-      description: "Experience your venue in immersive 3D with walkthrough capabilities",
-      icon: Play,
-      requirements: ["Real-time rendering", "Interactive controls", "Multiple viewpoints", "Export options"]
-    }
+  const controls = [
+    { icon: RotateCcw, label: 'Rotate View' },
+    { icon: ZoomIn, label: 'Zoom In' },
+    { icon: ZoomOut, label: 'Zoom Out' },
+    { icon: Move, label: 'Move Around' },
+    { icon: Camera, label: 'Screenshot' },
+    { icon: Maximize, label: 'Fullscreen' }
   ];
-
-  const demoVenues = {
-    banquet: {
-      title: "Crystal Palace Banquet Hall",
-      description: "500-guest capacity with traditional Indian architecture",
-      image: "https://images.unsplash.com/photo-1519167758481-83f29c2c47bf",
-      features: ["Chandeliers", "Marble floors", "Gold accents", "Stage area"],
-      accuracy: "94%"
-    },
-    garden: {
-      title: "Serenity Garden Venue",
-      description: "300-guest outdoor space with natural landscaping", 
-      image: "https://images.unsplash.com/photo-1464207687429-7505649dae38",
-      features: ["Lawn area", "Tree lighting", "Water features", "Gazebo"],
-      accuracy: "91%"
-    },
-    rooftop: {
-      title: "Skyline Rooftop Lounge",
-      description: "200-guest rooftop with panoramic city views",
-      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d", 
-      features: ["City skyline", "Glass railings", "LED lighting", "Bar area"],
-      accuracy: "89%"
-    }
-  };
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-[#FFF5E1]">
       <Navbar />
       
       <main className="flex-grow">
-        {/* Hero Section */}
-        <div className="bg-gradient-to-r from-blue-600 to-blue-800 py-16">
+        {/* Header */}
+        <div className="bg-[#0C0C0C] py-16">
           <div className="container mx-auto px-4 text-center">
-            <h1 className="text-4xl font-bold text-white mb-4">
-              3D Venue Preview Technology
+            <h1 className="text-4xl md:text-5xl font-bold text-[#FFF5E1] mb-4">
+              <Eye className="inline mr-3 h-12 w-12 text-[#D4AF37]" />
+              3D Venue Preview
             </h1>
-            <p className="text-xl text-white/90 max-w-3xl mx-auto mb-6">
-              Revolutionary 3D modeling that transforms your venue photos into immersive virtual experiences. 
-              See your event space before you book it.
+            <p className="text-xl text-[#FFF5E1]/90 max-w-2xl mx-auto">
+              Experience your event venue in immersive 3D before booking
             </p>
-            <div className="flex items-center justify-center gap-6 text-sm">
-              <Badge className="bg-white/20 text-white">3-5 Photos Required</Badge>
-              <Badge className="bg-white/20 text-white">89-95% Visual Accuracy</Badge>
-              <Badge className="bg-white/20 text-white">Real-time Rendering</Badge>
-            </div>
           </div>
         </div>
 
         <div className="container mx-auto px-4 py-12">
-          {/* Interactive Demo */}
-          <section className="mb-16">
-            <h2 className="text-3xl font-bold text-center mb-8">Experience 3D Venue Previews</h2>
-            <Tabs value={activeDemo} onValueChange={setActiveDemo} className="w-full">
-              <TabsList className="grid w-full grid-cols-3 mb-8">
-                <TabsTrigger value="banquet">Banquet Hall</TabsTrigger>
-                <TabsTrigger value="garden">Garden Venue</TabsTrigger>
-                <TabsTrigger value="rooftop">Rooftop Space</TabsTrigger>
-              </TabsList>
-              
-              {Object.entries(demoVenues).map(([key, venue]) => (
-                <TabsContent key={key} value={key}>
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <div>
-                      <Preview3D
-                        title={`3D Preview: ${venue.title}`}
-                        imageUrl={venue.image}
-                        description={`${venue.description} - Generated with ${venue.accuracy} accuracy`}
-                        onFullscreen={() => console.log(`Opening ${venue.title} in fullscreen`)}
-                      />
+          {/* Venue Selection */}
+          <Card className="card-luxury mb-8">
+            <CardHeader>
+              <CardTitle className="text-[#0C0C0C]">Select Venue & Layout</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <Select value={selectedVenue} onValueChange={setSelectedVenue}>
+                  <SelectTrigger className="border-[#D4AF37]">
+                    <SelectValue placeholder="Choose a venue" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {venues.map((venue) => (
+                      <SelectItem key={venue.value} value={venue.value}>
+                        {venue.label} ({venue.type})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                
+                <Select value={selectedLayout} onValueChange={setSelectedLayout}>
+                  <SelectTrigger className="border-[#D4AF37]">
+                    <SelectValue placeholder="Select layout style" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {layouts.map((layout) => (
+                      <SelectItem key={layout.value} value={layout.value}>
+                        {layout.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                
+                <Button className="btn-primary">
+                  Load 3D Preview
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            {/* 3D Viewer */}
+            <div className="lg:col-span-3">
+              <Card className="card-luxury">
+                <CardHeader>
+                  <CardTitle className="text-[#0C0C0C] flex items-center justify-between">
+                    <span>3D Venue Walkthrough</span>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => setIsFullscreen(!isFullscreen)}
+                      className="border-[#8B0000] text-[#8B0000] hover:bg-[#8B0000] hover:text-[#FFF5E1]"
+                    >
+                      <Maximize className="h-4 w-4" />
+                    </Button>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="relative bg-gradient-to-br from-[#2F2F2F] to-[#0C0C0C] rounded-lg aspect-video flex items-center justify-center overflow-hidden">
+                    {/* 3D Viewer Placeholder */}
+                    <div className="text-center text-[#FFF5E1]">
+                      <Eye className="h-16 w-16 mx-auto mb-4 text-[#D4AF37]" />
+                      <h3 className="text-xl font-semibold mb-2">Interactive 3D Preview</h3>
+                      <p className="text-[#FFF5E1]/80">
+                        {selectedVenue ? 
+                          `Loading ${venues.find(v => v.value === selectedVenue)?.label}...` : 
+                          'Select a venue to start the 3D preview'
+                        }
+                      </p>
                     </div>
-                    <div className="space-y-6">
-                      <div>
-                        <h3 className="text-xl font-bold mb-2">{venue.title}</h3>
-                        <p className="text-slate-600 mb-4">{venue.description}</p>
-                        <Badge className="bg-green-100 text-green-600 mb-4">
-                          Visual Accuracy: {venue.accuracy}
-                        </Badge>
-                      </div>
-                      
-                      <div>
-                        <h4 className="font-semibold mb-3">Key Features Captured:</h4>
-                        <div className="grid grid-cols-2 gap-2">
-                          {venue.features.map((feature, idx) => (
-                            <div key={idx} className="flex items-center gap-2">
-                              <CheckCircle className="h-4 w-4 text-green-500" />
-                              <span className="text-sm">{feature}</span>
-                            </div>
-                          ))}
+                    
+                    {/* Sample 3D Environment */}
+                    {selectedVenue && (
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#8B0000]/20 to-transparent">
+                        <div className="absolute bottom-4 left-4 text-[#FFF5E1]">
+                          <div className="bg-[#0C0C0C]/70 p-3 rounded">
+                            <p className="text-sm font-medium">
+                              {venues.find(v => v.value === selectedVenue)?.label}
+                            </p>
+                            <p className="text-xs text-[#D4AF37]">
+                              {layouts.find(l => l.value === selectedLayout)?.label || 'Default Layout'}
+                            </p>
+                          </div>
                         </div>
                       </div>
-                      
-                      <div className="flex gap-3">
-                        <Button className="bg-blue-600 hover:bg-blue-700">
-                          <Maximize2 className="h-4 w-4 mr-2" />
-                          Full Screen Tour
-                        </Button>
-                        <Button variant="outline">
-                          <Download className="h-4 w-4 mr-2" />
-                          Download Preview
-                        </Button>
-                      </div>
-                    </div>
+                    )}
                   </div>
-                </TabsContent>
-              ))}
-            </Tabs>
-          </section>
-
-          {/* How It Works */}
-          <section className="mb-16">
-            <h2 className="text-3xl font-bold text-center mb-8">How 3D Preview Generation Works</h2>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-              {process.map((step, index) => (
-                <Card key={index} className="text-center hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <step.icon className="h-8 w-8 text-blue-600" />
-                    </div>
-                    <CardTitle className="text-lg">Step {step.step}</CardTitle>
-                    <h3 className="font-semibold text-blue-600">{step.title}</h3>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-slate-600 mb-4">{step.description}</p>
-                    <div className="space-y-1">
-                      {step.requirements.map((req, idx) => (
-                        <div key={idx} className="text-xs text-slate-500 flex items-center gap-1">
-                          <CheckCircle className="h-3 w-3 text-green-500" />
-                          {req}
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </section>
-
-          {/* Technology Stack */}
-          <section className="mb-16 bg-slate-50 rounded-xl p-8">
-            <h2 className="text-3xl font-bold text-center mb-8">Underlying Technology</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {techStack.map((tech, index) => (
-                <Card key={index}>
-                  <CardHeader>
-                    <CardTitle className="text-lg">{tech.name}</CardTitle>
-                    <Badge className="bg-blue-100 text-blue-600 w-fit">
-                      {tech.accuracy} accurate
-                    </Badge>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-slate-600 text-sm mb-3">{tech.description}</p>
-                    <div className="text-xs text-blue-600 font-medium">{tech.purpose}</div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </section>
-
-          {/* Supported Venues */}
-          <section className="mb-16">
-            <h2 className="text-3xl font-bold text-center mb-8">Supported Venue Types</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {supportedVenues.map((venue, index) => (
-                <Card key={index} className="overflow-hidden hover:shadow-lg transition-shadow">
-                  <div className="relative">
-                    <img 
-                      src={venue.sampleImage} 
-                      alt={venue.type}
-                      className="w-full h-48 object-cover"
-                    />
-                    <Badge className="absolute top-3 right-3 bg-blue-600 text-white">
-                      {venue.capacity}
-                    </Badge>
+                  
+                  {/* Control Bar */}
+                  <div className="flex items-center justify-center space-x-2 mt-4 p-3 bg-[#2F2F2F]/10 rounded-lg">
+                    {controls.map((control, index) => (
+                      <Button key={index} variant="ghost" size="sm" className="text-[#2F2F2F] hover:text-[#8B0000]">
+                        <control.icon className="h-4 w-4" />
+                      </Button>
+                    ))}
                   </div>
-                  <CardContent className="p-6">
-                    <h3 className="text-xl font-semibold mb-2">{venue.type}</h3>
-                    <p className="text-slate-600 mb-4">{venue.description}</p>
-                    <div className="space-y-2">
-                      {venue.features.map((feature, idx) => (
-                        <div key={idx} className="flex items-center gap-2 text-sm">
-                          <CheckCircle className="h-3 w-3 text-green-500" />
-                          {feature}
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+                </CardContent>
+              </Card>
             </div>
-          </section>
 
-          {/* Upload Demo */}
-          <section className="bg-gradient-to-r from-blue-600 to-blue-800 rounded-xl p-8 text-white text-center">
-            <h2 className="text-2xl font-bold mb-4">Try 3D Preview Generation</h2>
-            <p className="text-lg text-white/90 mb-6 max-w-2xl mx-auto">
-              Upload 3-5 photos of your venue and watch AI transform them into an immersive 3D experience. 
-              Perfect for venue owners and event planners.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" className="bg-white text-blue-600 hover:bg-slate-100">
-                <Upload className="h-5 w-5 mr-2" />
-                Upload Venue Photos
-              </Button>
-              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10">
-                <Play className="h-5 w-5 mr-2" />
-                Watch Demo Video
-              </Button>
+            {/* Venue Information */}
+            <div className="space-y-6">
+              <Card className="card-luxury">
+                <CardHeader>
+                  <CardTitle className="text-[#0C0C0C] text-lg">Venue Details</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <h4 className="font-semibold text-[#8B0000] mb-2">Capacity</h4>
+                    <p className="text-[#0C0C0C]">200-500 Guests</p>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-[#8B0000] mb-2">Features</h4>
+                    <ul className="text-sm text-[#2F2F2F] space-y-1">
+                      <li>• Premium Sound System</li>
+                      <li>• Professional Lighting</li>
+                      <li>• Climate Control</li>
+                      <li>• Garden Access</li>
+                    </ul>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-[#8B0000] mb-2">Price Range</h4>
+                    <p className="text-[#0C0C0C] font-semibold">₹80,000 - ₹2,00,000</p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="card-luxury">
+                <CardHeader>
+                  <CardTitle className="text-[#0C0C0C] text-lg">Layout Options</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {layouts.map((layout) => (
+                    <Button 
+                      key={layout.value}
+                      variant={selectedLayout === layout.value ? "default" : "outline"}
+                      className={`w-full justify-start ${
+                        selectedLayout === layout.value 
+                          ? 'btn-primary' 
+                          : 'border-[#8B0000] text-[#8B0000] hover:bg-[#8B0000] hover:text-[#FFF5E1]'
+                      }`}
+                      onClick={() => setSelectedLayout(layout.value)}
+                    >
+                      {layout.label}
+                    </Button>
+                  ))}
+                </CardContent>
+              </Card>
+
+              <Card className="card-luxury">
+                <CardHeader>
+                  <CardTitle className="text-[#0C0C0C] text-lg">Quick Actions</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <Button className="w-full btn-primary">
+                    Book This Venue
+                  </Button>
+                  <Button variant="outline" className="w-full border-[#8B0000] text-[#8B0000] hover:bg-[#8B0000] hover:text-[#FFF5E1]">
+                    Request Quote
+                  </Button>
+                  <Button className="w-full btn-secondary">
+                    Save to Favorites
+                  </Button>
+                </CardContent>
+              </Card>
             </div>
-            <div className="mt-6 text-sm text-white/80">
-              <p>Processing time: 2-5 minutes | Supported formats: JPG, PNG | Min resolution: 1080p</p>
-            </div>
-          </section>
+          </div>
+
+          {/* Features Section */}
+          <div className="mt-12">
+            <Card className="card-luxury">
+              <CardHeader>
+                <CardTitle className="text-[#0C0C0C] text-center">3D Preview Features</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="text-center">
+                    <div className="w-16 h-16 bg-[#8B0000] rounded-full flex items-center justify-center mx-auto mb-4">
+                      <Eye className="h-8 w-8 text-[#FFF5E1]" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-[#0C0C0C] mb-2">Virtual Walkthrough</h3>
+                    <p className="text-[#2F2F2F]">Experience the venue as if you're actually there</p>
+                  </div>
+                  <div className="text-center">
+                    <div className="w-16 h-16 bg-[#D4AF37] rounded-full flex items-center justify-center mx-auto mb-4">
+                      <RotateCcw className="h-8 w-8 text-[#0C0C0C]" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-[#0C0C0C] mb-2">Interactive Controls</h3>
+                    <p className="text-[#2F2F2F]">Rotate, zoom, and explore every angle</p>
+                  </div>
+                  <div className="text-center">
+                    <div className="w-16 h-16 bg-[#8B0000] rounded-full flex items-center justify-center mx-auto mb-4">
+                      <Camera className="h-8 w-8 text-[#FFF5E1]" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-[#0C0C0C] mb-2">Save & Share</h3>
+                    <p className="text-[#2F2F2F]">Capture views and share with your team</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </main>
       

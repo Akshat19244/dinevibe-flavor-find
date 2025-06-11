@@ -1,257 +1,137 @@
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  :root {
-    /* Royal Blue + White + Gold Theme */
-    --background: 15 23 42; /* slate-900 */
-    --foreground: 248 250 252; /* slate-50 */
-    --card: 30 41 59; /* slate-800 */
-    --card-foreground: 248 250 252;
-    --popover: 30 41 59;
-    --popover-foreground: 248 250 252;
-    --primary: 37 99 235; /* blue-600 - Royal Blue */
-    --primary-foreground: 248 250 252;
-    --secondary: 51 65 85; /* slate-600 */
-    --secondary-foreground: 248 250 252;
-    --muted: 51 65 85;
-    --muted-foreground: 148 163 184; /* slate-400 */
-    --accent: 234 179 8; /* yellow-500 - Gold Accent */
-    --accent-foreground: 15 23 42;
-    --destructive: 239 68 68; /* red-500 */
-    --destructive-foreground: 248 250 252;
-    --border: 71 85 105; /* slate-600 */
-    --input: 71 85 105;
-    --ring: 37 99 235;
-    --radius: 0.75rem;
+:root {
+  --royal-maroon: #8B0000;
+  --creamy-beige: #FFF5E1;
+  --rich-gold: #D4AF37;
+  --midnight-black: #0C0C0C;
+  --slate-grey: #2F2F2F;
+  
+  --background: var(--creamy-beige);
+  --foreground: var(--midnight-black);
+  --card: var(--creamy-beige);
+  --card-foreground: var(--midnight-black);
+  --popover: var(--creamy-beige);
+  --popover-foreground: var(--midnight-black);
+  --primary: var(--royal-maroon);
+  --primary-foreground: var(--creamy-beige);
+  --secondary: var(--slate-grey);
+  --secondary-foreground: var(--creamy-beige);
+  --muted: var(--slate-grey);
+  --muted-foreground: var(--creamy-beige);
+  --accent: var(--rich-gold);
+  --accent-foreground: var(--midnight-black);
+  --destructive: #dc2626;
+  --destructive-foreground: var(--creamy-beige);
+  --border: var(--slate-grey);
+  --input: var(--slate-grey);
+  --ring: var(--rich-gold);
+  --radius: 0.5rem;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  background-color: var(--background);
+  color: var(--foreground);
+  line-height: 1.6;
+}
+
+.hero-gradient {
+  background: linear-gradient(135deg, var(--midnight-black), var(--royal-maroon));
+}
+
+.card-luxury {
+  background: var(--card);
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.card-luxury:hover {
+  box-shadow: 0 8px 25px rgba(139, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+
+.btn-primary {
+  background-color: var(--royal-maroon);
+  color: var(--creamy-beige);
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  background-color: #660000;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(139, 0, 0, 0.3);
+}
+
+.btn-secondary {
+  background-color: var(--rich-gold);
+  color: var(--midnight-black);
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+  background-color: #b8941f;
+  transform: translateY(-2px);
+}
+
+.text-primary {
+  color: var(--royal-maroon);
+}
+
+.text-accent {
+  color: var(--rich-gold);
+}
+
+.bg-primary {
+  background-color: var(--royal-maroon);
+}
+
+.bg-accent {
+  background-color: var(--rich-gold);
+}
+
+.border-primary {
+  border-color: var(--royal-maroon);
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.6s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
-@layer base {
-  * {
-    @apply border-border;
-  }
-  
-  body {
-    @apply bg-background text-foreground transition-colors duration-300;
-    font-family: 'Inter', sans-serif;
-    background: linear-gradient(135deg, rgb(15, 23, 42), rgb(30, 41, 59));
-    min-height: 100vh;
-  }
-  
-  /* DineVibe Custom Classes with Royal Blue + Gold Theme */
-  .dv-card {
-    @apply bg-slate-800 rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 border border-slate-700;
-  }
-  
-  .dv-button-primary {
-    @apply bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-all duration-300 font-medium shadow-lg hover:shadow-xl;
-  }
-  
-  .dv-button-secondary {
-    @apply bg-slate-700 text-slate-200 px-6 py-3 rounded-lg hover:bg-slate-600 transition-all duration-300 font-medium border border-slate-600;
-  }
-  
-  .dv-button-gold {
-    @apply bg-yellow-500 text-slate-900 px-6 py-3 rounded-lg hover:bg-yellow-400 transition-all duration-300 font-medium shadow-lg;
-  }
-  
-  .dv-container {
-    @apply container mx-auto px-4 md:px-6 py-8;
-  }
-  
-  .dv-section {
-    @apply py-16;
-  }
-  
-  .dv-heading {
-    @apply text-4xl md:text-5xl font-bold mb-6 text-white;
-  }
-  
-  .dv-subheading {
-    @apply text-xl md:text-2xl font-semibold mb-4 text-slate-200;
-  }
-  
-  .dv-text {
-    @apply text-base md:text-lg text-slate-300 leading-relaxed;
-  }
-  
-  .dv-gradient-text {
-    @apply bg-gradient-to-r from-blue-400 via-blue-500 to-yellow-500 bg-clip-text text-transparent;
-  }
-  
-  .dv-glass {
-    @apply bg-slate-800/70 backdrop-blur-md border border-slate-700/50;
-  }
-  
-  /* Royal Blue Theme Utilities */
-  .royal-blue {
-    @apply bg-blue-600 text-white;
-  }
-  
-  .royal-blue-hover {
-    @apply hover:bg-blue-700 transition-colors duration-300;
-  }
-  
-  .gold-accent {
-    @apply text-yellow-500;
-  }
-  
-  .gold-bg {
-    @apply bg-yellow-500 text-slate-900;
-  }
-  
-  /* Enhanced animations */
-  .animate-float {
-    animation: float 6s ease-in-out infinite;
-  }
-  
-  .animate-pulse-slow {
-    animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-  }
-  
-  .animate-fade-in-up {
-    animation: fadeInUp 0.6s ease-out forwards;
-  }
-  
-  .animate-slide-in-right {
-    animation: slideInRight 0.6s ease-out forwards;
-  }
-  
-  /* Staggered animations */
-  .stagger-1 { animation-delay: 0.1s; }
-  .stagger-2 { animation-delay: 0.2s; }
-  .stagger-3 { animation-delay: 0.3s; }
-  .stagger-4 { animation-delay: 0.4s; }
-  .stagger-5 { animation-delay: 0.5s; }
-  
-  @keyframes float {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-20px); }
-  }
-  
-  @keyframes fadeInUp {
-    from {
-      opacity: 0;
-      transform: translateY(30px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-  
-  @keyframes slideInRight {
-    from {
-      opacity: 0;
-      transform: translateX(30px);
-    }
-    to {
-      opacity: 1;
-      transform: translateX(0);
-    }
-  }
+.animate-slide-in {
+  animation: slideIn 0.8s ease-out;
 }
 
-/* Custom scrollbar with Royal Blue theme */
-::-webkit-scrollbar {
-  width: 8px;
-}
-
-::-webkit-scrollbar-track {
-  @apply bg-slate-800;
-}
-
-::-webkit-scrollbar-thumb {
-  @apply bg-blue-600 rounded-full;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  @apply bg-blue-500;
-}
-
-/* Loading and transition effects */
-.loading-shimmer {
-  background: linear-gradient(90deg, 
-    rgba(37, 99, 235, 0.1) 25%, 
-    rgba(37, 99, 235, 0.3) 50%, 
-    rgba(37, 99, 235, 0.1) 75%
-  );
-  background-size: 200% 100%;
-  animation: shimmer 2s infinite;
-}
-
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
-
-/* 3D Effects */
-.perspective {
-  perspective: 1000px;
-}
-
-.preserve-3d {
-  transform-style: preserve-3d;
-}
-
-/* Royal Blue themed cards */
-.royal-card {
-  @apply bg-slate-800 border border-blue-600/20 rounded-xl shadow-lg hover:shadow-blue-600/20 hover:shadow-xl transition-all duration-300;
-}
-
-.royal-card:hover {
-  box-shadow: 0 20px 25px -5px rgba(37, 99, 235, 0.1), 0 10px 10px -5px rgba(37, 99, 235, 0.04);
-}
-
-/* Gold accent elements */
-.gold-border {
-  @apply border-yellow-500;
-}
-
-.gold-text {
-  @apply text-yellow-500;
-}
-
-.gold-hover {
-  @apply hover:text-yellow-400 transition-colors duration-300;
-}
-
-/* Responsive design utilities */
-@media (max-width: 640px) {
-  .dv-heading {
-    @apply text-3xl;
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
   }
-  
-  .dv-subheading {
-    @apply text-lg;
+  to {
+    opacity: 1;
+    transform: translateX(0);
   }
-}
-
-/* Print styles */
-@media print {
-  .no-print {
-    display: none !important;
-  }
-}
-
-/* Currency formatting for INR */
-.currency-inr::before {
-  content: '₹';
-  margin-right: 2px;
-}
-
-/* Premium theme indicators */
-.premium-indicator {
-  @apply relative;
-}
-
-.premium-indicator::after {
-  content: '';
-  @apply absolute -inset-1 bg-gradient-to-r from-blue-600 to-yellow-500 rounded-lg blur-sm opacity-75 group-hover:opacity-100 transition duration-300;
-  z-index: -1;
 }

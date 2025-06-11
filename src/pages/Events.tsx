@@ -1,336 +1,274 @@
 
-import React from 'react';
-import Navbar from '@/components/ui/navbar';
-import Footer from '@/components/ui/footer';
+import React, { useState } from 'react';
+import Navbar from '@/components/layout/Navbar';
+import Footer from '@/components/layout/Footer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Calendar, Users, IndianRupee, Sparkles, MapPin, Star } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { 
-  Calendar,
-  MapPin,
-  Users,
-  Camera,
-  Crown,
-  Heart,
-  Cake,
-  Briefcase,
-  Gift,
-  Star,
-  ArrowRight,
-  Clock
-} from 'lucide-react';
 
 const Events: React.FC = () => {
-  const eventTypes = [
-    {
-      type: "Weddings",
-      icon: Crown,
-      description: "Create your dream wedding with premium venues and personalized planning",
-      packages: "Starting from ₹2,00,000",
-      features: ["3D Venue Preview", "AI Theme Designer", "Complete Vendor Network", "Photography & Decor"],
-      color: "bg-red-100 text-red-600",
-      popular: true
-    },
-    {
-      type: "Receptions",
-      icon: Heart,
-      description: "Elegant reception venues for your special celebration",
-      packages: "Starting from ₹1,50,000",
-      features: ["Banquet Halls", "Garden Venues", "Catering Services", "Entertainment Setup"],
-      color: "bg-pink-100 text-pink-600",
-      popular: true
-    },
-    {
-      type: "Birthday Parties",
-      icon: Cake,
-      description: "Memorable birthday celebrations for all ages",
-      packages: "Starting from ₹25,000",
-      features: ["Theme Decorations", "Custom Cakes", "Entertainment", "Photography"],
-      color: "bg-yellow-100 text-yellow-600",
-      popular: false
-    },
-    {
-      type: "Corporate Events",
-      icon: Briefcase,
-      description: "Professional venues for meetings, conferences, and team events",
-      packages: "Starting from ₹50,000",
-      features: ["Conference Facilities", "AV Equipment", "Catering", "Accommodation"],
-      color: "bg-blue-100 text-blue-600",
-      popular: false
-    },
-    {
-      type: "Anniversary Celebrations",
-      icon: Gift,
-      description: "Romantic venues for milestone anniversary celebrations",
-      packages: "Starting from ₹75,000",
-      features: ["Intimate Settings", "Custom Menus", "Floral Arrangements", "Photography"],
-      color: "bg-purple-100 text-purple-600",
-      popular: false
-    },
-    {
-      type: "Baby Showers",
-      icon: Heart,
-      description: "Adorable venues and themes for welcoming new life",
-      packages: "Starting from ₹30,000",
-      features: ["Themed Decorations", "Custom Catering", "Games & Activities", "Photography"],
-      color: "bg-green-100 text-green-600",
-      popular: false
-    }
-  ];
+  const [eventType, setEventType] = useState('');
+  const [guestCount, setGuestCount] = useState('');
+  const [budget, setBudget] = useState('');
+  const [preference, setPreference] = useState('');
 
-  const featuredVenues = [
+  const eventVenues = [
     {
-      name: "Royal Gardens Banquet",
-      location: "Bandra West, Mumbai",
-      capacity: "200-500 guests",
-      rating: 4.8,
-      price: "₹3,500/plate",
-      image: "https://images.unsplash.com/photo-1519167758481-83f29c2c47bf",
-      features: ["Garden Setting", "3D Preview Available", "In-house Catering"],
-      available: "Next 3 months"
-    },
-    {
-      name: "Crystal Palace Hotel",
-      location: "Juhu, Mumbai",
-      capacity: "100-300 guests",
+      id: '1',
+      name: 'Royal Garden Palace',
+      image: 'https://images.unsplash.com/photo-1519167758481-83f29c2c47bf?q=80&w=400',
+      type: 'Garden Venue',
+      capacity: '200-500',
       rating: 4.9,
-      price: "₹4,200/plate",
-      image: "https://images.unsplash.com/photo-1464207687429-7505649dae38",
-      features: ["AC Banquet Hall", "Parking Available", "Multiple Cuisines"],
-      available: "Available Now"
+      location: 'Juhu, Mumbai',
+      price: '₹80,000 - ₹2,00,000',
+      specialities: ['Garden Setting', 'Premium Catering', 'Decoration']
     },
     {
-      name: "Sunset Terrace",
-      location: "Lower Parel, Mumbai",
-      capacity: "50-150 guests",
+      id: '2',
+      name: 'Grand Banquet Hall',
+      image: 'https://images.unsplash.com/photo-1464207687429-7505649dae38?q=80&w=400',
+      type: 'Banquet Hall',
+      capacity: '100-300',
       rating: 4.7,
-      price: "₹2,800/plate",
-      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d",
-      features: ["Rooftop Setting", "City Views", "Open Bar Available"],
-      available: "Next 6 weeks"
+      location: 'CP, Delhi',
+      price: '₹50,000 - ₹1,50,000',
+      specialities: ['AC Hall', 'Stage Setup', 'Audio/Visual']
+    },
+    {
+      id: '3',
+      name: 'Luxury Resort',
+      image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=400',
+      type: 'Resort',
+      capacity: '50-200',
+      rating: 4.8,
+      location: 'Goa',
+      price: '₹1,00,000 - ₹5,00,000',
+      specialities: ['Beach View', 'Accommodation', 'Full Service']
+    },
+    {
+      id: '4',
+      name: 'Heritage Hotel',
+      image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=400',
+      type: 'Hotel',
+      capacity: '150-400',
+      rating: 4.6,
+      location: 'Rajasthan',
+      price: '₹75,000 - ₹3,00,000',
+      specialities: ['Royal Ambiance', 'Heritage Architecture', 'Traditional Cuisine']
     }
   ];
 
-  const planningSteps = [
-    {
-      step: 1,
-      title: "Choose Event Type",
-      description: "Select from weddings, receptions, parties, or corporate events"
-    },
-    {
-      step: 2,
-      title: "Pick Your Venue",
-      description: "Browse venues with 3D previews, ratings, and real availability"
-    },
-    {
-      step: 3,
-      title: "AI Theme Design",
-      description: "Our AI generates personalized themes, decor, and layout plans"
-    },
-    {
-      step: 4,
-      title: "Vendor Selection",
-      description: "Choose from verified photographers, caterers, and decorators"
-    },
-    {
-      step: 5,
-      title: "Confirm & Pay",
-      description: "Secure booking with flexible payment options and contracts"
-    }
+  const eventTypes = [
+    { value: 'wedding', label: 'Wedding', icon: '💒' },
+    { value: 'birthday', label: 'Birthday', icon: '🎂' },
+    { value: 'conference', label: 'Conference', icon: '💼' },
+    { value: 'anniversary', label: 'Anniversary', icon: '💕' },
+    { value: 'corporate', label: 'Corporate Event', icon: '🏢' },
+    { value: 'custom', label: 'Custom Event', icon: '🎉' }
   ];
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-[#FFF5E1]">
       <Navbar />
       
       <main className="flex-grow">
-        {/* Hero Section */}
-        <div className="bg-gradient-to-r from-blue-600 to-blue-800 py-16">
+        {/* Header */}
+        <div className="bg-[#0C0C0C] py-16">
           <div className="container mx-auto px-4 text-center">
-            <h1 className="text-4xl font-bold text-white mb-4">
-              Plan Perfect Events with AI
+            <h1 className="text-4xl md:text-5xl font-bold text-[#FFF5E1] mb-4">
+              Luxury Event Planning
             </h1>
-            <p className="text-xl text-white/90 max-w-3xl mx-auto mb-8">
-              From intimate gatherings to grand celebrations, discover premium venues 
-              and create unforgettable moments with our AI-powered event planning.
+            <p className="text-xl text-[#FFF5E1]/90 max-w-2xl mx-auto">
+              Create unforgettable moments with our premium venues and AI-powered planning
             </p>
-            <Link to="/user/planning">
-              <Button size="lg" className="bg-white text-blue-600 hover:bg-slate-100">
-                Start Planning Your Event
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-            </Link>
           </div>
         </div>
 
-        <div className="container mx-auto px-4 py-12">
-          {/* Event Types */}
-          <section className="mb-16">
-            <h2 className="text-3xl font-bold text-center mb-8">Event Types We Specialize In</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {eventTypes.map((event, index) => (
-                <Card key={index} className="hover:shadow-lg transition-all duration-300 relative">
-                  {event.popular && (
-                    <Badge className="absolute top-4 right-4 bg-blue-600 text-white">
-                      Most Popular
-                    </Badge>
-                  )}
-                  <CardHeader>
-                    <div className={`w-12 h-12 ${event.color} rounded-lg flex items-center justify-center mb-4`}>
-                      <event.icon className="h-6 w-6" />
-                    </div>
-                    <CardTitle className="text-xl">{event.type}</CardTitle>
-                    <p className="text-slate-600">{event.description}</p>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="mb-4">
-                      <p className="text-lg font-semibold text-blue-600">{event.packages}</p>
-                    </div>
-                    <ul className="space-y-2 mb-6">
-                      {event.features.map((feature, idx) => (
-                        <li key={idx} className="flex items-center gap-2 text-sm">
-                          <Star className="h-3 w-3 text-yellow-500" />
-                          {feature}
-                        </li>
-                      ))}
-                    </ul>
-                    <Link to="/user/planning">
-                      <Button className="w-full bg-blue-600 hover:bg-blue-700">
-                        Plan {event.type}
-                      </Button>
-                    </Link>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </section>
-
-          {/* Featured Venues */}
-          <section className="mb-16">
-            <h2 className="text-3xl font-bold text-center mb-8">Featured Event Venues</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {featuredVenues.map((venue, index) => (
-                <Card key={index} className="overflow-hidden hover:shadow-lg transition-shadow">
-                  <div className="relative">
-                    <img 
-                      src={venue.image} 
-                      alt={venue.name}
-                      className="w-full h-48 object-cover"
-                    />
-                    <Badge className="absolute top-3 right-3 bg-green-600 text-white">
-                      <Clock className="h-3 w-3 mr-1" />
-                      {venue.available}
-                    </Badge>
+        {/* Event Planning Wizard */}
+        <div className="bg-[#2F2F2F] py-12">
+          <div className="container mx-auto px-4">
+            <Card className="max-w-6xl mx-auto bg-[#FFF5E1] border-[#D4AF37]">
+              <CardHeader>
+                <CardTitle className="text-[#0C0C0C] text-center text-2xl">
+                  <Sparkles className="inline mr-2 h-6 w-6 text-[#8B0000]" />
+                  Plan Your Perfect Event
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {/* Step 1: Event Type */}
+                <div>
+                  <h3 className="text-lg font-semibold text-[#0C0C0C] mb-4">Step 1: Select Event Type</h3>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    {eventTypes.map((type) => (
+                      <Card 
+                        key={type.value}
+                        className={`cursor-pointer transition-all ${
+                          eventType === type.value 
+                            ? 'ring-2 ring-[#8B0000] bg-[#8B0000]/10' 
+                            : 'hover:shadow-md'
+                        }`}
+                        onClick={() => setEventType(type.value)}
+                      >
+                        <CardContent className="p-4 text-center">
+                          <div className="text-2xl mb-2">{type.icon}</div>
+                          <div className="font-medium text-[#0C0C0C]">{type.label}</div>
+                        </CardContent>
+                      </Card>
+                    ))}
                   </div>
-                  <CardContent className="p-4">
-                    <div className="flex items-start justify-between mb-2">
-                      <h3 className="font-semibold text-lg">{venue.name}</h3>
-                      <div className="flex items-center gap-1">
-                        <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                        <span className="text-sm font-medium">{venue.rating}</span>
-                      </div>
-                    </div>
-                    <div className="space-y-2 mb-4">
-                      <div className="flex items-center gap-2 text-slate-600">
-                        <MapPin className="h-4 w-4" />
-                        <span className="text-sm">{venue.location}</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-slate-600">
-                        <Users className="h-4 w-4" />
-                        <span className="text-sm">{venue.capacity}</span>
-                      </div>
-                    </div>
-                    <div className="space-y-2 mb-4">
-                      {venue.features.map((feature, idx) => (
-                        <Badge key={idx} variant="secondary" className="text-xs mr-1">
-                          {feature}
-                        </Badge>
-                      ))}
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-lg font-bold text-blue-600">{venue.price}</span>
-                      <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
-                        View Details
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </section>
+                </div>
 
-          {/* Planning Process */}
-          <section className="mb-16 bg-slate-50 rounded-xl p-8">
-            <h2 className="text-3xl font-bold text-center mb-8">How Event Planning Works</h2>
-            <div className="max-w-4xl mx-auto">
-              <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
-                {planningSteps.map((step, index) => (
-                  <div key={index} className="text-center">
-                    <div className="w-12 h-12 bg-blue-600 text-white rounded-full flex items-center justify-center mx-auto mb-4 text-lg font-bold">
-                      {step.step}
+                {/* Step 2: Details */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-[#0C0C0C] mb-2">Guest Count</label>
+                    <div className="relative">
+                      <Users className="absolute left-3 top-3 h-4 w-4 text-[#2F2F2F]" />
+                      <Select value={guestCount} onValueChange={setGuestCount}>
+                        <SelectTrigger className="pl-10 border-[#D4AF37]">
+                          <SelectValue placeholder="Number of Guests" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="50">50-100 Guests</SelectItem>
+                          <SelectItem value="150">100-200 Guests</SelectItem>
+                          <SelectItem value="300">200-400 Guests</SelectItem>
+                          <SelectItem value="500">400+ Guests</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
-                    <h3 className="font-semibold mb-2">{step.title}</h3>
-                    <p className="text-sm text-slate-600">{step.description}</p>
                   </div>
-                ))}
-              </div>
-            </div>
-          </section>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-[#0C0C0C] mb-2">Budget Range</label>
+                    <div className="relative">
+                      <IndianRupee className="absolute left-3 top-3 h-4 w-4 text-[#2F2F2F]" />
+                      <Select value={budget} onValueChange={setBudget}>
+                        <SelectTrigger className="pl-10 border-[#D4AF37]">
+                          <SelectValue placeholder="Select Budget" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="budget">₹50,000 - ₹1,00,000</SelectItem>
+                          <SelectItem value="mid">₹1,00,000 - ₹3,00,000</SelectItem>
+                          <SelectItem value="premium">₹3,00,000 - ₹5,00,000</SelectItem>
+                          <SelectItem value="luxury">₹5,00,000+</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-[#0C0C0C] mb-2">Food Preference</label>
+                    <Select value={preference} onValueChange={setPreference}>
+                      <SelectTrigger className="border-[#D4AF37]">
+                        <SelectValue placeholder="Food Type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="veg">Vegetarian</SelectItem>
+                        <SelectItem value="nonveg">Non-Vegetarian</SelectItem>
+                        <SelectItem value="mixed">Mixed Menu</SelectItem>
+                        <SelectItem value="custom">Custom Menu</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
 
-          {/* AI Features */}
-          <section className="mb-16">
-            <h2 className="text-3xl font-bold text-center mb-8">AI-Powered Event Features</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <Card className="text-center">
-                <CardContent className="p-6">
-                  <Camera className="h-12 w-12 text-blue-600 mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold mb-2">3D Venue Previews</h3>
-                  <p className="text-slate-600">Immersive 3D walkthroughs generated from just 3-5 venue photos</p>
-                </CardContent>
-              </Card>
-              
-              <Card className="text-center">
-                <CardContent className="p-6">
-                  <Crown className="h-12 w-12 text-blue-600 mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold mb-2">AI Theme Designer</h3>
-                  <p className="text-slate-600">Personalized themes, decor suggestions, and layout planning</p>
-                </CardContent>
-              </Card>
-              
-              <Card className="text-center">
-                <CardContent className="p-6">
-                  <Calendar className="h-12 w-12 text-blue-600 mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold mb-2">Smart Scheduling</h3>
-                  <p className="text-slate-600">Optimal date suggestions based on venue availability and weather</p>
-                </CardContent>
-              </Card>
-            </div>
-          </section>
-
-          {/* CTA Section */}
-          <section className="text-center">
-            <Card className="bg-gradient-to-r from-blue-600 to-blue-800 text-white">
-              <CardContent className="p-8">
-                <h2 className="text-2xl font-bold mb-4">Ready to Plan Your Perfect Event?</h2>
-                <p className="text-lg mb-6 text-white/90">
-                  Join thousands of happy customers who've created unforgettable moments with DineVibe.
-                </p>
-                <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                  <Link to="/user/planning">
-                    <Button size="lg" className="bg-white text-blue-600 hover:bg-slate-100">
-                      Start Planning Now
+                {/* Action Buttons */}
+                <div className="flex flex-col sm:flex-row gap-4 pt-6">
+                  <Link to="/ai-assistant" className="flex-1">
+                    <Button className="w-full btn-secondary">
+                      <Sparkles className="mr-2 h-4 w-4" />
+                      Get AI Recommendations
                     </Button>
                   </Link>
-                  <Link to="/user/ai-assistant">
-                    <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10">
-                      Try AI Assistant
-                    </Button>
-                  </Link>
+                  <Button className="flex-1 btn-primary">
+                    Search Venues
+                  </Button>
                 </div>
               </CardContent>
             </Card>
-          </section>
+          </div>
+        </div>
+
+        {/* Featured Venues */}
+        <div className="container mx-auto px-4 py-12">
+          <div className="mb-8">
+            <h2 className="text-3xl font-bold text-[#0C0C0C] mb-2">Premium Event Venues</h2>
+            <p className="text-[#2F2F2F]">Handpicked venues for your special occasions</p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {eventVenues.map((venue) => (
+              <Card key={venue.id} className="card-luxury overflow-hidden">
+                <div className="relative">
+                  <img 
+                    src={venue.image} 
+                    alt={venue.name}
+                    className="w-full h-48 object-cover"
+                  />
+                  <div className="absolute top-4 right-4 bg-[#8B0000] text-[#FFF5E1] px-3 py-1 rounded-full text-sm font-semibold">
+                    {venue.type}
+                  </div>
+                  <div className="absolute top-4 left-4 bg-[#D4AF37] text-[#0C0C0C] px-2 py-1 rounded-full text-sm font-semibold flex items-center">
+                    <Star className="h-3 w-3 mr-1 fill-current" />
+                    {venue.rating}
+                  </div>
+                </div>
+                <CardHeader>
+                  <CardTitle className="text-[#0C0C0C]">{venue.name}</CardTitle>
+                  <div className="flex items-center justify-between">
+                    <span className="text-[#2F2F2F] font-medium">Capacity: {venue.capacity}</span>
+                    <div className="flex items-center space-x-2">
+                      <MapPin className="h-4 w-4 text-[#8B0000]" />
+                      <span className="text-sm text-[#2F2F2F]">{venue.location}</span>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="mb-4">
+                    <p className="text-lg font-semibold text-[#8B0000] mb-2">{venue.price}</p>
+                    <div className="flex flex-wrap gap-2">
+                      {venue.specialities.map((spec, index) => (
+                        <span key={index} className="bg-[#D4AF37]/20 text-[#8B0000] px-2 py-1 rounded-full text-xs font-medium">
+                          {spec}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  <div className="flex space-x-2">
+                    <Link to={`/venue/${venue.id}`} className="flex-1">
+                      <Button variant="outline" className="w-full border-[#8B0000] text-[#8B0000] hover:bg-[#8B0000] hover:text-[#FFF5E1]">
+                        View Details
+                      </Button>
+                    </Link>
+                    <Link to={`/book-event/${venue.id}`}>
+                      <Button className="btn-primary">Book Venue</Button>
+                    </Link>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+
+        {/* AI Assistant Teaser */}
+        <div className="bg-gradient-to-r from-[#8B0000] to-[#D4AF37] py-16">
+          <div className="container mx-auto px-4 text-center">
+            <h2 className="text-4xl font-bold text-[#FFF5E1] mb-4">Let AI Plan Your Perfect Event</h2>
+            <p className="text-xl text-[#FFF5E1]/90 mb-8 max-w-2xl mx-auto">
+              Our advanced AI assistant analyzes your preferences to create personalized event recommendations
+            </p>
+            <Link to="/ai-assistant">
+              <Button className="bg-[#FFF5E1] text-[#0C0C0C] hover:bg-[#FFF5E1]/90 px-8 py-4 text-lg">
+                <Sparkles className="mr-2 h-5 w-5" />
+                Try AI Assistant
+              </Button>
+            </Link>
+          </div>
         </div>
       </main>
       

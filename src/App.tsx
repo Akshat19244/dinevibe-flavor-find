@@ -8,6 +8,11 @@ import ProtectedRoute from '@/components/auth/ProtectedRoute';
 
 // Import all page components
 import Home from '@/pages/Home';
+import Discovery from '@/pages/Discovery';
+import Dining from '@/pages/Dining';
+import Events from '@/pages/Events';
+import AIAssistant from '@/pages/AIAssistant';
+import ThreeDPreview from '@/pages/ThreeDPreview';
 import Auth from '@/pages/Auth';
 import AuthCallback from '@/pages/AuthCallback';
 import CompleteProfile from '@/pages/auth/CompleteProfile';
@@ -16,20 +21,16 @@ import Features from '@/pages/Features';
 import Contact from '@/pages/Contact';
 import QuickLinks from '@/pages/QuickLinks';
 import ForBusiness from '@/pages/ForBusiness';
-import Events from '@/pages/Events';
 import Media from '@/pages/Media';
 import OurStory from '@/pages/OurStory';
-import ThreeDPreview from '@/pages/ThreeDPreview';
 import PartnerWithUs from '@/pages/PartnerWithUs';
 
 // User pages
-import Discovery from '@/pages/user/Discovery';
 import MyBookings from '@/pages/user/MyBookings';
 import FeaturedRestaurants from '@/pages/user/FeaturedRestaurants';
 import TrendingDishes from '@/pages/user/TrendingDishes';
 import CuratedPlans from '@/pages/user/CuratedPlans';
 import EventPlanning from '@/pages/user/EventPlanning';
-import AIAssistant from '@/pages/user/AIAssistant';
 import UpcomingEvents from '@/pages/user/UpcomingEvents';
 import Deals from '@/pages/user/Deals';
 import Bookings from '@/pages/user/Bookings';
@@ -77,10 +78,17 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <Router>
-          <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
+          <div className="min-h-screen bg-[#FFF5E1]">
             <Routes>
               {/* Public routes */}
               <Route path="/" element={<Home />} />
+              <Route path="/discovery" element={<Discovery />} />
+              <Route path="/dining" element={<Dining />} />
+              <Route path="/events" element={<Events />} />
+              <Route path="/ai-assistant" element={<AIAssistant />} />
+              <Route path="/3d-preview" element={<ThreeDPreview />} />
+              <Route path="/partner-with-us" element={<PartnerWithUs />} />
+              
               <Route path="/auth" element={<Auth />} />
               <Route path="/auth/login" element={<Auth />} />
               <Route path="/auth/signup" element={<Auth />} />
@@ -91,18 +99,15 @@ function App() {
               <Route path="/contact" element={<Contact />} />
               <Route path="/quick-links" element={<QuickLinks />} />
               <Route path="/for-business" element={<ForBusiness />} />
-              <Route path="/events" element={<Events />} />
               <Route path="/media" element={<Media />} />
               <Route path="/our-story" element={<OurStory />} />
-              <Route path="/3d-preview" element={<ThreeDPreview />} />
-              <Route path="/partner-with-us" element={<PartnerWithUs />} />
 
               {/* User routes */}
               <Route
-                path="/user/discovery"
+                path="/user/dashboard"
                 element={
                   <ProtectedRoute allowedRoles={['authenticated']}>
-                    <Discovery />
+                    <MyBookings />
                   </ProtectedRoute>
                 }
               />
@@ -150,8 +155,8 @@ function App() {
                 path="/user/restaurant/:id"
                 element={
                   <ProtectedRoute allowedRoles={['authenticated']}>
-                    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
-                      <div className="text-center text-white">
+                    <div className="min-h-screen flex items-center justify-center bg-[#FFF5E1]">
+                      <div className="text-center text-[#0C0C0C]">
                         <h1 className="text-2xl font-bold mb-4">Restaurant Details</h1>
                         <p>Restaurant details page coming soon...</p>
                       </div>
@@ -164,14 +169,6 @@ function App() {
                 element={
                   <ProtectedRoute allowedRoles={['authenticated']}>
                     <Planning />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/user/ai-assistant"
-                element={
-                  <ProtectedRoute allowedRoles={['authenticated']}>
-                    <AIAssistant />
                   </ProtectedRoute>
                 }
               />
@@ -196,19 +193,6 @@ function App() {
                 element={
                   <ProtectedRoute allowedRoles={['authenticated']}>
                     <Bookings />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/user/profile"
-                element={
-                  <ProtectedRoute allowedRoles={['authenticated']}>
-                    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
-                      <div className="text-center text-white">
-                        <h1 className="text-2xl font-bold mb-4">User Profile</h1>
-                        <p>Profile page coming soon...</p>
-                      </div>
-                    </div>
                   </ProtectedRoute>
                 }
               />
@@ -287,19 +271,6 @@ function App() {
                 }
               />
               <Route
-                path="/owner/customers"
-                element={
-                  <ProtectedRoute allowedRoles={['business_owner']}>
-                    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
-                      <div className="text-center text-white">
-                        <h1 className="text-2xl font-bold mb-4">Customer Management</h1>
-                        <p>Customer management coming soon...</p>
-                      </div>
-                    </div>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
                 path="/owner/settings"
                 element={
                   <ProtectedRoute allowedRoles={['business_owner']}>
@@ -308,7 +279,7 @@ function App() {
                 }
               />
               <Route
-                path="/owner/analytics"
+                path="/analytics"
                 element={
                   <ProtectedRoute allowedRoles={['business_owner']}>
                     <Analytics />
