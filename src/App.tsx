@@ -26,8 +26,10 @@ import OwnerTrackBookings from '@/pages/owner/TrackBookings';
 import OwnerSettings from '@/pages/owner/Settings';
 
 // User pages
-import UserDashboard from '@/pages/user/AIAssistant';
+import UserDashboard from '@/pages/user/Dashboard';
 import UserMyBookings from '@/pages/user/MyBookings';
+import UserEventPlanner from '@/pages/user/EventPlanner';
+import UserBookingConfirmation from '@/pages/user/BookingConfirmation';
 
 // Admin pages
 import AdminDashboard from '@/pages/admin/Dashboard';
@@ -50,7 +52,8 @@ function App() {
               <Route path="/3d-preview" element={<ThreeDPreview />} />
               <Route path="/partner-with-us" element={<PartnerWithUs />} />
               <Route path="/contact" element={<Contact />} />
-              <Route path="/auth/*" element={<Auth />} />
+              <Route path="/auth/login" element={<Auth />} />
+              <Route path="/auth/signup" element={<Auth />} />
 
               {/* Owner Routes */}
               <Route path="/owner/dashboard" element={<OwnerDashboard />} />
@@ -63,6 +66,9 @@ function App() {
               {/* User Routes */}
               <Route path="/user/dashboard" element={<UserDashboard />} />
               <Route path="/user/my-bookings" element={<UserMyBookings />} />
+              <Route path="/user/event-planner" element={<UserEventPlanner />} />
+              <Route path="/event-planner" element={<UserEventPlanner />} />
+              <Route path="/booking-confirmation" element={<UserBookingConfirmation />} />
 
               {/* Admin Routes */}
               <Route path="/admin/dashboard" element={<AdminDashboard />} />

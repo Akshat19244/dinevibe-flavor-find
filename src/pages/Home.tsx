@@ -119,7 +119,7 @@ const Home: React.FC = () => {
                   <p className="text-[#2F2F2F] mb-4">
                     Use our AI-powered planner to create the perfect event experience
                   </p>
-                  <Link to="/ai-assistant">
+                  <Link to="/event-planner">
                     <Button className="bg-[#8B0000] hover:bg-[#660000] text-[#FFF5E1] w-full">
                       Start Planning
                       <ArrowRight className="ml-2 h-4 w-4" />
@@ -232,7 +232,7 @@ const Home: React.FC = () => {
                     
                     <div className="flex items-center justify-between">
                       <div className="text-2xl font-bold text-[#8B0000]">{event.price}</div>
-                      <Link to="/ai-assistant">
+                      <Link to="/event-planner">
                         <Button size="sm" className="bg-[#D4AF37] hover:bg-[#B8941F] text-[#0C0C0C]">
                           Book Now
                         </Button>
@@ -271,7 +271,7 @@ const Home: React.FC = () => {
               Join thousands of satisfied customers who trust DineVibe for their special moments
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="/ai-assistant">
+              <Link to="/event-planner">
                 <Button size="lg" className="bg-[#D4AF37] hover:bg-[#B8941F] text-[#0C0C0C] px-8">
                   Plan My Event
                   <Sparkles className="ml-2 h-5 w-5" />
