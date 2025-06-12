@@ -60,6 +60,40 @@ const Home: React.FC = () => {
     }
   ];
 
+  const featuredRestaurants = [
+    {
+      id: "1",
+      name: "The Royal Banquet",
+      imageUrl: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=800",
+      cuisine: "Multi-Cuisine",
+      rating: 4.8,
+      priceRange: "₹2,000-5,000",
+      location: "Mumbai Central",
+      isNew: true,
+      hasDeals: true
+    },
+    {
+      id: "2",
+      name: "Garden Paradise",
+      imageUrl: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?q=80&w=800",
+      cuisine: "Indian & Continental",
+      rating: 4.6,
+      priceRange: "₹1,500-3,500",
+      location: "Delhi NCR",
+      hasDeals: true
+    },
+    {
+      id: "3",
+      name: "Modern Events Hub",
+      imageUrl: "https://images.unsplash.com/photo-1551218808-94e220e084d2?q=80&w=800",
+      cuisine: "International",
+      rating: 4.7,
+      priceRange: "₹3,000-6,000",
+      location: "Bangalore",
+      isNew: true
+    }
+  ];
+
   const quickStats = [
     { label: "Happy Customers", value: "50,000+", icon: <Users className="h-6 w-6" /> },
     { label: "Partner Venues", value: "2,500+", icon: <Building className="h-6 w-6" /> },
@@ -220,7 +254,12 @@ const Home: React.FC = () => {
           </div>
         </section>
 
-        <FeaturedSection />
+        <FeaturedSection 
+          title="Featured Restaurants & Venues"
+          subtitle="Discover the best venues for your events and celebrations"
+          viewAllLink="/dining"
+          restaurants={featuredRestaurants}
+        />
 
         {/* Call to Action Section */}
         <section className="py-16 bg-gradient-to-r from-[#8B0000] to-[#660000]">
