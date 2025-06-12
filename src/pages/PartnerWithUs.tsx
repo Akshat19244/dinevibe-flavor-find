@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
@@ -11,25 +10,26 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import FileUpload from '@/components/ui/file-upload';
+import { useToast } from '@/hooks/use-toast';
 import { 
   Handshake, 
   Building, 
   Users, 
   TrendingUp, 
   Star,
-  Upload,
   MapPin,
   Phone,
   Mail,
   Clock,
   IndianRupee,
-  Camera,
   CheckCircle
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const PartnerWithUs: React.FC = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [formData, setFormData] = useState({
     businessType: '',
     businessName: '',
@@ -43,12 +43,14 @@ const PartnerWithUs: React.FC = () => {
     capacity: '',
     venueType: '',
     pricing: '',
-    amenities: [],
+    amenities: [] as string[],
     description: '',
     experience: '',
     operatingHours: '',
     terms: false
   });
+  const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const benefits = [
     {
@@ -115,15 +117,76 @@ const PartnerWithUs: React.FC = () => {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleFilesChange = (files: File[]) => {
+    setUploadedFiles(files);
+  };
+
+  const validateForm = () => {
+    const requiredFields = [
+      'businessType', 'businessName', 'ownerName', 'email', 
+      'phone', 'address', 'city', 'capacity', 'venueType', 'pricing'
+    ];
+    
+    for (const field of requiredFields) {
+      if (!formData[field as keyof typeof formData]) {
+        toast({
+          title: "Validation Error",
+          description: `Please fill in the ${field.replace(/([A-Z])/g, ' $1').toLowerCase()} field`,
+          variant: "destructive",
+        });
+        return false;
+      }
+    }
+    
+    if (!formData.terms) {
+      toast({
+        title: "Terms Required",
+        description: "Please accept the terms and conditions to proceed",
+        variant: "destructive",
+      });
+      return false;
+    }
+    
+    if (uploadedFiles.length < 3) {
+      toast({
+        title: "Photos Required",
+        description: "Please upload at least 3 photos of your venue",
+        variant: "destructive",
+      });
+      return false;
+    }
+    
+    return true;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Partner registration form submitted:', formData);
+    
+    if (!validateForm()) return;
+    
+    setIsSubmitting(true);
     
     // Simulate form submission
-    setTimeout(() => {
-      alert('Thank you for your interest! We will review your application and contact you within 24 hours.');
+    try {
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      toast({
+        title: "Application Submitted!",
+        description: "Thank you for your interest! We will review your application and contact you within 24 hours.",
+      });
+      
+      // Navigate to owner dashboard
       navigate('/owner/dashboard');
-    }, 1000);
+      
+    } catch (error) {
+      toast({
+        title: "Submission Error",
+        description: "Something went wrong. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -152,7 +215,7 @@ const PartnerWithUs: React.FC = () => {
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {benefits.map((benefit, index) => (
-                <Card key={index} className="card-luxury text-center">
+                <Card key={index} className="text-center border-[#D4AF37] hover:shadow-lg transition-shadow">
                   <CardContent className="pt-6">
                     <div className="flex justify-center mb-4">
                       {benefit.icon}
@@ -167,16 +230,17 @@ const PartnerWithUs: React.FC = () => {
 
           {/* Registration Form */}
           <Tabs defaultValue="business-info" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="business-info">Business Information</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-4">
+              <TabsTrigger value="business-info">Business Info</TabsTrigger>
               <TabsTrigger value="venue-details">Venue Details</TabsTrigger>
-              <TabsTrigger value="features">Features & Pricing</TabsTrigger>
+              <TabsTrigger value="photos-docs">Photos & Docs</TabsTrigger>
+              <TabsTrigger value="pricing-terms">Pricing & Terms</TabsTrigger>
             </TabsList>
 
             <form onSubmit={handleSubmit}>
               {/* Business Information Tab */}
               <TabsContent value="business-info">
-                <Card className="card-luxury">
+                <Card className="border-[#D4AF37]">
                   <CardHeader>
                     <CardTitle className="text-[#0C0C0C] flex items-center">
                       <Building className="h-5 w-5 mr-2 text-[#8B0000]" />
@@ -186,7 +250,7 @@ const PartnerWithUs: React.FC = () => {
                   <CardContent className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div>
-                        <Label htmlFor="businessType">Business Type</Label>
+                        <Label htmlFor="businessType">Business Type *</Label>
                         <Select 
                           value={formData.businessType} 
                           onValueChange={(value) => handleInputChange('businessType', value)}
@@ -206,26 +270,28 @@ const PartnerWithUs: React.FC = () => {
                         </Select>
                       </div>
                       <div>
-                        <Label htmlFor="businessName">Business Name</Label>
+                        <Label htmlFor="businessName">Business Name *</Label>
                         <Input
                           id="businessName"
                           value={formData.businessName}
                           onChange={(e) => handleInputChange('businessName', e.target.value)}
                           placeholder="Enter your business name"
                           className="border-[#D4AF37]"
+                          required
                         />
                       </div>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div>
-                        <Label htmlFor="ownerName">Owner/Manager Name</Label>
+                        <Label htmlFor="ownerName">Owner/Manager Name *</Label>
                         <Input
                           id="ownerName"
                           value={formData.ownerName}
                           onChange={(e) => handleInputChange('ownerName', e.target.value)}
                           placeholder="Enter your full name"
                           className="border-[#D4AF37]"
+                          required
                         />
                       </div>
                       <div>
@@ -250,7 +316,7 @@ const PartnerWithUs: React.FC = () => {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div>
-                        <Label htmlFor="email">Business Email</Label>
+                        <Label htmlFor="email">Business Email *</Label>
                         <div className="relative">
                           <Mail className="absolute left-3 top-3 h-4 w-4 text-[#2F2F2F]" />
                           <Input
@@ -260,11 +326,12 @@ const PartnerWithUs: React.FC = () => {
                             onChange={(e) => handleInputChange('email', e.target.value)}
                             placeholder="business@example.com"
                             className="pl-10 border-[#D4AF37]"
+                            required
                           />
                         </div>
                       </div>
                       <div>
-                        <Label htmlFor="phone">Contact Number</Label>
+                        <Label htmlFor="phone">Contact Number *</Label>
                         <div className="relative">
                           <Phone className="absolute left-3 top-3 h-4 w-4 text-[#2F2F2F]" />
                           <Input
@@ -273,13 +340,14 @@ const PartnerWithUs: React.FC = () => {
                             onChange={(e) => handleInputChange('phone', e.target.value)}
                             placeholder="+91 98765 43210"
                             className="pl-10 border-[#D4AF37]"
+                            required
                           />
                         </div>
                       </div>
                     </div>
 
                     <div>
-                      <Label htmlFor="address">Complete Address</Label>
+                      <Label htmlFor="address">Complete Address *</Label>
                       <div className="relative">
                         <MapPin className="absolute left-3 top-3 h-4 w-4 text-[#2F2F2F]" />
                         <Textarea
@@ -289,13 +357,14 @@ const PartnerWithUs: React.FC = () => {
                           placeholder="Enter complete address with landmarks"
                           className="pl-10 border-[#D4AF37]"
                           rows={3}
+                          required
                         />
                       </div>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                       <div>
-                        <Label htmlFor="city">City</Label>
+                        <Label htmlFor="city">City *</Label>
                         <Select 
                           value={formData.city} 
                           onValueChange={(value) => handleInputChange('city', value)}
@@ -341,7 +410,7 @@ const PartnerWithUs: React.FC = () => {
 
               {/* Venue Details Tab */}
               <TabsContent value="venue-details">
-                <Card className="card-luxury">
+                <Card className="border-[#D4AF37]">
                   <CardHeader>
                     <CardTitle className="text-[#0C0C0C] flex items-center">
                       <Building className="h-5 w-5 mr-2 text-[#8B0000]" />
@@ -351,7 +420,7 @@ const PartnerWithUs: React.FC = () => {
                   <CardContent className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div>
-                        <Label htmlFor="venueType">Venue Type</Label>
+                        <Label htmlFor="venueType">Venue Type *</Label>
                         <Select 
                           value={formData.venueType} 
                           onValueChange={(value) => handleInputChange('venueType', value)}
@@ -370,7 +439,7 @@ const PartnerWithUs: React.FC = () => {
                         </Select>
                       </div>
                       <div>
-                        <Label htmlFor="capacity">Maximum Capacity</Label>
+                        <Label htmlFor="capacity">Maximum Capacity *</Label>
                         <div className="relative">
                           <Users className="absolute left-3 top-3 h-4 w-4 text-[#2F2F2F]" />
                           <Input
@@ -380,6 +449,7 @@ const PartnerWithUs: React.FC = () => {
                             onChange={(e) => handleInputChange('capacity', e.target.value)}
                             placeholder="e.g., 500"
                             className="pl-10 border-[#D4AF37]"
+                            required
                           />
                         </div>
                       </div>
@@ -426,29 +496,44 @@ const PartnerWithUs: React.FC = () => {
                         ))}
                       </div>
                     </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
 
-                    <div>
-                      <Label>Upload Venue Photos</Label>
-                      <div className="border-2 border-dashed border-[#D4AF37] rounded-lg p-8 text-center">
-                        <Camera className="h-12 w-12 mx-auto text-[#8B0000] mb-4" />
-                        <p className="text-[#2F2F2F] mb-2">Upload high-quality photos of your venue</p>
-                        <p className="text-sm text-[#2F2F2F] mb-4">
-                          Minimum 5 photos required (Interior, Exterior, Seating, Kitchen, etc.)
-                        </p>
-                        <Button type="button" variant="outline" className="border-[#8B0000] text-[#8B0000]">
-                          <Upload className="h-4 w-4 mr-2" />
-                          Choose Photos
-                        </Button>
-                      </div>
+              {/* Photos & Documents Tab */}
+              <TabsContent value="photos-docs">
+                <Card className="border-[#D4AF37]">
+                  <CardHeader>
+                    <CardTitle className="text-[#0C0C0C]">Upload Venue Photos & Documents</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    <FileUpload
+                      onFilesChange={handleFilesChange}
+                      acceptedTypes={['image/*', '.pdf', '.doc', '.docx']}
+                      maxFiles={10}
+                      maxSizeMB={10}
+                      label="Upload Venue Photos & Documents"
+                      description="Upload high-quality photos of your venue (minimum 3 required) and relevant documents like licenses, certificates, etc."
+                    />
+                    
+                    <div className="bg-[#D4AF37]/10 p-4 rounded-lg">
+                      <h4 className="font-semibold text-[#0C0C0C] mb-2">Required Documents:</h4>
+                      <ul className="text-sm text-[#2F2F2F] space-y-1">
+                        <li>• High-quality venue photos (interior, exterior, seating arrangements)</li>
+                        <li>• Business license or registration certificate</li>
+                        <li>• Food safety license (if applicable)</li>
+                        <li>• Fire safety certificate</li>
+                        <li>• Any other relevant permits or certifications</li>
+                      </ul>
                     </div>
                   </CardContent>
                 </Card>
               </TabsContent>
 
-              {/* Features & Pricing Tab */}
-              <TabsContent value="features">
+              {/* Pricing & Terms Tab */}
+              <TabsContent value="pricing-terms">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  <Card className="card-luxury">
+                  <Card className="border-[#D4AF37]">
                     <CardHeader>
                       <CardTitle className="text-[#0C0C0C] flex items-center">
                         <IndianRupee className="h-5 w-5 mr-2 text-[#8B0000]" />
@@ -457,7 +542,7 @@ const PartnerWithUs: React.FC = () => {
                     </CardHeader>
                     <CardContent className="space-y-6">
                       <div>
-                        <Label htmlFor="pricing">Base Package Price</Label>
+                        <Label htmlFor="pricing">Base Package Price (₹) *</Label>
                         <div className="relative">
                           <IndianRupee className="absolute left-3 top-3 h-4 w-4 text-[#2F2F2F]" />
                           <Input
@@ -467,6 +552,7 @@ const PartnerWithUs: React.FC = () => {
                             onChange={(e) => handleInputChange('pricing', e.target.value)}
                             placeholder="e.g., 50000"
                             className="pl-10 border-[#D4AF37]"
+                            required
                           />
                         </div>
                         <p className="text-sm text-[#2F2F2F] mt-1">
@@ -481,21 +567,21 @@ const PartnerWithUs: React.FC = () => {
                           onCheckedChange={(checked) => handleInputChange('terms', checked)}
                         />
                         <label htmlFor="terms" className="text-sm">
-                          I agree to the Terms & Conditions and Privacy Policy
+                          I agree to the Terms & Conditions and Privacy Policy *
                         </label>
                       </div>
 
                       <Button 
                         type="submit" 
                         className="w-full bg-[#8B0000] hover:bg-[#660000] text-[#FFF5E1]"
-                        disabled={!formData.terms}
+                        disabled={isSubmitting}
                       >
-                        Submit Partnership Application
+                        {isSubmitting ? 'Submitting...' : 'Submit Partnership Application'}
                       </Button>
                     </CardContent>
                   </Card>
 
-                  <Card className="card-luxury">
+                  <Card className="border-[#D4AF37]">
                     <CardHeader>
                       <CardTitle className="text-[#0C0C0C] flex items-center">
                         <Star className="h-5 w-5 mr-2 text-[#D4AF37]" />

@@ -3,39 +3,68 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
+import HeroSection from '@/components/home/hero-section';
+import FeaturedSection from '@/components/home/featured-section';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Star, Users, Calendar, Sparkles, Eye, ChefHat } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { 
+  Calendar, 
+  MapPin, 
+  Star, 
+  Users, 
+  Sparkles,
+  ArrowRight,
+  ChefHat,
+  Building,
+  Crown
+} from 'lucide-react';
 
 const Home: React.FC = () => {
-  const topRestaurants = [
+  const featuredEvents = [
     {
-      id: '1',
-      name: 'The Royal Feast',
-      image: 'https://images.unsplash.com/photo-1551218808-94e220e084d2?q=80&w=400',
-      cuisine: 'Multi-Cuisine',
-      rating: 4.8,
-      location: 'Mumbai',
-      price: '₹₹₹₹'
+      id: 1,
+      title: "Royal Wedding Celebration",
+      venue: "The Grand Palace",
+      location: "Mumbai, Maharashtra",
+      date: "2024-03-15",
+      guests: 500,
+      price: "₹8,00,000",
+      rating: 4.9,
+      image: "https://images.unsplash.com/photo-1519167758481-83f29c2c47bf?q=80&w=800",
+      theme: "Royal Elegance"
     },
     {
-      id: '2',
-      name: 'Spice Symphony',
-      image: 'https://images.unsplash.com/photo-1585937421612-70a008356fbe?q=80&w=400',
-      cuisine: 'Indian',
-      rating: 4.6,
-      location: 'Delhi',
-      price: '₹₹₹'
-    },
-    {
-      id: '3',
-      name: 'Golden Terrace',
-      image: 'https://images.unsplash.com/photo-1579584425555-c3ce17fd4351?q=80&w=400',
-      cuisine: 'Continental',
+      id: 2,
+      title: "Garden Birthday Party",
+      venue: "Bloom Gardens",
+      location: "Delhi, NCR",
+      date: "2024-03-20",
+      guests: 150,
+      price: "₹1,50,000",
       rating: 4.7,
-      location: 'Bangalore',
-      price: '₹₹₹₹'
+      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=800",
+      theme: "Garden Paradise"
+    },
+    {
+      id: 3,
+      title: "Corporate Conference",
+      venue: "Business Hub",
+      location: "Bangalore, Karnataka",
+      date: "2024-03-25",
+      guests: 300,
+      price: "₹2,50,000",
+      rating: 4.8,
+      image: "https://images.unsplash.com/photo-1464207687429-7505649dae38?q=80&w=800",
+      theme: "Modern Professional"
     }
+  ];
+
+  const quickStats = [
+    { label: "Happy Customers", value: "50,000+", icon: <Users className="h-6 w-6" /> },
+    { label: "Partner Venues", value: "2,500+", icon: <Building className="h-6 w-6" /> },
+    { label: "Events Hosted", value: "75,000+", icon: <Calendar className="h-6 w-6" /> },
+    { label: "Premium Experiences", value: "100%", icon: <Crown className="h-6 w-6" /> }
   ];
 
   return (
@@ -43,184 +72,176 @@ const Home: React.FC = () => {
       <Navbar />
       
       <main className="flex-grow">
-        {/* Hero Section */}
-        <div className="hero-gradient min-h-[80vh] flex items-center justify-center text-center px-4">
-          <div className="max-w-4xl mx-auto">
-            <h1 className="text-5xl md:text-7xl font-bold text-[#FFF5E1] mb-6 animate-fade-in">
-              Luxury Dining & 
-              <span className="text-[#D4AF37]"> Events</span>
-            </h1>
-            <p className="text-xl md:text-2xl text-[#FFF5E1]/90 mb-8 animate-slide-in">
-              Experience premium dining and create unforgettable events with AI-powered planning
-            </p>
-            
-            <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in">
-              <Link to="/dining">
-                <Button className="btn-primary text-lg px-8 py-4">
-                  <ChefHat className="mr-2 h-5 w-5" />
-                  Book Your Table
-                </Button>
-              </Link>
-              <Link to="/events">
-                <Button className="btn-secondary text-lg px-8 py-4">
-                  <Calendar className="mr-2 h-5 w-5" />
-                  Plan Event
-                </Button>
-              </Link>
-              <Link to="/discovery">
-                <Button variant="outline" className="text-[#FFF5E1] border-[#FFF5E1] hover:bg-[#FFF5E1] hover:text-[#0C0C0C] text-lg px-8 py-4">
-                  <Eye className="mr-2 h-5 w-5" />
-                  Explore Venues
-                </Button>
-              </Link>
+        <HeroSection />
+        
+        {/* Quick Action Cards */}
+        <section className="py-16 bg-[#FFF5E1]">
+          <div className="container mx-auto px-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <Card className="group hover:shadow-xl transition-all duration-300 border-[#D4AF37] hover:border-[#8B0000]">
+                <CardContent className="p-8 text-center">
+                  <Calendar className="h-12 w-12 mx-auto mb-4 text-[#8B0000] group-hover:scale-110 transition-transform" />
+                  <h3 className="text-xl font-bold text-[#0C0C0C] mb-2">Plan Your Event</h3>
+                  <p className="text-[#2F2F2F] mb-4">
+                    Use our AI-powered planner to create the perfect event experience
+                  </p>
+                  <Link to="/ai-assistant">
+                    <Button className="bg-[#8B0000] hover:bg-[#660000] text-[#FFF5E1] w-full">
+                      Start Planning
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  </Link>
+                </CardContent>
+              </Card>
+
+              <Card className="group hover:shadow-xl transition-all duration-300 border-[#D4AF37] hover:border-[#8B0000]">
+                <CardContent className="p-8 text-center">
+                  <Building className="h-12 w-12 mx-auto mb-4 text-[#8B0000] group-hover:scale-110 transition-transform" />
+                  <h3 className="text-xl font-bold text-[#0C0C0C] mb-2">Explore Venues</h3>
+                  <p className="text-[#2F2F2F] mb-4">
+                    Browse premium banquet halls and event venues with 3D previews
+                  </p>
+                  <Link to="/3d-preview">
+                    <Button className="bg-[#D4AF37] hover:bg-[#B8941F] text-[#0C0C0C] w-full">
+                      View in 3D
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  </Link>
+                </CardContent>
+              </Card>
+
+              <Card className="group hover:shadow-xl transition-all duration-300 border-[#D4AF37] hover:border-[#8B0000]">
+                <CardContent className="p-8 text-center">
+                  <ChefHat className="h-12 w-12 mx-auto mb-4 text-[#8B0000] group-hover:scale-110 transition-transform" />
+                  <h3 className="text-xl font-bold text-[#0C0C0C] mb-2">Fine Dining</h3>
+                  <p className="text-[#2F2F2F] mb-4">
+                    Discover curated restaurants and book tables at premium locations
+                  </p>
+                  <Link to="/dining">
+                    <Button className="bg-[#8B0000] hover:bg-[#660000] text-[#FFF5E1] w-full">
+                      Book Table
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  </Link>
+                </CardContent>
+              </Card>
             </div>
           </div>
-        </div>
+        </section>
 
-        {/* Top Rated Restaurants */}
+        {/* Quick Stats */}
+        <section className="py-16 bg-[#0C0C0C]">
+          <div className="container mx-auto px-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+              {quickStats.map((stat, index) => (
+                <div key={index} className="text-center">
+                  <div className="flex justify-center mb-4 text-[#D4AF37]">
+                    {stat.icon}
+                  </div>
+                  <div className="text-3xl font-bold text-[#FFF5E1] mb-2">{stat.value}</div>
+                  <div className="text-[#FFF5E1]/80">{stat.label}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Featured Events */}
         <section className="py-16 bg-[#FFF5E1]">
           <div className="container mx-auto px-4">
             <div className="text-center mb-12">
-              <h2 className="text-4xl font-bold text-[#0C0C0C] mb-4">Top Rated Restaurants</h2>
-              <p className="text-lg text-[#2F2F2F] max-w-2xl mx-auto">
-                Discover premium restaurants with ratings above 4.5 stars - personally verified and guest approved
+              <h2 className="text-3xl md:text-4xl font-bold text-[#0C0C0C] mb-4">
+                <Sparkles className="inline mr-3 h-8 w-8 text-[#D4AF37]" />
+                Featured Event Packages
+              </h2>
+              <p className="text-xl text-[#2F2F2F] max-w-2xl mx-auto">
+                Discover our most popular event packages, curated for memorable celebrations
               </p>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {topRestaurants.map((restaurant) => (
-                <Card key={restaurant.id} className="card-luxury overflow-hidden">
+              {featuredEvents.map((event) => (
+                <Card key={event.id} className="group hover:shadow-xl transition-all duration-300 border-[#D4AF37] overflow-hidden">
                   <div className="relative">
-                    <img 
-                      src={restaurant.image} 
-                      alt={restaurant.name}
-                      className="w-full h-48 object-cover"
+                    <img
+                      src={event.image}
+                      alt={event.title}
+                      className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
                     />
-                    <div className="absolute top-4 right-4 bg-[#8B0000] text-[#FFF5E1] px-2 py-1 rounded-full text-sm font-semibold">
-                      {restaurant.price}
-                    </div>
-                  </div>
-                  <CardHeader>
-                    <CardTitle className="text-[#0C0C0C]">{restaurant.name}</CardTitle>
-                    <div className="flex items-center justify-between">
-                      <span className="text-[#2F2F2F]">{restaurant.cuisine}</span>
-                      <div className="flex items-center">
-                        <Star className="h-4 w-4 text-[#D4AF37] fill-current" />
-                        <span className="ml-1 font-semibold">{restaurant.rating}</span>
+                    <Badge className="absolute top-4 left-4 bg-[#8B0000] text-[#FFF5E1]">
+                      {event.theme}
+                    </Badge>
+                    <div className="absolute top-4 right-4 bg-white/90 rounded-full p-2">
+                      <div className="flex items-center gap-1">
+                        <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                        <span className="text-sm font-semibold">{event.rating}</span>
                       </div>
                     </div>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-[#2F2F2F] mb-4">{restaurant.location}</p>
-                    <Link to={`/restaurant/${restaurant.id}`}>
-                      <Button className="w-full btn-primary">View Details</Button>
-                    </Link>
+                  </div>
+                  
+                  <CardContent className="p-6">
+                    <h3 className="text-xl font-bold text-[#0C0C0C] mb-2">{event.title}</h3>
+                    <div className="space-y-2 mb-4">
+                      <div className="flex items-center text-[#2F2F2F]">
+                        <Building className="h-4 w-4 mr-2" />
+                        <span className="text-sm">{event.venue}</span>
+                      </div>
+                      <div className="flex items-center text-[#2F2F2F]">
+                        <MapPin className="h-4 w-4 mr-2" />
+                        <span className="text-sm">{event.location}</span>
+                      </div>
+                      <div className="flex items-center text-[#2F2F2F]">
+                        <Users className="h-4 w-4 mr-2" />
+                        <span className="text-sm">{event.guests} guests</span>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center justify-between">
+                      <div className="text-2xl font-bold text-[#8B0000]">{event.price}</div>
+                      <Link to="/ai-assistant">
+                        <Button size="sm" className="bg-[#D4AF37] hover:bg-[#B8941F] text-[#0C0C0C]">
+                          Book Now
+                        </Button>
+                      </Link>
+                    </div>
                   </CardContent>
                 </Card>
               ))}
             </div>
-            
-            <div className="text-center mt-8">
-              <Link to="/discovery">
-                <Button className="btn-secondary">View All Restaurants</Button>
+
+            <div className="text-center mt-12">
+              <Link to="/events">
+                <Button className="bg-[#8B0000] hover:bg-[#660000] text-[#FFF5E1] px-8 py-3">
+                  Explore All Events
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
               </Link>
             </div>
           </div>
         </section>
 
-        {/* AI Assistant Preview */}
-        <section className="py-16 bg-[#0C0C0C]">
-          <div className="container mx-auto px-4">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-              <div>
-                <h2 className="text-4xl font-bold text-[#FFF5E1] mb-6">AI-Powered Event Planning</h2>
-                <p className="text-lg text-[#FFF5E1]/80 mb-8">
-                  Let our advanced AI assistant help you plan the perfect event. From venue selection to menu curation, 
-                  get personalized recommendations based on your preferences, budget, and guest count.
-                </p>
-                <div className="space-y-4 mb-8">
-                  <div className="flex items-center space-x-3">
-                    <Sparkles className="h-5 w-5 text-[#D4AF37]" />
-                    <span className="text-[#FFF5E1]">Smart venue matching based on your requirements</span>
-                  </div>
-                  <div className="flex items-center space-x-3">
-                    <Users className="h-5 w-5 text-[#D4AF37]" />
-                    <span className="text-[#FFF5E1]">Optimized for guest count and budget</span>
-                  </div>
-                  <div className="flex items-center space-x-3">
-                    <Calendar className="h-5 w-5 text-[#D4AF37]" />
-                    <span className="text-[#FFF5E1]">Real-time availability and instant booking</span>
-                  </div>
-                </div>
-                <Link to="/ai-assistant">
-                  <Button className="btn-secondary">Try AI Assistant</Button>
-                </Link>
-              </div>
-              <div className="relative">
-                <div className="bg-[#2F2F2F] rounded-lg p-6 border border-[#D4AF37]">
-                  <div className="flex items-center space-x-2 mb-4">
-                    <Sparkles className="h-5 w-5 text-[#D4AF37]" />
-                    <span className="text-[#D4AF37] font-semibold">AI Assistant</span>
-                  </div>
-                  <p className="text-[#FFF5E1] text-sm">
-                    "Based on your requirements for a wedding with 150 guests and a budget of ₹5,00,000, 
-                    I recommend The Royal Gardens venue with their premium package..."
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
+        <FeaturedSection />
 
-        {/* Quick Search */}
-        <section className="py-16 bg-[#FFF5E1]">
-          <div className="container mx-auto px-4">
-            <div className="text-center mb-12">
-              <h2 className="text-4xl font-bold text-[#0C0C0C] mb-4">Find Your Perfect Experience</h2>
-              <p className="text-lg text-[#2F2F2F]">Quick access to our most popular categories</p>
-            </div>
-            
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-              <Link to="/dining" className="card-luxury p-6 text-center">
-                <ChefHat className="h-12 w-12 text-[#8B0000] mx-auto mb-4" />
-                <h3 className="font-semibold text-[#0C0C0C] mb-2">Fine Dining</h3>
-                <p className="text-sm text-[#2F2F2F]">Premium restaurants</p>
-              </Link>
-              <Link to="/events" className="card-luxury p-6 text-center">
-                <Calendar className="h-12 w-12 text-[#8B0000] mx-auto mb-4" />
-                <h3 className="font-semibold text-[#0C0C0C] mb-2">Events</h3>
-                <p className="text-sm text-[#2F2F2F]">Banquet halls</p>
-              </Link>
-              <Link to="/ai-assistant" className="card-luxury p-6 text-center">
-                <Sparkles className="h-12 w-12 text-[#8B0000] mx-auto mb-4" />
-                <h3 className="font-semibold text-[#0C0C0C] mb-2">AI Assistant</h3>
-                <p className="text-sm text-[#2F2F2F]">Smart planning</p>
-              </Link>
-              <Link to="/3d-preview" className="card-luxury p-6 text-center">
-                <Eye className="h-12 w-12 text-[#8B0000] mx-auto mb-4" />
-                <h3 className="font-semibold text-[#0C0C0C] mb-2">3D Preview</h3>
-                <p className="text-sm text-[#2F2F2F]">Virtual tours</p>
-              </Link>
-            </div>
-          </div>
-        </section>
-
-        {/* CTA Section */}
-        <section className="py-16 bg-gradient-to-r from-[#8B0000] to-[#D4AF37]">
+        {/* Call to Action Section */}
+        <section className="py-16 bg-gradient-to-r from-[#8B0000] to-[#660000]">
           <div className="container mx-auto px-4 text-center">
-            <h2 className="text-4xl font-bold text-[#FFF5E1] mb-4">Ready to Create Magic?</h2>
+            <h2 className="text-3xl md:text-4xl font-bold text-[#FFF5E1] mb-4">
+              Ready to Create Unforgettable Experiences?
+            </h2>
             <p className="text-xl text-[#FFF5E1]/90 mb-8 max-w-2xl mx-auto">
-              Join thousands of satisfied customers who trust DineVibe for their perfect dining and event experiences.
+              Join thousands of satisfied customers who trust DineVibe for their special moments
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="/discovery">
-                <Button className="bg-[#FFF5E1] text-[#0C0C0C] hover:bg-[#FFF5E1]/90 px-8 py-3">
-                  Explore Venues
+              <Link to="/ai-assistant">
+                <Button size="lg" className="bg-[#D4AF37] hover:bg-[#B8941F] text-[#0C0C0C] px-8">
+                  Plan My Event
+                  <Sparkles className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
               <Link to="/partner-with-us">
-                <Button variant="outline" className="border-[#FFF5E1] text-[#FFF5E1] hover:bg-[#FFF5E1] hover:text-[#0C0C0C] px-8 py-3">
-                  Become a Partner
+                <Button size="lg" variant="outline" className="border-[#FFF5E1] text-[#FFF5E1] hover:bg-[#FFF5E1] hover:text-[#8B0000] px-8">
+                  Partner With Us
+                  <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
             </div>
