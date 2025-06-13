@@ -5,246 +5,307 @@ import Footer from '@/components/layout/Footer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Calendar, Clock, Users, Star, MapPin, ChefHat } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { 
+  Search, 
+  MapPin, 
+  Star, 
+  Clock,
+  Users,
+  Filter,
+  Heart,
+  Calendar,
+  ChefHat,
+  Sparkles
+} from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const Dining: React.FC = () => {
-  const [selectedDate, setSelectedDate] = useState('');
-  const [selectedTime, setSelectedTime] = useState('');
-  const [guestCount, setGuestCount] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCuisine, setSelectedCuisine] = useState('all');
+  const [selectedLocation, setSelectedLocation] = useState('all');
 
-  const diningRestaurants = [
+  const restaurants = [
     {
-      id: '1',
-      name: 'The Royal Feast',
-      image: 'https://images.unsplash.com/photo-1551218808-94e220e084d2?q=80&w=400',
-      cuisine: 'Multi-Cuisine',
+      id: 1,
+      name: "The Royal Banquet",
+      image: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=800",
+      cuisine: "Multi-Cuisine",
+      location: "Mumbai Central",
       rating: 4.8,
-      location: 'Bandra West, Mumbai',
-      price: '₹₹₹₹',
-      availability: 'Available',
-      waitTime: '15 mins',
-      speciality: 'Live Kitchen'
+      reviewCount: 342,
+      priceRange: "₹2,000-5,000",
+      distance: "2.3 km",
+      openNow: true,
+      features: ["Air Conditioning", "Parking", "Live Music"],
+      speciality: "Royal Dining Experience",
+      hasVirtualTour: true,
+      responseTime: "15 mins"
     },
     {
-      id: '2',
-      name: 'Spice Symphony',
-      image: 'https://images.unsplash.com/photo-1585937421612-70a008356fbe?q=80&w=400',
-      cuisine: 'Indian',
+      id: 2,
+      name: "Garden Paradise",
+      image: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?q=80&w=800",
+      cuisine: "Indian & Continental",
+      location: "Delhi NCR",
       rating: 4.6,
-      location: 'Connaught Place, Delhi',
-      price: '₹₹₹',
-      availability: 'Available',
-      waitTime: '10 mins',
-      speciality: 'Tandoor Special'
+      reviewCount: 256,
+      priceRange: "₹1,500-3,500",
+      distance: "1.8 km",
+      openNow: true,
+      features: ["Garden Seating", "WiFi", "Bar"],
+      speciality: "Garden Dining",
+      hasVirtualTour: true,
+      responseTime: "20 mins"
     },
     {
-      id: '3',
-      name: 'Coastal Breeze',
-      image: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=400',
-      cuisine: 'Seafood',
-      rating: 4.4,
-      location: 'Marine Drive, Mumbai',
-      price: '₹₹₹₹',
-      availability: 'Filling Fast',
-      waitTime: '25 mins',
-      speciality: 'Ocean View'
-    },
-    {
-      id: '4',
-      name: 'Heritage Dining',
-      image: 'https://images.unsplash.com/photo-1514933651103-005eec06c04b?q=80&w=400',
-      cuisine: 'North Indian',
-      rating: 4.5,
-      location: 'Karol Bagh, Delhi',
-      price: '₹₹₹',
-      availability: 'Available',
-      waitTime: '20 mins',
-      speciality: 'Traditional Ambiance'
+      id: 3,
+      name: "Modern Events Hub",
+      image: "https://images.unsplash.com/photo-1551218808-94e220e084d2?q=80&w=800",
+      cuisine: "International",
+      location: "Bangalore",
+      rating: 4.7,
+      reviewCount: 189,
+      priceRange: "₹3,000-6,000",
+      distance: "3.1 km",
+      openNow: false,
+      features: ["Modern Ambience", "Private Rooms", "Valet"],
+      speciality: "Contemporary Fine Dining",
+      hasVirtualTour: true,
+      responseTime: "10 mins"
     }
   ];
+
+  const cuisines = ["All", "Indian", "Continental", "Chinese", "Italian", "Multi-Cuisine", "International"];
+  const locations = ["All", "Mumbai", "Delhi NCR", "Bangalore", "Pune", "Hyderabad"];
+
+  const filteredRestaurants = restaurants.filter(restaurant => {
+    const matchesSearch = restaurant.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         restaurant.cuisine.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCuisine = selectedCuisine === 'all' || restaurant.cuisine.toLowerCase().includes(selectedCuisine.toLowerCase());
+    const matchesLocation = selectedLocation === 'all' || restaurant.location.toLowerCase().includes(selectedLocation.toLowerCase());
+    
+    return matchesSearch && matchesCuisine && matchesLocation;
+  });
 
   return (
     <div className="min-h-screen flex flex-col bg-[#FFF5E1]">
       <Navbar />
       
       <main className="flex-grow">
-        {/* Header */}
-        <div className="bg-[#0C0C0C] py-16">
-          <div className="container mx-auto px-4 text-center">
-            <h1 className="text-4xl md:text-5xl font-bold text-[#FFF5E1] mb-4">
-              Premium Dining Experience
-            </h1>
-            <p className="text-xl text-[#FFF5E1]/90 max-w-2xl mx-auto">
-              Book tables at finest restaurants for an unforgettable dining experience
-            </p>
-          </div>
-        </div>
-
-        {/* Booking Form */}
-        <div className="bg-[#2F2F2F] py-8">
+        {/* Header Section */}
+        <div className="bg-gradient-to-br from-[#0C0C0C] to-[#2F2F2F] py-16">
           <div className="container mx-auto px-4">
-            <Card className="max-w-4xl mx-auto bg-[#FFF5E1] border-[#D4AF37]">
-              <CardHeader>
-                <CardTitle className="text-[#0C0C0C] text-center flex items-center justify-center">
-                  <ChefHat className="mr-2 h-6 w-6 text-[#8B0000]" />
-                  Find Your Perfect Table
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
+            <div className="text-center text-[#FFF5E1] mb-8">
+              <h1 className="text-4xl md:text-5xl font-bold mb-4">
+                <ChefHat className="inline mr-3 h-10 w-10 text-[#D4AF37]" />
+                Premium Dining
+              </h1>
+              <p className="text-xl text-[#FFF5E1]/90 max-w-3xl mx-auto">
+                Discover curated restaurants and book tables at India's finest dining destinations
+              </p>
+            </div>
+
+            {/* Search Bar */}
+            <div className="max-w-4xl mx-auto">
+              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                  <div className="relative">
-                    <Calendar className="absolute left-3 top-3 h-4 w-4 text-[#2F2F2F]" />
-                    <Input 
-                      type="date"
-                      value={selectedDate}
-                      onChange={(e) => setSelectedDate(e.target.value)}
-                      className="pl-10 border-[#D4AF37]"
-                    />
+                  <div className="md:col-span-2">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-[#2F2F2F]" />
+                      <Input
+                        placeholder="Search restaurants, cuisines..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="pl-10 bg-white border-none text-[#0C0C0C]"
+                      />
+                    </div>
                   </div>
-                  <div className="relative">
-                    <Clock className="absolute left-3 top-3 h-4 w-4 text-[#2F2F2F]" />
-                    <Select value={selectedTime} onValueChange={setSelectedTime}>
-                      <SelectTrigger className="pl-10 border-[#D4AF37]">
-                        <SelectValue placeholder="Select Time" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="12:00">12:00 PM</SelectItem>
-                        <SelectItem value="13:00">1:00 PM</SelectItem>
-                        <SelectItem value="14:00">2:00 PM</SelectItem>
-                        <SelectItem value="19:00">7:00 PM</SelectItem>
-                        <SelectItem value="20:00">8:00 PM</SelectItem>
-                        <SelectItem value="21:00">9:00 PM</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="relative">
-                    <Users className="absolute left-3 top-3 h-4 w-4 text-[#2F2F2F]" />
-                    <Select value={guestCount} onValueChange={setGuestCount}>
-                      <SelectTrigger className="pl-10 border-[#D4AF37]">
-                        <SelectValue placeholder="Guests" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="1">1 Guest</SelectItem>
-                        <SelectItem value="2">2 Guests</SelectItem>
-                        <SelectItem value="3">3 Guests</SelectItem>
-                        <SelectItem value="4">4 Guests</SelectItem>
-                        <SelectItem value="5">5+ Guests</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <Button className="btn-primary">
-                    Search Tables
-                  </Button>
+                  
+                  <select 
+                    value={selectedCuisine}
+                    onChange={(e) => setSelectedCuisine(e.target.value)}
+                    className="px-4 py-3 rounded-lg bg-white text-[#0C0C0C] border-none outline-none"
+                  >
+                    {cuisines.map(cuisine => (
+                      <option key={cuisine} value={cuisine.toLowerCase()}>{cuisine}</option>
+                    ))}
+                  </select>
+                  
+                  <select 
+                    value={selectedLocation}
+                    onChange={(e) => setSelectedLocation(e.target.value)}
+                    className="px-4 py-3 rounded-lg bg-white text-[#0C0C0C] border-none outline-none"
+                  >
+                    {locations.map(location => (
+                      <option key={location} value={location.toLowerCase()}>{location}</option>
+                    ))}
+                  </select>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Available Restaurants */}
-        <div className="container mx-auto px-4 py-12">
-          <div className="mb-8">
-            <h2 className="text-3xl font-bold text-[#0C0C0C] mb-2">Available Restaurants</h2>
-            <p className="text-[#2F2F2F]">Premium dining establishments with immediate availability</p>
+        {/* Quick Stats */}
+        <div className="bg-[#8B0000] py-8">
+          <div className="container mx-auto px-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center text-[#FFF5E1]">
+              <div>
+                <div className="text-3xl font-bold mb-2">2,500+</div>
+                <div className="text-[#FFF5E1]/80">Partner Restaurants</div>
+              </div>
+              <div>
+                <div className="text-3xl font-bold mb-2">50,000+</div>
+                <div className="text-[#FFF5E1]/80">Happy Diners</div>
+              </div>
+              <div>
+                <div className="text-3xl font-bold mb-2">4.8★</div>
+                <div className="text-[#FFF5E1]/80">Average Rating</div>
+              </div>
+              <div>
+                <div className="text-3xl font-bold mb-2">24/7</div>
+                <div className="text-[#FFF5E1]/80">Booking Support</div>
+              </div>
+            </div>
           </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {diningRestaurants.map((restaurant) => (
-              <Card key={restaurant.id} className="card-luxury overflow-hidden">
-                <div className="grid grid-cols-1 md:grid-cols-2">
-                  <div className="relative">
-                    <img 
-                      src={restaurant.image} 
-                      alt={restaurant.name}
-                      className="w-full h-48 md:h-full object-cover"
-                    />
-                    <div className="absolute top-4 right-4 bg-[#8B0000] text-[#FFF5E1] px-2 py-1 rounded-full text-sm font-semibold">
-                      {restaurant.price}
+        </div>
+
+        {/* Restaurant Listings */}
+        <div className="container mx-auto px-4 py-12">
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="text-3xl font-bold text-[#0C0C0C]">
+              Available Restaurants ({filteredRestaurants.length})
+            </h2>
+            <Button variant="outline" className="border-[#D4AF37] text-[#D4AF37]">
+              <Filter className="h-4 w-4 mr-2" />
+              More Filters
+            </Button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {filteredRestaurants.map((restaurant) => (
+              <Card key={restaurant.id} className="group hover:shadow-xl transition-all duration-300 border-[#D4AF37] overflow-hidden">
+                <div className="relative">
+                  <img
+                    src={restaurant.image}
+                    alt={restaurant.name}
+                    className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                  <div className="absolute top-4 left-4">
+                    {restaurant.openNow ? (
+                      <Badge className="bg-green-600 text-white">Open Now</Badge>
+                    ) : (
+                      <Badge className="bg-red-600 text-white">Closed</Badge>
+                    )}
+                  </div>
+                  <div className="absolute top-4 right-4">
+                    <Button size="sm" variant="ghost" className="bg-white/80 hover:bg-white text-[#8B0000]">
+                      <Heart className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  {restaurant.hasVirtualTour && (
+                    <div className="absolute bottom-4 left-4">
+                      <Badge className="bg-[#D4AF37] text-[#0C0C0C]">
+                        <Sparkles className="h-3 w-3 mr-1" />
+                        360° Tour
+                      </Badge>
+                    </div>
+                  )}
+                </div>
+
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="text-xl font-bold text-[#0C0C0C]">{restaurant.name}</h3>
+                    <div className="flex items-center">
+                      <Star className="h-4 w-4 fill-yellow-400 text-yellow-400 mr-1" />
+                      <span className="font-semibold">{restaurant.rating}</span>
+                      <span className="text-sm text-[#2F2F2F] ml-1">({restaurant.reviewCount})</span>
                     </div>
                   </div>
-                  <div className="p-6">
-                    <div className="flex items-center justify-between mb-2">
-                      <h3 className="text-xl font-bold text-[#0C0C0C]">{restaurant.name}</h3>
-                      <div className="flex items-center">
-                        <Star className="h-4 w-4 text-[#D4AF37] fill-current" />
-                        <span className="ml-1 font-semibold">{restaurant.rating}</span>
-                      </div>
+
+                  <p className="text-[#8B0000] font-medium mb-2">{restaurant.speciality}</p>
+                  
+                  <div className="space-y-2 mb-4">
+                    <div className="flex items-center text-[#2F2F2F]">
+                      <ChefHat className="h-4 w-4 mr-2" />
+                      <span className="text-sm">{restaurant.cuisine}</span>
                     </div>
-                    
-                    <p className="text-[#2F2F2F] mb-2">{restaurant.cuisine}</p>
-                    
-                    <div className="flex items-center space-x-2 mb-3">
-                      <MapPin className="h-4 w-4 text-[#8B0000]" />
-                      <span className="text-sm text-[#2F2F2F]">{restaurant.location}</span>
+                    <div className="flex items-center text-[#2F2F2F]">
+                      <MapPin className="h-4 w-4 mr-2" />
+                      <span className="text-sm">{restaurant.location} • {restaurant.distance}</span>
                     </div>
-                    
-                    <div className="flex items-center justify-between mb-4">
-                      <span className={`text-sm font-semibold ${
-                        restaurant.availability === 'Available' ? 'text-green-600' : 'text-orange-600'
-                      }`}>
-                        {restaurant.availability}
-                      </span>
-                      <span className="text-sm text-[#2F2F2F]">Wait: {restaurant.waitTime}</span>
+                    <div className="flex items-center text-[#2F2F2F]">
+                      <Clock className="h-4 w-4 mr-2" />
+                      <span className="text-sm">Response time: {restaurant.responseTime}</span>
                     </div>
-                    
-                    <div className="bg-[#D4AF37]/10 p-2 rounded mb-4">
-                      <span className="text-sm font-medium text-[#8B0000]">
-                        ✨ {restaurant.speciality}
-                      </span>
-                    </div>
-                    
-                    <div className="flex space-x-2">
-                      <Link to={`/restaurant/${restaurant.id}`} className="flex-1">
-                        <Button variant="outline" className="w-full border-[#8B0000] text-[#8B0000] hover:bg-[#8B0000] hover:text-[#FFF5E1]">
-                          View Menu
+                  </div>
+
+                  <div className="flex flex-wrap gap-1 mb-4">
+                    {restaurant.features.slice(0, 3).map((feature, index) => (
+                      <Badge key={index} variant="secondary" className="text-xs">
+                        {feature}
+                      </Badge>
+                    ))}
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div className="text-lg font-bold text-[#8B0000]">{restaurant.priceRange}</div>
+                    <div className="flex gap-2">
+                      {restaurant.hasVirtualTour && (
+                        <Link to="/3d-preview">
+                          <Button size="sm" variant="outline" className="border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-[#0C0C0C]">
+                            360° View
+                          </Button>
+                        </Link>
+                      )}
+                      <Link to="/booking-confirmation">
+                        <Button size="sm" className="bg-[#8B0000] hover:bg-[#660000] text-[#FFF5E1]">
+                          <Calendar className="h-4 w-4 mr-1" />
+                          Book Table
                         </Button>
                       </Link>
-                      <Link to={`/book/${restaurant.id}`}>
-                        <Button className="btn-primary">Book Table</Button>
-                      </Link>
                     </div>
                   </div>
-                </div>
+                </CardContent>
               </Card>
             ))}
           </div>
+
+          {filteredRestaurants.length === 0 && (
+            <div className="text-center py-12">
+              <div className="text-6xl mb-4">🍽️</div>
+              <h3 className="text-2xl font-bold text-[#0C0C0C] mb-2">No restaurants found</h3>
+              <p className="text-[#2F2F2F] mb-6">Try adjusting your search criteria or location</p>
+              <Button 
+                onClick={() => {
+                  setSearchTerm('');
+                  setSelectedCuisine('all');
+                  setSelectedLocation('all');
+                }}
+                className="bg-[#8B0000] hover:bg-[#660000] text-[#FFF5E1]"
+              >
+                Clear Filters
+              </Button>
+            </div>
+          )}
         </div>
 
-        {/* Special Features */}
-        <div className="bg-[#0C0C0C] py-16">
-          <div className="container mx-auto px-4">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-[#FFF5E1] mb-4">Why Choose DineVibe?</h2>
-              <p className="text-[#FFF5E1]/80 max-w-2xl mx-auto">
-                Premium dining experiences with exclusive benefits and seamless booking
-              </p>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div className="text-center">
-                <div className="w-16 h-16 bg-[#8B0000] rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Clock className="h-8 w-8 text-[#FFF5E1]" />
-                </div>
-                <h3 className="text-xl font-semibold text-[#FFF5E1] mb-2">Instant Booking</h3>
-                <p className="text-[#FFF5E1]/80">Real-time availability and instant confirmation</p>
-              </div>
-              <div className="text-center">
-                <div className="w-16 h-16 bg-[#D4AF37] rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Star className="h-8 w-8 text-[#0C0C0C]" />
-                </div>
-                <h3 className="text-xl font-semibold text-[#FFF5E1] mb-2">Premium Only</h3>
-                <p className="text-[#FFF5E1]/80">Only restaurants with 4.2+ ratings</p>
-              </div>
-              <div className="text-center">
-                <div className="w-16 h-16 bg-[#8B0000] rounded-full flex items-center justify-center mx-auto mb-4">
-                  <ChefHat className="h-8 w-8 text-[#FFF5E1]" />
-                </div>
-                <h3 className="text-xl font-semibold text-[#FFF5E1] mb-2">Curated Experience</h3>
-                <p className="text-[#FFF5E1]/80">Hand-picked restaurants for exceptional dining</p>
-              </div>
-            </div>
+        {/* AI Assistant CTA */}
+        <div className="bg-gradient-to-r from-[#D4AF37] to-[#B8941F] py-16">
+          <div className="container mx-auto px-4 text-center">
+            <h2 className="text-3xl md:text-4xl font-bold text-[#0C0C0C] mb-4">
+              Need Help Choosing?
+            </h2>
+            <p className="text-xl text-[#0C0C0C]/90 mb-8 max-w-2xl mx-auto">
+              Let our AI assistant help you find the perfect restaurant based on your preferences, occasion, and budget
+            </p>
+            <Link to="/ai-assistant">
+              <Button size="lg" className="bg-[#8B0000] hover:bg-[#660000] text-[#FFF5E1] px-8">
+                <Sparkles className="mr-2 h-5 w-5" />
+                Ask AI Assistant
+              </Button>
+            </Link>
           </div>
         </div>
       </main>
