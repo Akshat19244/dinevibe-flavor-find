@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
@@ -17,12 +16,17 @@ import {
   BarChart3,
   FileText,
   MessageSquare,
-  Bell
+  Bell,
+  Plus
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import BookingManagement from '@/components/owner/BookingManagement';
+import AnalyticsDashboard from '@/components/owner/AnalyticsDashboard';
+import VenueRegistrationForm from '@/components/owner/VenueRegistrationForm';
 
 const OwnerDashboard: React.FC = () => {
   const [selectedTimeRange, setSelectedTimeRange] = useState('7days');
+  const [hasVenue, setHasVenue] = useState(true); // In real app, check from database
 
   // Sample data - would come from Firebase/Supabase in real implementation
   const stats = {
@@ -106,6 +110,33 @@ const OwnerDashboard: React.FC = () => {
       default: return 'bg-gray-100 text-gray-800';
     }
   };
+
+  if (!hasVenue) {
+    return (
+      <div className="min-h-screen flex flex-col bg-[#FFF5E1]">
+        <Navbar />
+        
+        <main className="flex-grow">
+          <div className="bg-[#0C0C0C] py-12">
+            <div className="container mx-auto px-4 text-center">
+              <h1 className="text-3xl md:text-4xl font-bold text-[#FFF5E1] mb-4">
+                Welcome to DineVibe Partner Portal
+              </h1>
+              <p className="text-[#FFF5E1]/90 text-lg">
+                Register your venue to start receiving bookings and managing your business
+              </p>
+            </div>
+          </div>
+          
+          <div className="container mx-auto px-4 py-8">
+            <VenueRegistrationForm />
+          </div>
+        </main>
+        
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-[#FFF5E1]">
@@ -208,12 +239,13 @@ const OwnerDashboard: React.FC = () => {
           
           {/* Main Content Tabs */}
           <Tabs defaultValue="overview" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-5">
+            <TabsList className="grid w-full grid-cols-6">
               <TabsTrigger value="overview">Overview</TabsTrigger>
               <TabsTrigger value="bookings">Bookings</TabsTrigger>
               <TabsTrigger value="analytics">Analytics</TabsTrigger>
-              <TabsTrigger value="reviews">Reviews</TabsTrigger>
               <TabsTrigger value="venue">Venue</TabsTrigger>
+              <TabsTrigger value="media">Media</TabsTrigger>
+              <TabsTrigger value="settings">Settings</TabsTrigger>
             </TabsList>
             
             {/* Overview Tab */}
@@ -232,18 +264,22 @@ const OwnerDashboard: React.FC = () => {
                           Add Event
                         </Button>
                       </Link>
-                      <Link to="/owner/analytics">
-                        <Button variant="outline" className="w-full border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-[#0C0C0C]">
-                          <BarChart3 className="h-4 w-4 mr-2" />
-                          Analytics
-                        </Button>
-                      </Link>
-                      <Link to="/owner/track-bookings">
-                        <Button variant="outline" className="w-full border-[#2F2F2F] text-[#2F2F2F] hover:bg-[#2F2F2F] hover:text-[#FFF5E1]">
-                          <Users className="h-4 w-4 mr-2" />
-                          Manage Bookings
-                        </Button>
-                      </Link>
+                      <Button 
+                        variant="outline" 
+                        className="w-full border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-[#0C0C0C]"
+                        onClick={() => document.querySelector('[data-state="active"][value="analytics"]')?.click()}
+                      >
+                        <BarChart3 className="h-4 w-4 mr-2" />
+                        Analytics
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        className="w-full border-[#2F2F2F] text-[#2F2F2F] hover:bg-[#2F2F2F] hover:text-[#FFF5E1]"
+                        onClick={() => document.querySelector('[data-state="active"][value="bookings"]')?.click()}
+                      >
+                        <Users className="h-4 w-4 mr-2" />
+                        Manage Bookings
+                      </Button>
                       <Link to="/owner/settings">
                         <Button variant="outline" className="w-full border-[#2F2F2F] text-[#2F2F2F] hover:bg-[#2F2F2F] hover:text-[#FFF5E1]">
                           <Settings className="h-4 w-4 mr-2" />
@@ -290,35 +326,40 @@ const OwnerDashboard: React.FC = () => {
                 </Card>
               </div>
 
-              {/* Recent Activity */}
+              {/* Recent Notifications */}
               <Card className="card-luxury">
                 <CardHeader>
-                  <CardTitle className="text-[#0C0C0C]">Recent Bookings</CardTitle>
+                  <CardTitle className="text-[#0C0C0C] flex items-center">
+                    <Bell className="h-5 w-5 mr-2" />
+                    Recent Notifications
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
-                    {recentBookings.map((booking) => (
-                      <div key={booking.id} className="flex items-center justify-between p-4 border border-[#2F2F2F]/20 rounded-lg">
-                        <div className="flex-1">
-                          <h4 className="font-semibold text-[#0C0C0C]">{booking.customerName}</h4>
-                          <p className="text-sm text-[#2F2F2F]">{booking.eventType} • {booking.guests} guests</p>
-                          <p className="text-xs text-[#2F2F2F]">{booking.date} at {booking.time}</p>
-                        </div>
-                        <div className="flex items-center space-x-4">
-                          <span className="font-semibold text-[#0C0C0C]">{formatCurrency(booking.amount)}</span>
-                          <Badge className={getStatusColor(booking.status)}>
-                            {booking.status}
-                          </Badge>
-                        </div>
+                  <div className="space-y-3">
+                    <div className="flex items-start space-x-3 p-3 bg-yellow-50 rounded-lg">
+                      <div className="w-2 h-2 bg-yellow-500 rounded-full mt-2"></div>
+                      <div>
+                        <p className="text-sm font-medium text-[#0C0C0C]">New booking request from Priya Sharma</p>
+                        <p className="text-xs text-[#2F2F2F]">Wedding reception for 150 guests on July 15th</p>
+                        <p className="text-xs text-[#2F2F2F]">2 hours ago</p>
                       </div>
-                    ))}
-                  </div>
-                  <div className="mt-4 text-center">
-                    <Link to="/owner/track-bookings">
-                      <Button variant="outline" className="border-[#8B0000] text-[#8B0000]">
-                        View All Bookings
-                      </Button>
-                    </Link>
+                    </div>
+                    <div className="flex items-start space-x-3 p-3 bg-green-50 rounded-lg">
+                      <div className="w-2 h-2 bg-green-500 rounded-full mt-2"></div>
+                      <div>
+                        <p className="text-sm font-medium text-[#0C0C0C]">Payment received for booking #BK002</p>
+                        <p className="text-xs text-[#2F2F2F]">₹35,000 from Rajesh Kumar</p>
+                        <p className="text-xs text-[#2F2F2F]">5 hours ago</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start space-x-3 p-3 bg-blue-50 rounded-lg">
+                      <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
+                      <div>
+                        <p className="text-sm font-medium text-[#0C0C0C]">New review posted by Anjali Gupta</p>
+                        <p className="text-xs text-[#2F2F2F]">5-star rating with positive feedback</p>
+                        <p className="text-xs text-[#2F2F2F]">1 day ago</p>
+                      </div>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -326,116 +367,12 @@ const OwnerDashboard: React.FC = () => {
 
             {/* Bookings Tab */}
             <TabsContent value="bookings">
-              <Card className="card-luxury">
-                <CardHeader>
-                  <CardTitle className="text-[#0C0C0C]">All Bookings</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {recentBookings.map((booking) => (
-                      <div key={booking.id} className="p-4 border border-[#2F2F2F]/20 rounded-lg">
-                        <div className="flex items-center justify-between mb-2">
-                          <h4 className="font-semibold text-[#0C0C0C]">{booking.customerName}</h4>
-                          <Badge className={getStatusColor(booking.status)}>
-                            {booking.status}
-                          </Badge>
-                        </div>
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                          <div>
-                            <span className="text-[#2F2F2F]">Event:</span>
-                            <p className="font-medium">{booking.eventType}</p>
-                          </div>
-                          <div>
-                            <span className="text-[#2F2F2F]">Date:</span>
-                            <p className="font-medium">{booking.date}</p>
-                          </div>
-                          <div>
-                            <span className="text-[#2F2F2F]">Guests:</span>
-                            <p className="font-medium">{booking.guests}</p>
-                          </div>
-                          <div>
-                            <span className="text-[#2F2F2F]">Amount:</span>
-                            <p className="font-medium text-[#8B0000]">{formatCurrency(booking.amount)}</p>
-                          </div>
-                        </div>
-                        <div className="mt-4 flex space-x-2">
-                          <Button size="sm" className="bg-[#8B0000] hover:bg-[#660000] text-[#FFF5E1]">
-                            View Details
-                          </Button>
-                          <Button size="sm" variant="outline" className="border-[#D4AF37] text-[#D4AF37]">
-                            Contact Customer
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
+              <BookingManagement />
             </TabsContent>
 
             {/* Analytics Tab */}
             <TabsContent value="analytics">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <Card className="card-luxury">
-                  <CardHeader>
-                    <CardTitle className="text-[#0C0C0C]">Revenue Analytics</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="h-64 bg-[#2F2F2F]/5 rounded-lg flex items-center justify-center">
-                      <div className="text-center">
-                        <BarChart3 className="h-16 w-16 mx-auto text-[#8B0000] mb-4" />
-                        <p className="text-[#2F2F2F]">Revenue Chart Placeholder</p>
-                        <p className="text-sm text-[#2F2F2F]">Monthly revenue: {formatCurrency(stats.monthlyRevenue)}</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="card-luxury">
-                  <CardHeader>
-                    <CardTitle className="text-[#0C0C0C]">Booking Trends</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="h-64 bg-[#2F2F2F]/5 rounded-lg flex items-center justify-center">
-                      <div className="text-center">
-                        <TrendingUp className="h-16 w-16 mx-auto text-[#D4AF37] mb-4" />
-                        <p className="text-[#2F2F2F]">Booking Trends Chart</p>
-                        <p className="text-sm text-[#2F2F2F]">24% growth this quarter</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            </TabsContent>
-
-            {/* Reviews Tab */}
-            <TabsContent value="reviews">
-              <Card className="card-luxury">
-                <CardHeader>
-                  <CardTitle className="text-[#0C0C0C]">Customer Reviews</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {recentReviews.map((review, index) => (
-                      <div key={index} className="p-4 border border-[#2F2F2F]/20 rounded-lg">
-                        <div className="flex items-center justify-between mb-2">
-                          <h4 className="font-semibold text-[#0C0C0C]">{review.customerName}</h4>
-                          <div className="flex items-center space-x-1">
-                            {[...Array(5)].map((_, i) => (
-                              <Star 
-                                key={i} 
-                                className={`h-4 w-4 ${i < review.rating ? 'text-yellow-500 fill-current' : 'text-gray-300'}`} 
-                              />
-                            ))}
-                          </div>
-                        </div>
-                        <p className="text-[#2F2F2F] text-sm mb-2">{review.comment}</p>
-                        <p className="text-xs text-[#2F2F2F]">{review.date}</p>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
+              <AnalyticsDashboard />
             </TabsContent>
 
             {/* Venue Tab */}
@@ -485,6 +422,92 @@ const OwnerDashboard: React.FC = () => {
                         <MessageSquare className="h-4 w-4 mr-2" />
                         Manage Amenities
                       </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
+
+            {/* Media Tab */}
+            <TabsContent value="media">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <Card className="card-luxury">
+                  <CardHeader>
+                    <CardTitle className="text-[#0C0C0C]">Media</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-[#2F2F2F] mb-1">Photos</label>
+                        <p className="font-semibold">Upload photos to showcase your venue</p>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-[#2F2F2F] mb-1">Videos</label>
+                        <p className="font-semibold">Upload videos to showcase your venue</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="card-luxury">
+                  <CardHeader>
+                    <CardTitle className="text-[#0C0C0C]">Upload Media</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-[#2F2F2F] mb-1">Photos</label>
+                        <input type="file" className="w-full border border-gray-300 rounded-md p-2" />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-[#2F2F2F] mb-1">Videos</label>
+                        <input type="file" className="w-full border border-gray-300 rounded-md p-2" />
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
+
+            {/* Settings Tab */}
+            <TabsContent value="settings">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <Card className="card-luxury">
+                  <CardHeader>
+                    <CardTitle className="text-[#0C0C0C]">Settings</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-[#2F2F2F] mb-1">General</label>
+                        <p className="font-semibold">Manage your venue settings</p>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-[#2F2F2F] mb-1">Notifications</label>
+                        <p className="font-semibold">Manage your notifications</p>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-[#2F2F2F] mb-1">Security</label>
+                        <p className="font-semibold">Manage your security settings</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="card-luxury">
+                  <CardHeader>
+                    <CardTitle className="text-[#0C0C0C]">Profile</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-[#2F2F2F] mb-1">Profile Picture</label>
+                        <p className="font-semibold">Upload your profile picture</p>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-[#2F2F2F] mb-1">Personal Information</label>
+                        <p className="font-semibold">Update your personal information</p>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>

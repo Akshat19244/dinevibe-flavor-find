@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -24,6 +23,7 @@ import OwnerUploadEvent from '@/pages/owner/UploadEvent';
 import OwnerDeals from '@/pages/owner/Deals';
 import OwnerTrackBookings from '@/pages/owner/TrackBookings';
 import OwnerSettings from '@/pages/owner/Settings';
+import VenueRegistration from '@/pages/owner/VenueRegistration';
 
 // User pages
 import UserDashboard from '@/pages/user/Dashboard';
@@ -63,6 +63,7 @@ function App() {
               <Route path="/owner/deals" element={<OwnerDeals />} />
               <Route path="/owner/track-bookings" element={<OwnerTrackBookings />} />
               <Route path="/owner/settings" element={<OwnerSettings />} />
+              <Route path="/owner/register-venue" element={<VenueRegistration />} />
 
               {/* User Routes */}
               <Route path="/user/dashboard" element={<UserDashboard />} />
