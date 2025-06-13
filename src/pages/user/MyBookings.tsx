@@ -1,141 +1,227 @@
 
-import React, { useState, useEffect } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
-import Navbar from '@/components/ui/navbar';
-import Footer from '@/components/ui/footer';
+import React, { useState } from 'react';
+import Navbar from '@/components/layout/Navbar';
+import Footer from '@/components/layout/Footer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Calendar, Clock, MapPin, Users, Phone, Mail } from 'lucide-react';
-import { getUserReservations } from '@/lib/api/reservations';
-import { format } from 'date-fns';
+import { 
+  Calendar, 
+  Clock, 
+  Users, 
+  MapPin, 
+  Star,
+  Download,
+  MessageCircle,
+  Eye
+} from 'lucide-react';
 
 const MyBookings: React.FC = () => {
-  const { user } = useAuth();
-  const [bookings, setBookings] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [bookings] = useState([
+    {
+      token: 'DV12345ABCDE',
+      venue: 'The Royal Banquet',
+      eventType: 'Romantic Dinner',
+      date: '2024-01-20',
+      time: '19:00',
+      guests: 2,
+      status: 'confirmed',
+      createdAt: '2024-01-15',
+      image: 'https://images.unsplash.com/photo-1519167758481-83f29c2c47bf?q=80&w=400'
+    },
+    {
+      token: 'DV67890FGHIJ',
+      venue: 'Garden Paradise',
+      eventType: 'Birthday Celebration',
+      date: '2024-01-25',
+      time: '18:00',
+      guests: 8,
+      status: 'pending',
+      createdAt: '2024-01-16',
+      image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=400'
+    },
+    {
+      token: 'DV11111KKKKK',
+      venue: 'Modern Events Hub',
+      eventType: 'Business Meeting',
+      date: '2023-12-15',
+      time: '14:00',
+      guests: 5,
+      status: 'completed',
+      createdAt: '2023-12-10',
+      image: 'https://images.unsplash.com/photo-1551218808-94e220e084d2?q=80&w=400'
+    }
+  ]);
 
-  useEffect(() => {
-    const fetchBookings = async () => {
-      if (user) {
-        try {
-          const userBookings = await getUserReservations(user.id);
-          setBookings(userBookings);
-        } catch (error) {
-          console.error('Error fetching bookings:', error);
-        } finally {
-          setLoading(false);
-        }
-      }
-    };
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'confirmed': return 'bg-green-100 text-green-800';
+      case 'pending': return 'bg-yellow-100 text-yellow-800';
+      case 'completed': return 'bg-blue-100 text-blue-800';
+      case 'cancelled': return 'bg-red-100 text-red-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
 
-    fetchBookings();
-  }, [user]);
-
-  const upcomingBookings = bookings.filter(booking => 
-    new Date(booking.booking_date) >= new Date() && booking.status !== 'cancelled'
-  );
-  
-  const pastBookings = bookings.filter(booking => 
-    new Date(booking.booking_date) < new Date() || booking.status === 'completed'
-  );
-
-  const BookingCard = ({ booking, type }) => (
-    <Card className="mb-4 hover:shadow-md transition-shadow">
-      <CardHeader>
-        <div className="flex justify-between items-start">
-          <div>
-            <CardTitle className="text-lg text-[#2E3A59]">
-              {booking.restaurants?.name || 'Venue Booking'}
-            </CardTitle>
-            <p className="text-slate-600">{booking.event_type}</p>
-          </div>
-          <Badge 
-            variant={booking.status === 'confirmed' ? 'default' : 
-                    booking.status === 'pending' ? 'secondary' : 'destructive'}
-          >
-            {booking.status}
-          </Badge>
-        </div>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-3">
-          <div className="flex items-center gap-2 text-sm">
-            <Calendar className="h-4 w-4 text-[#FF6F61]" />
-            <span>{format(new Date(booking.booking_date), 'PPP')}</span>
-          </div>
-          <div className="flex items-center gap-2 text-sm">
-            <Users className="h-4 w-4 text-[#FF6F61]" />
-            <span>{booking.guest_count} guests</span>
-          </div>
-          <div className="flex items-center gap-2 text-sm">
-            <MapPin className="h-4 w-4 text-[#FF6F61]" />
-            <span>{booking.location}</span>
-          </div>
-          <div className="flex items-center gap-2 text-sm">
-            <span className="font-medium">Budget: ₹{booking.budget}</span>
-          </div>
-          {type === 'upcoming' && booking.status === 'confirmed' && (
-            <div className="flex gap-2 mt-4">
-              <Button size="sm" variant="outline">Modify</Button>
-              <Button size="sm" variant="destructive">Cancel</Button>
-            </div>
-          )}
-        </div>
-      </CardContent>
-    </Card>
-  );
+  const upcomingBookings = bookings.filter(b => b.status === 'confirmed' || b.status === 'pending');
+  const pastBookings = bookings.filter(b => b.status === 'completed' || b.status === 'cancelled');
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#FDF5E6]">
-      <Navbar userType="customer" userName={user?.user_metadata?.name || 'User'} />
+    <div className="min-h-screen flex flex-col bg-[#FFF5E1]">
+      <Navbar />
       
-      <main className="flex-grow container mx-auto px-4 py-8">
-        <div className="max-w-4xl mx-auto">
-          <h1 className="text-3xl font-bold text-[#2E3A59] mb-8">My Bookings</h1>
-          
-          <Tabs defaultValue="upcoming" className="space-y-6">
-            <TabsList className="bg-white border border-slate-200">
-              <TabsTrigger value="upcoming" className="data-[state=active]:bg-[#FF6F61] data-[state=active]:text-white">
-                Upcoming ({upcomingBookings.length})
-              </TabsTrigger>
-              <TabsTrigger value="past" className="data-[state=active]:bg-[#FF6F61] data-[state=active]:text-white">
-                Past ({pastBookings.length})
-              </TabsTrigger>
+      <main className="flex-grow">
+        <div className="bg-[#0C0C0C] py-12">
+          <div className="container mx-auto px-4">
+            <h1 className="text-3xl md:text-4xl font-bold text-[#FFF5E1] mb-4">
+              My Bookings
+            </h1>
+            <p className="text-[#FFF5E1]/90">
+              Manage and track all your dining and event reservations
+            </p>
+          </div>
+        </div>
+
+        <div className="container mx-auto px-4 py-12">
+          <Tabs defaultValue="upcoming" className="w-full">
+            <TabsList className="grid w-full grid-cols-2 mb-8">
+              <TabsTrigger value="upcoming">Upcoming ({upcomingBookings.length})</TabsTrigger>
+              <TabsTrigger value="past">Past ({pastBookings.length})</TabsTrigger>
             </TabsList>
             
             <TabsContent value="upcoming">
-              {loading ? (
-                <div className="text-center py-8">Loading your bookings...</div>
-              ) : upcomingBookings.length > 0 ? (
-                upcomingBookings.map(booking => (
-                  <BookingCard key={booking.id} booking={booking} type="upcoming" />
-                ))
-              ) : (
-                <Card>
-                  <CardContent className="text-center py-8">
-                    <p className="text-slate-600 mb-4">No upcoming bookings</p>
-                    <Button onClick={() => window.location.href = '/user/discovery'}>
-                      Browse Restaurants
-                    </Button>
-                  </CardContent>
-                </Card>
-              )}
+              <div className="space-y-6">
+                {upcomingBookings.length === 0 ? (
+                  <Card>
+                    <CardContent className="p-12 text-center">
+                      <Calendar className="h-16 w-16 mx-auto mb-4 text-[#2F2F2F]/50" />
+                      <h3 className="text-xl font-semibold text-[#0C0C0C] mb-2">No upcoming bookings</h3>
+                      <p className="text-[#2F2F2F] mb-6">Ready to make your next reservation?</p>
+                      <Button className="bg-[#8B0000] hover:bg-[#660000] text-[#FFF5E1]">
+                        Book a Table
+                      </Button>
+                    </CardContent>
+                  </Card>
+                ) : (
+                  upcomingBookings.map((booking) => (
+                    <Card key={booking.token} className="border-[#D4AF37]">
+                      <CardContent className="p-6">
+                        <div className="flex flex-col md:flex-row gap-6">
+                          <img
+                            src={booking.image}
+                            alt={booking.venue}
+                            className="w-full md:w-48 h-32 object-cover rounded-lg"
+                          />
+                          
+                          <div className="flex-1">
+                            <div className="flex items-start justify-between mb-4">
+                              <div>
+                                <h3 className="text-xl font-bold text-[#0C0C0C]">{booking.venue}</h3>
+                                <p className="text-[#8B0000] font-medium">{booking.eventType}</p>
+                              </div>
+                              <Badge className={getStatusColor(booking.status)}>
+                                {booking.status}
+                              </Badge>
+                            </div>
+                            
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                              <div className="flex items-center text-sm">
+                                <Calendar className="h-4 w-4 mr-2 text-[#8B0000]" />
+                                {booking.date}
+                              </div>
+                              <div className="flex items-center text-sm">
+                                <Clock className="h-4 w-4 mr-2 text-[#8B0000]" />
+                                {booking.time}
+                              </div>
+                              <div className="flex items-center text-sm">
+                                <Users className="h-4 w-4 mr-2 text-[#8B0000]" />
+                                {booking.guests} guests
+                              </div>
+                              <div className="flex items-center text-sm">
+                                <span className="font-medium">Token: {booking.token}</span>
+                              </div>
+                            </div>
+                            
+                            <div className="flex flex-wrap gap-2">
+                              <Button size="sm" className="bg-[#8B0000] hover:bg-[#660000] text-[#FFF5E1]">
+                                <Eye className="h-4 w-4 mr-1" />
+                                View Details
+                              </Button>
+                              <Button size="sm" variant="outline" className="border-[#D4AF37] text-[#D4AF37]">
+                                <Download className="h-4 w-4 mr-1" />
+                                Download
+                              </Button>
+                              <Button size="sm" variant="outline" className="border-[#2F2F2F] text-[#2F2F2F]">
+                                <MessageCircle className="h-4 w-4 mr-1" />
+                                Contact Venue
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))
+                )}
+              </div>
             </TabsContent>
             
             <TabsContent value="past">
-              {pastBookings.length > 0 ? (
-                pastBookings.map(booking => (
-                  <BookingCard key={booking.id} booking={booking} type="past" />
-                ))
-              ) : (
-                <Card>
-                  <CardContent className="text-center py-8">
-                    <p className="text-slate-600">No past bookings</p>
-                  </CardContent>
-                </Card>
-              )}
+              <div className="space-y-6">
+                {pastBookings.map((booking) => (
+                  <Card key={booking.token} className="border-[#2F2F2F]/20">
+                    <CardContent className="p-6">
+                      <div className="flex flex-col md:flex-row gap-6">
+                        <img
+                          src={booking.image}
+                          alt={booking.venue}
+                          className="w-full md:w-48 h-32 object-cover rounded-lg grayscale"
+                        />
+                        
+                        <div className="flex-1">
+                          <div className="flex items-start justify-between mb-4">
+                            <div>
+                              <h3 className="text-xl font-bold text-[#0C0C0C]">{booking.venue}</h3>
+                              <p className="text-[#2F2F2F] font-medium">{booking.eventType}</p>
+                            </div>
+                            <Badge className={getStatusColor(booking.status)}>
+                              {booking.status}
+                            </Badge>
+                          </div>
+                          
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                            <div className="flex items-center text-sm text-[#2F2F2F]">
+                              <Calendar className="h-4 w-4 mr-2" />
+                              {booking.date}
+                            </div>
+                            <div className="flex items-center text-sm text-[#2F2F2F]">
+                              <Clock className="h-4 w-4 mr-2" />
+                              {booking.time}
+                            </div>
+                            <div className="flex items-center text-sm text-[#2F2F2F]">
+                              <Users className="h-4 w-4 mr-2" />
+                              {booking.guests} guests
+                            </div>
+                            <div className="flex items-center text-sm text-[#2F2F2F]">
+                              <span>Token: {booking.token}</span>
+                            </div>
+                          </div>
+                          
+                          <div className="flex flex-wrap gap-2">
+                            <Button size="sm" variant="outline" className="border-[#D4AF37] text-[#D4AF37]">
+                              <Star className="h-4 w-4 mr-1" />
+                              Rate Experience
+                            </Button>
+                            <Button size="sm" variant="outline" className="border-[#8B0000] text-[#8B0000]">
+                              Book Again
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
             </TabsContent>
           </Tabs>
         </div>

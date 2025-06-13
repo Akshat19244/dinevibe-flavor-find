@@ -1,5 +1,5 @@
-
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -20,7 +20,8 @@ import {
   Settings,
   Play,
   Pause,
-  Volume2
+  Volume2,
+  Calendar
 } from 'lucide-react';
 
 interface VenueLayout {
@@ -37,6 +38,7 @@ interface VenueLayout {
 }
 
 const ThreeDPreview: React.FC = () => {
+  const navigate = useNavigate();
   const [selectedVenue, setSelectedVenue] = useState<string>('royal-garden');
   const [selectedTheme, setSelectedTheme] = useState<string>('royal');
   const [selectedLayout, setSelectedLayout] = useState<string>('banquet');
@@ -105,6 +107,18 @@ const ThreeDPreview: React.FC = () => {
 
   const handleFullscreen = () => {
     setIsFullscreen(!isFullscreen);
+  };
+
+  const handleBookVenue = () => {
+    navigate('/booking-form', {
+      state: {
+        venue: currentVenue.name,
+        venueType: currentVenue.type,
+        capacity: currentVenue.capacity,
+        theme: selectedTheme,
+        layout: selectedLayout
+      }
+    });
   };
 
   return (
@@ -279,7 +293,11 @@ const ThreeDPreview: React.FC = () => {
 
               {/* Action Buttons */}
               <div className="mt-4 flex flex-wrap gap-4">
-                <Button className="bg-[#8B0000] hover:bg-[#660000] text-[#FFF5E1]">
+                <Button 
+                  onClick={handleBookVenue}
+                  className="bg-[#8B0000] hover:bg-[#660000] text-[#FFF5E1]"
+                >
+                  <Calendar className="h-4 w-4 mr-2" />
                   Book This Venue
                 </Button>
                 <Button variant="outline" className="border-[#D4AF37] text-[#D4AF37]">

@@ -29,6 +29,7 @@ import OwnerSettings from '@/pages/owner/Settings';
 import UserDashboard from '@/pages/user/Dashboard';
 import UserMyBookings from '@/pages/user/MyBookings';
 import UserEventPlanner from '@/pages/user/EventPlanner';
+import BookingForm from '@/pages/user/BookingForm';
 import UserBookingConfirmation from '@/pages/user/BookingConfirmation';
 
 // Admin pages
@@ -68,6 +69,7 @@ function App() {
               <Route path="/user/my-bookings" element={<UserMyBookings />} />
               <Route path="/user/event-planner" element={<UserEventPlanner />} />
               <Route path="/event-planner" element={<UserEventPlanner />} />
+              <Route path="/booking-form" element={<BookingForm />} />
               <Route path="/booking-confirmation" element={<UserBookingConfirmation />} />
 
               {/* Admin Routes */}
