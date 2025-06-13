@@ -27,6 +27,7 @@ import VenueRegistrationForm from '@/components/owner/VenueRegistrationForm';
 const OwnerDashboard: React.FC = () => {
   const [selectedTimeRange, setSelectedTimeRange] = useState('7days');
   const [hasVenue, setHasVenue] = useState(true); // In real app, check from database
+  const [activeTab, setActiveTab] = useState('overview');
 
   // Sample data - would come from Firebase/Supabase in real implementation
   const stats = {
@@ -238,7 +239,7 @@ const OwnerDashboard: React.FC = () => {
           </div>
           
           {/* Main Content Tabs */}
-          <Tabs defaultValue="overview" className="space-y-6">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
             <TabsList className="grid w-full grid-cols-6">
               <TabsTrigger value="overview">Overview</TabsTrigger>
               <TabsTrigger value="bookings">Bookings</TabsTrigger>
@@ -267,7 +268,7 @@ const OwnerDashboard: React.FC = () => {
                       <Button 
                         variant="outline" 
                         className="w-full border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-[#0C0C0C]"
-                        onClick={() => document.querySelector('[data-state="active"][value="analytics"]')?.click()}
+                        onClick={() => setActiveTab('analytics')}
                       >
                         <BarChart3 className="h-4 w-4 mr-2" />
                         Analytics
@@ -275,7 +276,7 @@ const OwnerDashboard: React.FC = () => {
                       <Button 
                         variant="outline" 
                         className="w-full border-[#2F2F2F] text-[#2F2F2F] hover:bg-[#2F2F2F] hover:text-[#FFF5E1]"
-                        onClick={() => document.querySelector('[data-state="active"][value="bookings"]')?.click()}
+                        onClick={() => setActiveTab('bookings')}
                       >
                         <Users className="h-4 w-4 mr-2" />
                         Manage Bookings
