@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -34,6 +35,11 @@ import UserBookingConfirmation from '@/pages/user/BookingConfirmation';
 
 // Admin pages
 import AdminDashboard from '@/pages/admin/Dashboard';
+import AdminUsers from '@/pages/admin/AdminUsers';
+import ManageRestaurants from '@/pages/admin/ManageRestaurants';
+import ManageReservations from '@/pages/admin/ManageReservations';
+import AdminReports from '@/pages/admin/AdminReports';
+import AdminLogs from '@/pages/admin/AdminLogs';
 
 const queryClient = new QueryClient();
 

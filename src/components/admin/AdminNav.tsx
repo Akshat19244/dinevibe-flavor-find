@@ -40,7 +40,7 @@ const AdminNav: React.FC = () => {
     },
     { 
       path: '/admin/restaurants', 
-      name: 'Restaurants', 
+      name: 'Venues', 
       icon: Store 
     },
     { 
@@ -55,7 +55,7 @@ const AdminNav: React.FC = () => {
     },
     { 
       path: '/admin/logs', 
-      name: 'Admin Logs', 
+      name: 'Activity Logs', 
       icon: Bell 
     },
     { 
