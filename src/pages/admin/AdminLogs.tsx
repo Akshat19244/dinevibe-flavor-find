@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import AdminLayout from '@/components/admin/AdminLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -6,7 +5,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/components/ui/use-toast';
-import { getAdminLogs } from '@/lib/api/admin';
 import { Shield, User, Store, Calendar, Settings, AlertCircle } from 'lucide-react';
 
 interface AdminLog {
@@ -36,11 +34,7 @@ const AdminLogs: React.FC = () => {
   const fetchLogs = async () => {
     try {
       setLoading(true);
-      const data = await getAdminLogs();
-      setLogs(data || []);
-    } catch (error) {
-      console.error('Error fetching admin logs:', error);
-      // Mock data for demonstration
+      // Mock data for demonstration - replace with actual API call
       const mockLogs: AdminLog[] = [
         {
           id: '1',
@@ -74,6 +68,13 @@ const AdminLogs: React.FC = () => {
         }
       ];
       setLogs(mockLogs);
+    } catch (error) {
+      console.error('Error fetching admin logs:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to load logs.',
+        variant: 'destructive'
+      });
     } finally {
       setLoading(false);
     }
