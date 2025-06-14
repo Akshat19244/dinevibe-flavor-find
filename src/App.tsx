@@ -17,6 +17,9 @@ import Contact from '@/pages/Contact';
 import Auth from '@/pages/Auth';
 import NotFound from '@/pages/NotFound';
 
+// AI Dining Experience
+import AIDiningExperience from '@/components/dining/AIDiningExperience';
+
 // Owner pages
 import OwnerDashboard from '@/pages/owner/Dashboard';
 import OwnerAnalytics from '@/pages/owner/Analytics';
@@ -54,6 +57,7 @@ function App() {
               <Route path="/" element={<Home />} />
               <Route path="/discovery" element={<Discovery />} />
               <Route path="/dining" element={<Dining />} />
+              <Route path="/ai-dining" element={<AIDiningExperience />} />
               <Route path="/events" element={<Events />} />
               <Route path="/ai-assistant" element={<AIAssistant />} />
               <Route path="/3d-preview" element={<ThreeDPreview />} />
@@ -81,6 +85,11 @@ function App() {
 
               {/* Admin Routes */}
               <Route path="/admin/dashboard" element={<AdminDashboard />} />
+              <Route path="/admin/users" element={<AdminUsers />} />
+              <Route path="/admin/manage-restaurants" element={<ManageRestaurants />} />
+              <Route path="/admin/manage-reservations" element={<ManageReservations />} />
+              <Route path="/admin/reports" element={<AdminReports />} />
+              <Route path="/admin/logs" element={<AdminLogs />} />
 
               {/* Catch all route */}
               <Route path="*" element={<NotFound />} />

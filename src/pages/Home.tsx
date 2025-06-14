@@ -1,10 +1,10 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import HeroSection from '@/components/home/hero-section';
 import FeaturedSection from '@/components/home/featured-section';
+import CommunityPanel from '@/components/community/CommunityPanel';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -17,7 +17,8 @@ import {
   ArrowRight,
   ChefHat,
   Building,
-  Crown
+  Crown,
+  Bot
 } from 'lucide-react';
 
 const Home: React.FC = () => {
@@ -114,6 +115,38 @@ const Home: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <Card className="group hover:shadow-xl transition-all duration-300 border-[#D4AF37] hover:border-[#8B0000]">
                 <CardContent className="p-8 text-center">
+                  <Bot className="h-12 w-12 mx-auto mb-4 text-[#8B0000] group-hover:scale-110 transition-transform" />
+                  <h3 className="text-xl font-bold text-[#0C0C0C] mb-2">AI Dining Experience</h3>
+                  <p className="text-[#2F2F2F] mb-4">
+                    Use our AI-powered assistant to find the perfect dining venue based on your preferences
+                  </p>
+                  <Link to="/ai-dining">
+                    <Button className="bg-[#8B0000] hover:bg-[#660000] text-[#FFF5E1] w-full">
+                      Start AI Search
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  </Link>
+                </CardContent>
+              </Card>
+
+              <Card className="group hover:shadow-xl transition-all duration-300 border-[#D4AF37] hover:border-[#8B0000]">
+                <CardContent className="p-8 text-center">
+                  <Building className="h-12 w-12 mx-auto mb-4 text-[#8B0000] group-hover:scale-110 transition-transform" />
+                  <h3 className="text-xl font-bold text-[#0C0C0C] mb-2">Explore Venues</h3>
+                  <p className="text-[#2F2F2F] mb-4">
+                    Browse premium banquet halls and event venues with 360° virtual tours
+                  </p>
+                  <Link to="/3d-preview">
+                    <Button className="bg-[#D4AF37] hover:bg-[#B8941F] text-[#0C0C0C] w-full">
+                      View in 360°
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  </Link>
+                </CardContent>
+              </Card>
+
+              <Card className="group hover:shadow-xl transition-all duration-300 border-[#D4AF37] hover:border-[#8B0000]">
+                <CardContent className="p-8 text-center">
                   <Calendar className="h-12 w-12 mx-auto mb-4 text-[#8B0000] group-hover:scale-110 transition-transform" />
                   <h3 className="text-xl font-bold text-[#0C0C0C] mb-2">Plan Your Event</h3>
                   <p className="text-[#2F2F2F] mb-4">
@@ -127,41 +160,12 @@ const Home: React.FC = () => {
                   </Link>
                 </CardContent>
               </Card>
-
-              <Card className="group hover:shadow-xl transition-all duration-300 border-[#D4AF37] hover:border-[#8B0000]">
-                <CardContent className="p-8 text-center">
-                  <Building className="h-12 w-12 mx-auto mb-4 text-[#8B0000] group-hover:scale-110 transition-transform" />
-                  <h3 className="text-xl font-bold text-[#0C0C0C] mb-2">Explore Venues</h3>
-                  <p className="text-[#2F2F2F] mb-4">
-                    Browse premium banquet halls and event venues with 3D previews
-                  </p>
-                  <Link to="/3d-preview">
-                    <Button className="bg-[#D4AF37] hover:bg-[#B8941F] text-[#0C0C0C] w-full">
-                      View in 3D
-                      <ArrowRight className="ml-2 h-4 w-4" />
-                    </Button>
-                  </Link>
-                </CardContent>
-              </Card>
-
-              <Card className="group hover:shadow-xl transition-all duration-300 border-[#D4AF37] hover:border-[#8B0000]">
-                <CardContent className="p-8 text-center">
-                  <ChefHat className="h-12 w-12 mx-auto mb-4 text-[#8B0000] group-hover:scale-110 transition-transform" />
-                  <h3 className="text-xl font-bold text-[#0C0C0C] mb-2">Fine Dining</h3>
-                  <p className="text-[#2F2F2F] mb-4">
-                    Discover curated restaurants and book tables at premium locations
-                  </p>
-                  <Link to="/dining">
-                    <Button className="bg-[#8B0000] hover:bg-[#660000] text-[#FFF5E1] w-full">
-                      Book Table
-                      <ArrowRight className="ml-2 h-4 w-4" />
-                    </Button>
-                  </Link>
-                </CardContent>
-              </Card>
             </div>
           </div>
         </section>
+
+        {/* Community Panel */}
+        <CommunityPanel />
 
         {/* Quick Stats */}
         <section className="py-16 bg-[#0C0C0C]">
@@ -271,10 +275,10 @@ const Home: React.FC = () => {
               Join thousands of satisfied customers who trust DineVibe for their special moments
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="/event-planner">
+              <Link to="/ai-dining">
                 <Button size="lg" className="bg-[#D4AF37] hover:bg-[#B8941F] text-[#0C0C0C] px-8">
-                  Plan My Event
-                  <Sparkles className="ml-2 h-5 w-5" />
+                  Find Perfect Venue
+                  <Bot className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
               <Link to="/partner-with-us">
