@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -10,7 +11,7 @@ import Home from '@/pages/Home';
 import Discovery from '@/pages/Discovery';
 import Dining from '@/pages/Dining';
 import Events from '@/pages/Events';
-import AIAssistant from '@/pages/AIAssistant';
+import AIAssistantPage from '@/pages/AIAssistant';
 import ThreeDPreview from '@/pages/ThreeDPreview';
 import PartnerWithUs from '@/pages/PartnerWithUs';
 import Contact from '@/pages/Contact';
@@ -59,7 +60,7 @@ function App() {
               <Route path="/dining" element={<Dining />} />
               <Route path="/ai-dining" element={<AIDiningExperience />} />
               <Route path="/events" element={<Events />} />
-              <Route path="/ai-assistant" element={<AIAssistant />} />
+              <Route path="/ai-assistant" element={<AIAssistantPage />} />
               <Route path="/3d-preview" element={<ThreeDPreview />} />
               <Route path="/partner-with-us" element={<PartnerWithUs />} />
               <Route path="/contact" element={<Contact />} />
