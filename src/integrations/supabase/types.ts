@@ -60,6 +60,130 @@ export type Database = {
         }
         Relationships: []
       }
+      bookings: {
+        Row: {
+          booking_token: string
+          booking_type: string
+          budget_max: number | null
+          budget_min: number | null
+          created_at: string
+          date_time: string
+          dining_type: string | null
+          guest_count: number
+          guest_list: string | null
+          id: string
+          menu_preference: string | null
+          special_requests: string | null
+          status: string | null
+          updated_at: string
+          user_id: string
+          venue_id: string
+        }
+        Insert: {
+          booking_token: string
+          booking_type: string
+          budget_max?: number | null
+          budget_min?: number | null
+          created_at?: string
+          date_time: string
+          dining_type?: string | null
+          guest_count: number
+          guest_list?: string | null
+          id?: string
+          menu_preference?: string | null
+          special_requests?: string | null
+          status?: string | null
+          updated_at?: string
+          user_id: string
+          venue_id: string
+        }
+        Update: {
+          booking_token?: string
+          booking_type?: string
+          budget_max?: number | null
+          budget_min?: number | null
+          created_at?: string
+          date_time?: string
+          dining_type?: string | null
+          guest_count?: number
+          guest_list?: string | null
+          id?: string
+          menu_preference?: string | null
+          special_requests?: string | null
+          status?: string | null
+          updated_at?: string
+          user_id?: string
+          venue_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bookings_venue_id_fkey"
+            columns: ["venue_id"]
+            isOneToOne: false
+            referencedRelation: "venues"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      community_posts: {
+        Row: {
+          author_id: string
+          author_type: string
+          content: string | null
+          created_at: string
+          id: string
+          image_url: string | null
+          is_approved: boolean | null
+          likes_count: number | null
+          location: string | null
+          post_type: string
+          tags: string[] | null
+          title: string
+          updated_at: string
+          venue_id: string | null
+        }
+        Insert: {
+          author_id: string
+          author_type: string
+          content?: string | null
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          is_approved?: boolean | null
+          likes_count?: number | null
+          location?: string | null
+          post_type: string
+          tags?: string[] | null
+          title: string
+          updated_at?: string
+          venue_id?: string | null
+        }
+        Update: {
+          author_id?: string
+          author_type?: string
+          content?: string | null
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          is_approved?: boolean | null
+          likes_count?: number | null
+          location?: string | null
+          post_type?: string
+          tags?: string[] | null
+          title?: string
+          updated_at?: string
+          venue_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_posts_venue_id_fkey"
+            columns: ["venue_id"]
+            isOneToOne: false
+            referencedRelation: "venues"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       deal_claims: {
         Row: {
           claimed_at: string | null
@@ -94,6 +218,35 @@ export type Database = {
             columns: ["restaurant_id"]
             isOneToOne: false
             referencedRelation: "restaurants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      post_likes: {
+        Row: {
+          created_at: string
+          id: string
+          post_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          post_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          post_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_likes_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "community_posts"
             referencedColumns: ["id"]
           },
         ]
@@ -244,11 +397,183 @@ export type Database = {
         }
         Relationships: []
       }
+      support_messages: {
+        Row: {
+          admin_response: string | null
+          created_at: string
+          email: string
+          id: string
+          message: string
+          name: string
+          phone: string | null
+          status: string | null
+          subject: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          admin_response?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          message: string
+          name: string
+          phone?: string | null
+          status?: string | null
+          subject: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          admin_response?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          message?: string
+          name?: string
+          phone?: string | null
+          status?: string | null
+          subject?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      venue_availability: {
+        Row: {
+          booking_id: string | null
+          created_at: string
+          date: string
+          id: string
+          is_available: boolean | null
+          time_slot: string
+          venue_id: string
+        }
+        Insert: {
+          booking_id?: string | null
+          created_at?: string
+          date: string
+          id?: string
+          is_available?: boolean | null
+          time_slot: string
+          venue_id: string
+        }
+        Update: {
+          booking_id?: string | null
+          created_at?: string
+          date?: string
+          id?: string
+          is_available?: boolean | null
+          time_slot?: string
+          venue_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "venue_availability_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "venue_availability_venue_id_fkey"
+            columns: ["venue_id"]
+            isOneToOne: false
+            referencedRelation: "venues"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      venues: {
+        Row: {
+          address: string | null
+          ambience_type: string[] | null
+          auto_approved: boolean | null
+          banquet_images: string[] | null
+          created_at: string
+          email: string | null
+          google_review_url: string | null
+          guest_capacity: number | null
+          has_360_preview: boolean | null
+          id: string
+          is_approved: boolean | null
+          latitude: number | null
+          longitude: number | null
+          menu_images: string[] | null
+          name: string
+          owner_id: string
+          phone: string | null
+          price_range_max: number | null
+          price_range_min: number | null
+          rating: number | null
+          services: string[] | null
+          type: string
+          updated_at: string
+          venue_images: string[] | null
+        }
+        Insert: {
+          address?: string | null
+          ambience_type?: string[] | null
+          auto_approved?: boolean | null
+          banquet_images?: string[] | null
+          created_at?: string
+          email?: string | null
+          google_review_url?: string | null
+          guest_capacity?: number | null
+          has_360_preview?: boolean | null
+          id?: string
+          is_approved?: boolean | null
+          latitude?: number | null
+          longitude?: number | null
+          menu_images?: string[] | null
+          name: string
+          owner_id: string
+          phone?: string | null
+          price_range_max?: number | null
+          price_range_min?: number | null
+          rating?: number | null
+          services?: string[] | null
+          type: string
+          updated_at?: string
+          venue_images?: string[] | null
+        }
+        Update: {
+          address?: string | null
+          ambience_type?: string[] | null
+          auto_approved?: boolean | null
+          banquet_images?: string[] | null
+          created_at?: string
+          email?: string | null
+          google_review_url?: string | null
+          guest_capacity?: number | null
+          has_360_preview?: boolean | null
+          id?: string
+          is_approved?: boolean | null
+          latitude?: number | null
+          longitude?: number | null
+          menu_images?: string[] | null
+          name?: string
+          owner_id?: string
+          phone?: string | null
+          price_range_max?: number | null
+          price_range_min?: number | null
+          rating?: number | null
+          services?: string[] | null
+          type?: string
+          updated_at?: string
+          venue_images?: string[] | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      generate_booking_token: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       increment_admin_count: {
         Args: Record<PropertyKey, never>
         Returns: number

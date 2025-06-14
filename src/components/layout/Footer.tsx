@@ -1,76 +1,161 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { MapPin, Phone, Mail } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { 
+  Mail, 
+  Phone, 
+  MapPin, 
+  Instagram, 
+  Facebook, 
+  Twitter,
+  Utensils,
+  Calendar,
+  Users,
+  Star
+} from 'lucide-react';
 
 const Footer: React.FC = () => {
+  const currentYear = new Date().getFullYear();
+
   return (
-    <footer className="bg-[#0C0C0C] text-[#FFF5E1] border-t border-[#2F2F2F]">
-      <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+    <footer className="bg-[#0C0C0C] text-[#FFF5E1] pt-16 pb-8">
+      <div className="container mx-auto px-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
           {/* Company Info */}
           <div className="space-y-4">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-[#8B0000] rounded-full flex items-center justify-center">
-                <span className="text-[#FFF5E1] font-bold text-lg">DV</span>
-              </div>
+            <div className="flex items-center space-x-2">
+              <Utensils className="h-8 w-8 text-[#D4AF37]" />
               <span className="text-2xl font-bold">DineVibe</span>
             </div>
-            <p className="text-[#FFF5E1]/80 text-sm">
-              India's premier platform for luxury dining experiences and premium event planning. 
-              Connecting discerning guests with exceptional restaurants and venues.
+            <p className="text-[#FFF5E1]/80">
+              India's premier platform for discovering exceptional dining experiences and planning memorable events with AI-powered recommendations.
             </p>
+            <div className="flex space-x-4">
+              <Button variant="ghost" size="sm" className="p-2 text-[#D4AF37] hover:bg-[#D4AF37] hover:text-[#0C0C0C]">
+                <Instagram className="h-5 w-5" />
+              </Button>
+              <Button variant="ghost" size="sm" className="p-2 text-[#D4AF37] hover:bg-[#D4AF37] hover:text-[#0C0C0C]">
+                <Facebook className="h-5 w-5" />
+              </Button>
+              <Button variant="ghost" size="sm" className="p-2 text-[#D4AF37] hover:bg-[#D4AF37] hover:text-[#0C0C0C]">
+                <Twitter className="h-5 w-5" />
+              </Button>
+            </div>
           </div>
 
           {/* Quick Links */}
-          <div>
-            <h3 className="font-semibold mb-4 text-[#D4AF37]">Platform</h3>
-            <ul className="space-y-2">
-              <li><Link to="/discovery" className="text-[#FFF5E1]/80 hover:text-[#D4AF37] transition-colors">Discovery</Link></li>
-              <li><Link to="/dining" className="text-[#FFF5E1]/80 hover:text-[#D4AF37] transition-colors">Dining</Link></li>
-              <li><Link to="/events" className="text-[#FFF5E1]/80 hover:text-[#D4AF37] transition-colors">Events</Link></li>
-              <li><Link to="/ai-assistant" className="text-[#FFF5E1]/80 hover:text-[#D4AF37] transition-colors">AI Assistant</Link></li>
-              <li><Link to="/3d-preview" className="text-[#FFF5E1]/80 hover:text-[#D4AF37] transition-colors">3D Preview</Link></li>
-            </ul>
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-[#D4AF37]">Quick Links</h3>
+            <div className="space-y-2">
+              <Link to="/discovery" className="block text-[#FFF5E1]/80 hover:text-[#D4AF37] transition-colors">
+                <div className="flex items-center space-x-2">
+                  <Users className="h-4 w-4" />
+                  <span>Discover Venues</span>
+                </div>
+              </Link>
+              <Link to="/dining" className="block text-[#FFF5E1]/80 hover:text-[#D4AF37] transition-colors">
+                <div className="flex items-center space-x-2">
+                  <Utensils className="h-4 w-4" />
+                  <span>Dining</span>
+                </div>
+              </Link>
+              <Link to="/events" className="block text-[#FFF5E1]/80 hover:text-[#D4AF37] transition-colors">
+                <div className="flex items-center space-x-2">
+                  <Calendar className="h-4 w-4" />
+                  <span>Events</span>
+                </div>
+              </Link>
+              <Link to="/ai-assistant" className="block text-[#FFF5E1]/80 hover:text-[#D4AF37] transition-colors">
+                <div className="flex items-center space-x-2">
+                  <Star className="h-4 w-4" />
+                  <span>AI Assistant</span>
+                </div>
+              </Link>
+            </div>
           </div>
 
-          {/* Business */}
-          <div>
-            <h3 className="font-semibold mb-4 text-[#D4AF37]">For Business</h3>
-            <ul className="space-y-2">
-              <li><Link to="/partner-with-us" className="text-[#FFF5E1]/80 hover:text-[#D4AF37] transition-colors">Partner With Us</Link></li>
-              <li><Link to="/owner/dashboard" className="text-[#FFF5E1]/80 hover:text-[#D4AF37] transition-colors">Owner Dashboard</Link></li>
-              <li><Link to="/analytics" className="text-[#FFF5E1]/80 hover:text-[#D4AF37] transition-colors">Analytics</Link></li>
-              <li><Link to="/contact" className="text-[#FFF5E1]/80 hover:text-[#D4AF37] transition-colors">Support</Link></li>
-            </ul>
+          {/* For Business */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-[#D4AF37]">For Business</h3>
+            <div className="space-y-2">
+              <Link to="/partner-with-us" className="block text-[#FFF5E1]/80 hover:text-[#D4AF37] transition-colors">
+                Partner With Us
+              </Link>
+              <Link to="/owner/dashboard" className="block text-[#FFF5E1]/80 hover:text-[#D4AF37] transition-colors">
+                Owner Dashboard
+              </Link>
+              <Link to="/owner/register-venue" className="block text-[#FFF5E1]/80 hover:text-[#D4AF37] transition-colors">
+                Register Venue
+              </Link>
+              <Link to="/owner/analytics" className="block text-[#FFF5E1]/80 hover:text-[#D4AF37] transition-colors">
+                Analytics
+              </Link>
+            </div>
           </div>
 
-          {/* Contact */}
-          <div>
-            <h3 className="font-semibold mb-4 text-[#D4AF37]">Contact</h3>
-            <ul className="space-y-3">
-              <li className="flex items-start space-x-2">
-                <MapPin className="h-4 w-4 mt-1 text-[#D4AF37]" />
-                <span className="text-[#FFF5E1]/80 text-sm">123 Luxury Square, Mumbai, India</span>
-              </li>
-              <li className="flex items-center space-x-2">
-                <Phone className="h-4 w-4 text-[#D4AF37]" />
-                <span className="text-[#FFF5E1]/80 text-sm">+91 98765 43210</span>
-              </li>
-              <li className="flex items-center space-x-2">
-                <Mail className="h-4 w-4 text-[#D4AF37]" />
-                <span className="text-[#FFF5E1]/80 text-sm">hello@dinevibe.com</span>
-              </li>
-            </ul>
+          {/* Contact Info */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-[#D4AF37]">Contact Us</h3>
+            <div className="space-y-3">
+              <div className="flex items-center space-x-3">
+                <Mail className="h-5 w-5 text-[#D4AF37]" />
+                <div>
+                  <p className="text-sm text-[#FFF5E1]/60">Email</p>
+                  <a 
+                    href="mailto:dinevibe29@gmail.com" 
+                    className="text-[#FFF5E1] hover:text-[#D4AF37] transition-colors"
+                  >
+                    dinevibe29@gmail.com
+                  </a>
+                </div>
+              </div>
+              <div className="flex items-center space-x-3">
+                <Phone className="h-5 w-5 text-[#D4AF37]" />
+                <div>
+                  <p className="text-sm text-[#FFF5E1]/60">Phone</p>
+                  <a 
+                    href="tel:+919904960670" 
+                    className="text-[#FFF5E1] hover:text-[#D4AF37] transition-colors"
+                  >
+                    +91 9904960670
+                  </a>
+                </div>
+              </div>
+              <div className="flex items-center space-x-3">
+                <MapPin className="h-5 w-5 text-[#D4AF37]" />
+                <div>
+                  <p className="text-sm text-[#FFF5E1]/60">Location</p>
+                  <p className="text-[#FFF5E1]">India</p>
+                </div>
+              </div>
+            </div>
+            <Link to="/contact">
+              <Button className="bg-[#D4AF37] hover:bg-[#B8941F] text-[#0C0C0C] w-full">
+                Get Support
+              </Button>
+            </Link>
           </div>
         </div>
 
-        <div className="border-t border-[#2F2F2F] mt-8 pt-8 text-center">
-          <p className="text-[#FFF5E1]/60 text-sm">
-            © 2024 DineVibe. All rights reserved. | 
-            <Link to="/privacy" className="hover:text-[#D4AF37] ml-1">Privacy Policy</Link> | 
-            <Link to="/terms" className="hover:text-[#D4AF37] ml-1">Terms of Service</Link>
-          </p>
+        {/* Bottom Bar */}
+        <div className="border-t border-[#FFF5E1]/20 pt-8">
+          <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+            <p className="text-[#FFF5E1]/60 text-sm text-center md:text-left">
+              © {currentYear} DineVibe. All rights reserved. Crafted with ❤️ for extraordinary dining experiences.
+            </p>
+            <div className="flex space-x-6 text-sm">
+              <Link to="/privacy" className="text-[#FFF5E1]/60 hover:text-[#D4AF37] transition-colors">
+                Privacy Policy
+              </Link>
+              <Link to="/terms" className="text-[#FFF5E1]/60 hover:text-[#D4AF37] transition-colors">
+                Terms of Service
+              </Link>
+              <Link to="/contact" className="text-[#FFF5E1]/60 hover:text-[#D4AF37] transition-colors">
+                Support
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
     </footer>

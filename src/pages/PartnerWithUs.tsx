@@ -2,7 +2,7 @@
 import React from 'react';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
-import Enhanced360VenueForm from '@/components/owner/Enhanced360VenueForm';
+import VenueRegistrationForm from '@/components/venue/VenueRegistrationForm';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { 
   Handshake, 
@@ -151,7 +151,7 @@ const PartnerWithUs: React.FC = () => {
           </div>
 
           {/* Registration Form */}
-          <Enhanced360VenueForm />
+          <VenueRegistrationForm />
         </div>
       </main>
       
