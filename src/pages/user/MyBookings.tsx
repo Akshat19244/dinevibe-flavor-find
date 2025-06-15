@@ -20,6 +20,7 @@ import UserChatPanel from "@/components/chat/UserChatPanel";
 const MyBookings: React.FC = () => {
   const [bookings] = useState([
     {
+      id: 'DV12345ABCDE',
       token: 'DV12345ABCDE',
       venue: 'The Royal Banquet',
       eventType: 'Romantic Dinner',
@@ -28,9 +29,12 @@ const MyBookings: React.FC = () => {
       guests: 2,
       status: 'confirmed',
       createdAt: '2024-01-15',
-      image: 'https://images.unsplash.com/photo-1519167758481-83f29c2c47bf?q=80&w=400'
+      image: 'https://images.unsplash.com/photo-1519167758481-83f29c2c47bf?q=80&w=400',
+      owner_id: 'owner-1',
+      venue_id: 'venue-1'
     },
     {
+      id: 'DV67890FGHIJ',
       token: 'DV67890FGHIJ',
       venue: 'Garden Paradise',
       eventType: 'Birthday Celebration',
@@ -39,9 +43,12 @@ const MyBookings: React.FC = () => {
       guests: 8,
       status: 'pending',
       createdAt: '2024-01-16',
-      image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=400'
+      image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=400',
+      owner_id: 'owner-2',
+      venue_id: 'venue-2'
     },
     {
+      id: 'DV11111KKKKK',
       token: 'DV11111KKKKK',
       venue: 'Modern Events Hub',
       eventType: 'Business Meeting',
@@ -50,7 +57,9 @@ const MyBookings: React.FC = () => {
       guests: 5,
       status: 'completed',
       createdAt: '2023-12-10',
-      image: 'https://images.unsplash.com/photo-1551218808-94e220e084d2?q=80&w=400'
+      image: 'https://images.unsplash.com/photo-1551218808-94e220e084d2?q=80&w=400',
+      owner_id: 'owner-3',
+      venue_id: 'venue-3'
     }
   ]);
 
