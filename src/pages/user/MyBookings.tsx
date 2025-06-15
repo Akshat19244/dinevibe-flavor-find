@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
@@ -16,6 +15,7 @@ import {
   MessageCircle,
   Eye
 } from 'lucide-react';
+import UserChatPanel from "@/components/chat/UserChatPanel";
 
 const MyBookings: React.FC = () => {
   const [bookings] = useState([
@@ -66,6 +66,8 @@ const MyBookings: React.FC = () => {
 
   const upcomingBookings = bookings.filter(b => b.status === 'confirmed' || b.status === 'pending');
   const pastBookings = bookings.filter(b => b.status === 'completed' || b.status === 'cancelled');
+
+  const [openChatBooking, setOpenChatBooking] = useState<string | null>(null);
 
   return (
     <div className="min-h-screen flex flex-col bg-[#FFF5E1]">
@@ -152,13 +154,32 @@ const MyBookings: React.FC = () => {
                                 <Download className="h-4 w-4 mr-1" />
                                 Download
                               </Button>
-                              <Button size="sm" variant="outline" className="border-[#2F2F2F] text-[#2F2F2F]">
+                              {/* New button: Chat with Venue */}
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="border-blue-700 text-blue-700"
+                                onClick={() => setOpenChatBooking(booking.token)}
+                              >
                                 <MessageCircle className="h-4 w-4 mr-1" />
-                                Contact Venue
+                                Chat with Venue
                               </Button>
                             </div>
                           </div>
                         </div>
+                        {openChatBooking === booking.token && (
+                          <UserChatPanel
+                            booking={{
+                              id: booking.id || booking.token,
+                              token: booking.token,
+                              venue: booking.venue,
+                              // You should supply owner_id if possible!
+                              owner_id: booking.owner_id, // This may need to be loaded/fixed per shape
+                              venue_id: booking.venue_id // Optional
+                            }}
+                            onClose={() => setOpenChatBooking(null)}
+                          />
+                        )}
                       </CardContent>
                     </Card>
                   ))
