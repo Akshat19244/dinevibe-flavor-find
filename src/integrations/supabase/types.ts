@@ -125,6 +125,85 @@ export type Database = {
           },
         ]
       }
+      chat_conversations: {
+        Row: {
+          booking_id: string | null
+          created_at: string
+          customer_id: string
+          id: string
+          owner_id: string
+          status: string
+          updated_at: string
+          venue_name: string | null
+        }
+        Insert: {
+          booking_id?: string | null
+          created_at?: string
+          customer_id: string
+          id?: string
+          owner_id: string
+          status?: string
+          updated_at?: string
+          venue_name?: string | null
+        }
+        Update: {
+          booking_id?: string | null
+          created_at?: string
+          customer_id?: string
+          id?: string
+          owner_id?: string
+          status?: string
+          updated_at?: string
+          venue_name?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_conversations_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "reservations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chat_messages: {
+        Row: {
+          conversation_id: string
+          created_at: string
+          id: string
+          is_read: boolean
+          message: string
+          sender_id: string
+          sender_type: string
+        }
+        Insert: {
+          conversation_id: string
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          message: string
+          sender_id: string
+          sender_type: string
+        }
+        Update: {
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          message?: string
+          sender_id?: string
+          sender_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "chat_conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       community_posts: {
         Row: {
           author_id: string
@@ -573,6 +652,10 @@ export type Database = {
       generate_booking_token: {
         Args: Record<PropertyKey, never>
         Returns: string
+      }
+      get_unread_message_count: {
+        Args: { user_uuid: string }
+        Returns: number
       }
       increment_admin_count: {
         Args: Record<PropertyKey, never>

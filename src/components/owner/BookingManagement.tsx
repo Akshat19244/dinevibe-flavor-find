@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -21,6 +20,8 @@ import { useToast } from '@/hooks/use-toast';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getReservations, updateReservationStatus, type Reservation } from '@/services/supabaseService';
 import { useAuth } from '@/contexts/AuthContext';
+import ChatWindow from "@/components/chat/ChatWindow";
+import { getConversationByBooking, createConversation } from "@/services/chatService";
 
 const BookingManagement: React.FC = () => {
   const { toast } = useToast();
@@ -125,6 +126,11 @@ ${booking.id},${booking.guest_count || 0},${booking.budget},${booking.location},
   const pendingBookings = bookings.filter(b => b.status === 'pending');
   const confirmedBookings = bookings.filter(b => b.status === 'confirmed');
   const allBookings = bookings;
+
+  const [activeChat, setActiveChat] = useState<{
+    conversationId: string;
+    bookingId: string;
+  } | null>(null);
 
   if (isLoading) {
     return (
@@ -258,6 +264,15 @@ ${booking.id},${booking.guest_count || 0},${booking.budget},${booking.location},
                       <Download className="h-4 w-4 mr-1" />
                       Download Details
                     </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="border-blue-600 text-blue-600"
+                      onClick={() => openChatForBooking(booking)}
+                    >
+                      <MessageSquare className="h-4 w-4 mr-1" />
+                      Chat
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
@@ -386,6 +401,14 @@ ${booking.id},${booking.guest_count || 0},${booking.budget},${booking.location},
           )}
         </TabsContent>
       </Tabs>
+      {activeChat && user && (
+        <ChatWindow
+          conversationId={activeChat.conversationId}
+          currentUserId={user.id}
+          userRole="owner"
+          onClose={() => setActiveChat(null)}
+        />
+      )}
     </div>
   );
 };

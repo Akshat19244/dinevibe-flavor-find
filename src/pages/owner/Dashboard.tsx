@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
@@ -16,10 +15,15 @@ import NotificationPanel from '@/components/owner/NotificationPanel';
 import VenueManagementTab from '@/components/owner/VenueManagementTab';
 import MediaManagementTab from '@/components/owner/MediaManagementTab';
 import SettingsManagementTab from '@/components/owner/SettingsManagementTab';
+import { useAuth } from "@/contexts/AuthContext";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 const OwnerDashboard: React.FC = () => {
   const [hasVenue, setHasVenue] = useState(true); // In real app, check from database
   const [activeTab, setActiveTab] = useState('overview');
+  const { user } = useAuth();
+  const [unreadChatCount, setUnreadChatCount] = useState(0);
 
   // Sample data - would come from Firebase/Supabase in real implementation
   const stats = {
@@ -32,6 +36,16 @@ const OwnerDashboard: React.FC = () => {
     cancelledBookings: 2,
     upcomingEvents: 8
   };
+
+  useEffect(() => {
+    if (!user) return;
+    async function fetchUnread() {
+      // Use our function to get unread count
+      const { data } = await supabase.rpc("get_unread_message_count", { user_uuid: user.id });
+      if (typeof data === "number") setUnreadChatCount(data);
+    }
+    fetchUnread();
+  }, [user]);
 
   if (!hasVenue) {
     return (
@@ -124,6 +138,11 @@ const OwnerDashboard: React.FC = () => {
 
             {/* Bookings Tab */}
             <TabsContent value="bookings">
+              {unreadChatCount > 0 && (
+                <div className="mb-4 text-blue-700 font-semibold">
+                  You have {unreadChatCount} unread chat message{unreadChatCount > 1 ? "s" : ""} from customers.
+                </div>
+              )}
               <BookingManagement />
             </TabsContent>
 
