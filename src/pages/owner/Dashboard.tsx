@@ -16,7 +16,6 @@ import VenueManagementTab from '@/components/owner/VenueManagementTab';
 import MediaManagementTab from '@/components/owner/MediaManagementTab';
 import SettingsManagementTab from '@/components/owner/SettingsManagementTab';
 import { useAuth } from "@/contexts/AuthContext";
-import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 const OwnerDashboard: React.FC = () => {

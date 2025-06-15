@@ -132,6 +132,25 @@ ${booking.id},${booking.guest_count || 0},${booking.budget},${booking.location},
     bookingId: string;
   } | null>(null);
 
+  const openChatForBooking = async (booking: any) => {
+    if (!user) return;
+    // Try to find existing conversation for this booking
+    let conversation = await getConversationByBooking(booking.id);
+    if (!conversation) {
+      // Create new conversation between customer and owner
+      conversation = await createConversation(
+        booking.id,
+        booking.user_id, // customer_id
+        user.id,         // owner_id (this owner)
+        booking.location // using location as venue_name fallback
+      );
+    }
+    setActiveChat({
+      conversationId: conversation.id,
+      bookingId: booking.id,
+    });
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
