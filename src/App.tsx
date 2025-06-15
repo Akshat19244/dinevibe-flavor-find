@@ -1,10 +1,10 @@
-
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { Toaster } from '@/components/ui/sonner';
 import AIAssistant from '@/components/ai/AIAssistant';
+import AdvancedAIAssistant from '@/components/ai/AdvancedAIAssistant';
 
 // Pages
 import Home from '@/pages/Home';
@@ -96,8 +96,8 @@ function App() {
               <Route path="*" element={<NotFound />} />
             </Routes>
             <Toaster />
-            {/* AI Assistant floating on all pages */}
-            <AIAssistant />
+            {/* Advanced AI Assistant floating on all pages */}
+            <AdvancedAIAssistant />
           </div>
         </Router>
       </AuthProvider>
