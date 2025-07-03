@@ -7,8 +7,9 @@ import AIAssistant from '@/components/ai/AIAssistant';
 import AdvancedAIAssistant from '@/components/ai/AdvancedAIAssistant';
 
 // Pages
-import Home from '@/pages/Home';
+import ModernHome from '@/pages/ModernHome';
 import Discovery from '@/pages/Discovery';
+import EnhancedSearch from '@/pages/EnhancedSearch';
 import Dining from '@/pages/Dining';
 import Events from '@/pages/Events';
 import AIAssistantPage from '@/pages/AIAssistant';
@@ -55,7 +56,8 @@ function App() {
           <div className="App">
             <Routes>
               {/* Public Routes */}
-              <Route path="/" element={<Home />} />
+              <Route path="/" element={<ModernHome />} />
+              <Route path="/search" element={<EnhancedSearch />} />
               <Route path="/discovery" element={<Discovery />} />
               <Route path="/dining" element={<Dining />} />
               <Route path="/ai-dining" element={<AIDiningExperience />} />

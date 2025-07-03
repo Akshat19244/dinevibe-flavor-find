@@ -363,6 +363,113 @@ export type Database = {
         }
         Relationships: []
       }
+      query_requests: {
+        Row: {
+          budget_max: number | null
+          budget_min: number | null
+          created_at: string
+          customer_id: string
+          event_date: string
+          event_time: string | null
+          event_type: string
+          guest_count: number
+          id: string
+          location: string
+          query_token: string
+          response_deadline: string | null
+          special_requirements: string | null
+          status: string
+          updated_at: string
+          vendor_response: string | null
+          vendor_response_at: string | null
+          venue_id: string | null
+        }
+        Insert: {
+          budget_max?: number | null
+          budget_min?: number | null
+          created_at?: string
+          customer_id: string
+          event_date: string
+          event_time?: string | null
+          event_type: string
+          guest_count: number
+          id?: string
+          location: string
+          query_token: string
+          response_deadline?: string | null
+          special_requirements?: string | null
+          status?: string
+          updated_at?: string
+          vendor_response?: string | null
+          vendor_response_at?: string | null
+          venue_id?: string | null
+        }
+        Update: {
+          budget_max?: number | null
+          budget_min?: number | null
+          created_at?: string
+          customer_id?: string
+          event_date?: string
+          event_time?: string | null
+          event_type?: string
+          guest_count?: number
+          id?: string
+          location?: string
+          query_token?: string
+          response_deadline?: string | null
+          special_requirements?: string | null
+          status?: string
+          updated_at?: string
+          vendor_response?: string | null
+          vendor_response_at?: string | null
+          venue_id?: string | null
+        }
+        Relationships: []
+      }
+      query_responses: {
+        Row: {
+          availability_confirmed: boolean | null
+          created_at: string
+          id: string
+          message: string | null
+          query_id: string
+          quoted_price: number | null
+          response_type: string
+          terms_conditions: string | null
+          vendor_id: string
+        }
+        Insert: {
+          availability_confirmed?: boolean | null
+          created_at?: string
+          id?: string
+          message?: string | null
+          query_id: string
+          quoted_price?: number | null
+          response_type: string
+          terms_conditions?: string | null
+          vendor_id: string
+        }
+        Update: {
+          availability_confirmed?: boolean | null
+          created_at?: string
+          id?: string
+          message?: string | null
+          query_id?: string
+          quoted_price?: number | null
+          response_type?: string
+          terms_conditions?: string | null
+          vendor_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "query_responses_query_id_fkey"
+            columns: ["query_id"]
+            isOneToOne: false
+            referencedRelation: "query_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       reservations: {
         Row: {
           booking_date: string
@@ -650,6 +757,10 @@ export type Database = {
     }
     Functions: {
       generate_booking_token: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      generate_query_token: {
         Args: Record<PropertyKey, never>
         Returns: string
       }
